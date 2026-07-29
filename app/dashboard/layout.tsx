@@ -12,7 +12,8 @@ const navItems = [
   { href: '/dashboard/social',        icon: '📲', label: 'Social Media'     },
   { href: '/dashboard/social-media', icon: '🤖', label: 'Social Media IA' },
   { href: '/dashboard/fidelisation',icon:'♥',  label: 'Fidélisation'  },
-  { href: '/dashboard/admin',         icon:'⚙️', label: 'Admin Panel'   },
+  { href: '/dashboard/admin',  icon:'⚙️', label: 'Admin Panel'  },
+  { href: '/dashboard/import', icon:'📥', label: 'Import CSV'   },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

@@ -9,7 +9,8 @@ const navItems = [
   { href: '/dashboard/stocks',     icon: '📦', label: 'Stocks'        },
   { href: '/dashboard/orders',     icon: '🛒', label: 'Commandes'     },
   { href: '/dashboard/reputation', icon: '⭐', label: 'Réputation'    },
-  { href: '/dashboard/social',     icon: '📲', label: 'Social Media'  },
+  { href: '/dashboard/social',        icon: '📲', label: 'Social Media'     },
+  { href: '/dashboard/social-media', icon: '🤖', label: 'Social Media IA' },
   { href: '/dashboard/fidelisation',icon:'♥',  label: 'Fidélisation'  },
   { href: '/dashboard/admin',         icon:'⚙️', label: 'Admin Panel'   },
 ]

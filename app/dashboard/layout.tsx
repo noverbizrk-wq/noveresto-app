@@ -11,6 +11,7 @@ const navItems = [
   { href: '/dashboard/reputation', icon: '⭐', label: 'Réputation'    },
   { href: '/dashboard/social',     icon: '📲', label: 'Social Media'  },
   { href: '/dashboard/fidelisation',icon:'♥',  label: 'Fidélisation'  },
+  { href: '/dashboard/admin',         icon:'⚙️', label: 'Admin Panel'   },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

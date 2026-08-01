@@ -44,7 +44,7 @@ export default function AdminPage() {
   useEffect(() => {
     const user = getUser()
     if (!user || user.role !== 'admin') {
-      router.push('/app/dashboard')
+      router.push('/dashboard')
       return
     }
     loadAll()

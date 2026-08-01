@@ -16,6 +16,17 @@ const navItems = [
   { href: '/dashboard/import', icon:'📥', label: 'Import CSV'   },
 ]
 
+// Module "Gestion du restaurant" (Lot 1 MVP) — section séparée, affichée
+// indépendamment du split Principal/Croissance existant (basé sur des index
+// fixes qui casseraient si on insérait des éléments au milieu du tableau
+// ci-dessus).
+const restaurantNavItems = [
+  { href: '/dashboard/restaurant/overview', icon: '🏪', label: 'Pilotage restaurant' },
+  { href: '/dashboard/restaurant/orders',   icon: '🧾', label: 'Commandes (v2)'      },
+  { href: '/dashboard/restaurant/kds',      icon: '🔥', label: 'Écran cuisine'       },
+  { href: '/dashboard/restaurant/menus',    icon: '🍔', label: 'Menus et produits'   },
+]
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router   = useRouter()
   const pathname = usePathname()
@@ -24,14 +35,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     const cookie = document.cookie.split(';').find(c => c.trim().startsWith('nr_user='))
-    if (!cookie) { router.push('/app/login'); return }
-    try { setUser(JSON.parse(decodeURIComponent(cookie.split('=')[1]))) } catch(e) { router.push('/app/login') }
+    if (!cookie) { router.push('/login'); return }
+    try { setUser(JSON.parse(decodeURIComponent(cookie.split('=')[1]))) } catch(e) { router.push('/login') }
   }, [])
 
   function logout() {
     document.cookie = 'nr_token=; path=/; max-age=0'
     document.cookie = 'nr_user=; path=/; max-age=0'
-    router.push('/app/login')
+    router.push('/login')
   }
 
   const initials = user?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0,2) || 'NR'
@@ -66,6 +77,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           })}
           <div style={{ fontSize:9, color:'#6A8FAB', padding:'12px 16px 8px', textTransform:'uppercase', letterSpacing:1 }}>Croissance</div>
           {navItems.slice(5).map(item => {
+            const active = pathname === item.href
+            return (
+              <Link key={item.href} href={item.href} style={{
+                display:'flex', alignItems:'center', gap:10, padding:'9px 16px',
+                fontSize:13, color: active ? '#fff' : '#6A8FAB',
+                background: active ? '#0F2D40' : 'transparent',
+                borderLeft: `3px solid ${active ? '#00C48C' : 'transparent'}`,
+                textDecoration:'none', fontWeight: active ? 600 : 400,
+                transition:'all .15s'
+              }}>
+                <span>{item.icon}</span>{item.label}
+              </Link>
+            )
+          })}
+
+          <div style={{ fontSize:9, color:'#6A8FAB', padding:'12px 16px 8px', textTransform:'uppercase', letterSpacing:1 }}>Gestion du restaurant</div>
+          {restaurantNavItems.map(item => {
             const active = pathname === item.href
             return (
               <Link key={item.href} href={item.href} style={{

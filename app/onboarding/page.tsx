@@ -174,7 +174,7 @@ export default function OnboardingPage() {
       document.cookie = `nr_user=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=604800`
 
       setSuccess(true)
-      setTimeout(() => router.push('/app/dashboard'), 2500)
+      setTimeout(() => router.push('/dashboard'), 2500)
     } catch(e: any) {
       setError(e.message)
     }

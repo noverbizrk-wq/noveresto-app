@@ -20,4 +20,28 @@ export const api = {
   forecasts: (token: string) => apiCall('/api/v1/forecasts', {}, token),
   orders:    (token: string) => apiCall('/api/v1/orders', {}, token),
   reputation:(token: string) => apiCall('/api/v1/reputation', {}, token),
+
+  // ── Module "Gestion du restaurant" (Lot 1) ────────────────────────────────
+  restaurantContext: (token: string) =>
+    apiCall('/api/v1/restaurant/context', {}, token),
+  restaurantChannels: (token: string) =>
+    apiCall('/api/v1/restaurant/channels', {}, token),
+  restaurantOrders: (token: string, restaurantId: number, status?: string) =>
+    apiCall(`/api/v1/restaurant/orders?restaurant_id=${restaurantId}${status ? `&status=${status}` : ''}`, {}, token),
+  restaurantOrderStatus: (token: string, orderId: number, restaurantId: number, status: string) =>
+    apiCall(`/api/v1/restaurant/orders/${orderId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ restaurant_id: restaurantId, status })
+    }, token),
+  restaurantKdsQueue: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/kds/queue?restaurant_id=${restaurantId}`, {}, token),
+  restaurantDashboardSummary: (token: string, restaurantId: number, from: string, to: string) =>
+    apiCall(`/api/v1/restaurant/dashboard/summary?restaurant_id=${restaurantId}&from=${from}&to=${to}`, {}, token),
+  restaurantMenuItems: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/menu-items?restaurant_id=${restaurantId}`, {}, token),
+  restaurantMenuItemAvailability: (token: string, itemId: number, restaurantId: number, isAvailable: boolean) =>
+    apiCall(`/api/v1/restaurant/menu-items/${itemId}/availability`, {
+      method: 'PATCH',
+      body: JSON.stringify({ restaurant_id: restaurantId, is_available: isAvailable })
+    }, token),
 }

@@ -44,4 +44,70 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify({ restaurant_id: restaurantId, is_available: isAvailable })
     }, token),
+
+  // ── Lot 2 : ingrédients, recettes, coûts ──────────────────────────────────
+  restaurantIngredients: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/ingredients?restaurant_id=${restaurantId}`, {}, token),
+  restaurantIngredientCreate: (token: string, restaurantId: number, data: object) =>
+    apiCall('/api/v1/restaurant/ingredients', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
+  restaurantIngredientUpdate: (token: string, ingredientId: number, restaurantId: number, data: object) =>
+    apiCall(`/api/v1/restaurant/ingredients/${ingredientId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
+  restaurantLowStockAlerts: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/ingredients/alerts/low-stock?restaurant_id=${restaurantId}`, {}, token),
+
+  restaurantRecipeIngredients: (token: string, restaurantId: number, menuItemId: number) =>
+    apiCall(`/api/v1/restaurant/recipe-ingredients?restaurant_id=${restaurantId}&menu_item_id=${menuItemId}`, {}, token),
+  restaurantRecipeIngredientAdd: (token: string, restaurantId: number, menuItemId: number, ingredientId: number, quantity: number) =>
+    apiCall('/api/v1/restaurant/recipe-ingredients', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, menu_item_id: menuItemId, ingredient_id: ingredientId, quantity })
+    }, token),
+  restaurantRecipeIngredientDelete: (token: string, recipeIngredientId: number, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/recipe-ingredients/${recipeIngredientId}?restaurant_id=${restaurantId}`, {
+      method: 'DELETE'
+    }, token),
+
+  restaurantMenuItemCost: (token: string, restaurantId: number, menuItemId: number) =>
+    apiCall(`/api/v1/restaurant/menu-items/${menuItemId}/cost?restaurant_id=${restaurantId}`, {}, token),
+  restaurantCostsSummary: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/costs/summary?restaurant_id=${restaurantId}`, {}, token),
+
+  // ── Lot 2 : stocks ─────────────────────────────────────────────────────────
+  restaurantStockMovements: (token: string, restaurantId: number, ingredientId?: number) =>
+    apiCall(`/api/v1/restaurant/stock-movements?restaurant_id=${restaurantId}${ingredientId ? `&ingredient_id=${ingredientId}` : ''}`, {}, token),
+  restaurantStockAdjust: (token: string, restaurantId: number, ingredientId: number, quantityDelta: number, note?: string) =>
+    apiCall('/api/v1/restaurant/stock-movements/adjust', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, ingredient_id: ingredientId, quantity_delta: quantityDelta, note })
+    }, token),
+
+  // ── Lot 2 : achats et fournisseurs ─────────────────────────────────────────
+  restaurantPurchaseOrders: (token: string, restaurantId: number, status?: string) =>
+    apiCall(`/api/v1/restaurant/purchase-orders?restaurant_id=${restaurantId}${status ? `&status=${status}` : ''}`, {}, token),
+  restaurantPurchaseOrderDetail: (token: string, id: number, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/purchase-orders/${id}?restaurant_id=${restaurantId}`, {}, token),
+  restaurantPurchaseOrderCreate: (token: string, restaurantId: number, supplierId: number | null, items: object[]) =>
+    apiCall('/api/v1/restaurant/purchase-orders', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, supplier_id: supplierId, items })
+    }, token),
+  restaurantPurchaseOrderReceive: (token: string, id: number, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/purchase-orders/${id}/receive`, {
+      method: 'PATCH',
+      body: JSON.stringify({ restaurant_id: restaurantId })
+    }, token),
+
+  restaurantSuppliers: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/suppliers?restaurant_id=${restaurantId}`, {}, token),
+  restaurantSupplierCreate: (token: string, restaurantId: number, data: object) =>
+    apiCall('/api/v1/restaurant/suppliers', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
 }

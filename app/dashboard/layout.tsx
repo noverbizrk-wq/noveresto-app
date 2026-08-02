@@ -25,6 +25,9 @@ const restaurantNavItems = [
   { href: '/dashboard/restaurant/orders',   icon: '🧾', label: 'Commandes (v2)'      },
   { href: '/dashboard/restaurant/kds',      icon: '🔥', label: 'Écran cuisine'       },
   { href: '/dashboard/restaurant/menus',    icon: '🍔', label: 'Menus et produits'   },
+  { href: '/dashboard/restaurant/recipes',   icon: '📋', label: 'Recettes et marges'     },
+  { href: '/dashboard/restaurant/stocks',    icon: '📦', label: 'Stocks (v2)'            },
+  { href: '/dashboard/restaurant/purchases', icon: '🚚', label: 'Achats et fournisseurs' },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

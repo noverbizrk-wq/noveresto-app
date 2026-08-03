@@ -110,4 +110,58 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ restaurant_id: restaurantId, ...data })
     }, token),
+
+  // ── Lot 3 : personnel et planning ──────────────────────────────────────────
+  restaurantEmployees: (token: string, restaurantId: number, active?: boolean) =>
+    apiCall(`/api/v1/restaurant/employees?restaurant_id=${restaurantId}${active !== undefined ? `&active=${active}` : ''}`, {}, token),
+  restaurantEmployeeCreate: (token: string, restaurantId: number, data: object) =>
+    apiCall('/api/v1/restaurant/employees', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
+  restaurantEmployeeUpdate: (token: string, employeeId: number, restaurantId: number, data: object) =>
+    apiCall(`/api/v1/restaurant/employees/${employeeId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
+
+  restaurantShifts: (token: string, restaurantId: number, from?: string, to?: string) =>
+    apiCall(`/api/v1/restaurant/shifts?restaurant_id=${restaurantId}${from ? `&from=${from}` : ''}${to ? `&to=${to}` : ''}`, {}, token),
+  restaurantShiftCreate: (token: string, restaurantId: number, data: object) =>
+    apiCall('/api/v1/restaurant/shifts', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
+  restaurantShiftUpdate: (token: string, shiftId: number, restaurantId: number, data: object) =>
+    apiCall(`/api/v1/restaurant/shifts/${shiftId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
+  restaurantShiftDelete: (token: string, shiftId: number, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/shifts/${shiftId}?restaurant_id=${restaurantId}`, {
+      method: 'DELETE'
+    }, token),
+
+  // ── Lot 3 : litiges ─────────────────────────────────────────────────────────
+  restaurantDisputes: (token: string, restaurantId: number, status?: string) =>
+    apiCall(`/api/v1/restaurant/disputes?restaurant_id=${restaurantId}${status ? `&status=${status}` : ''}`, {}, token),
+  restaurantDisputeDetail: (token: string, id: number, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/disputes/${id}?restaurant_id=${restaurantId}`, {}, token),
+  restaurantDisputesSummary: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/disputes/summary?restaurant_id=${restaurantId}`, {}, token),
+  restaurantDisputeCreate: (token: string, restaurantId: number, data: object) =>
+    apiCall('/api/v1/restaurant/disputes', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
+  restaurantDisputeStatus: (token: string, id: number, restaurantId: number, status: string, amountRefunded?: number) =>
+    apiCall(`/api/v1/restaurant/disputes/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ restaurant_id: restaurantId, status, amount_refunded: amountRefunded })
+    }, token),
+  restaurantDisputeEvidence: (token: string, id: number, restaurantId: number, photoUrl: string, note?: string) =>
+    apiCall(`/api/v1/restaurant/disputes/${id}/evidence`, {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, photo_url: photoUrl, note })
+    }, token),
 }

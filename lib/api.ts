@@ -172,4 +172,15 @@ export const api = {
     apiCall(`/api/v1/restaurant/finance/channel-breakdown?restaurant_id=${restaurantId}&from=${from}&to=${to}`, {}, token),
   restaurantExportCsvUrl: (restaurantId: number, from: string, to: string) =>
     `/api/v1/restaurant/finance/export.csv?restaurant_id=${restaurantId}&from=${from}&to=${to}`,
+
+  // ── Lot 5 : copilote IA ──────────────────────────────────────────────────────
+  restaurantCopilotContext: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/copilot/context?restaurant_id=${restaurantId}`, {}, token),
+  restaurantCopilotRecommendations: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/copilot/recommendations?restaurant_id=${restaurantId}`, {}, token),
+  restaurantCopilotAsk: (token: string, restaurantId: number, question: string) =>
+    apiCall('/api/v1/restaurant/copilot/ask', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, question })
+    }, token),
 }

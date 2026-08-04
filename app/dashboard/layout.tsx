@@ -31,6 +31,7 @@ const restaurantNavItems = [
   { href: '/dashboard/restaurant/staff',     icon: '👥', label: 'Équipe et planning'      },
   { href: '/dashboard/restaurant/disputes',  icon: '⚖️', label: 'Litiges'                 },
   { href: '/dashboard/restaurant/finance',   icon: '💰', label: 'Finance et TVA'           },
+  { href: '/dashboard/restaurant/copilot',   icon: '🧠', label: 'Copilote IA'              },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

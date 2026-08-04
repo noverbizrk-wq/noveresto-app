@@ -30,6 +30,7 @@ const restaurantNavItems = [
   { href: '/dashboard/restaurant/purchases', icon: '🚚', label: 'Achats et fournisseurs' },
   { href: '/dashboard/restaurant/staff',     icon: '👥', label: 'Équipe et planning'      },
   { href: '/dashboard/restaurant/disputes',  icon: '⚖️', label: 'Litiges'                 },
+  { href: '/dashboard/restaurant/finance',   icon: '💰', label: 'Finance et TVA'           },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

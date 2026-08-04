@@ -164,4 +164,12 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ restaurant_id: restaurantId, photo_url: photoUrl, note })
     }, token),
+
+  // ── Lot 4 : finance et TVA ──────────────────────────────────────────────────
+  restaurantVatBreakdown: (token: string, restaurantId: number, from: string, to: string) =>
+    apiCall(`/api/v1/restaurant/finance/vat-breakdown?restaurant_id=${restaurantId}&from=${from}&to=${to}`, {}, token),
+  restaurantChannelBreakdown: (token: string, restaurantId: number, from: string, to: string) =>
+    apiCall(`/api/v1/restaurant/finance/channel-breakdown?restaurant_id=${restaurantId}&from=${from}&to=${to}`, {}, token),
+  restaurantExportCsvUrl: (restaurantId: number, from: string, to: string) =>
+    `/api/v1/restaurant/finance/export.csv?restaurant_id=${restaurantId}&from=${from}&to=${to}`,
 }

@@ -32,9 +32,9 @@ interface Ingredient {
 }
 
 function foodCostColor(pct: number) {
-  if (pct <= 30) return '#00C48C';
-  if (pct <= 40) return '#F5A623';
-  return '#E84545';
+  if (pct <= 30) return 'var(--accent)';
+  if (pct <= 40) return 'var(--warning)';
+  return 'var(--danger)';
 }
 
 export default function RecipesPage() {
@@ -79,50 +79,50 @@ export default function RecipesPage() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: '#fff' }}>
-          🧾 Recettes <span style={{ color: '#00C48C' }}>et rentabilité</span>
+        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: 'var(--text-primary)' }}>
+          🧾 Recettes <span style={{ color: 'var(--accent)' }}>et rentabilité</span>
         </h1>
         <RestaurantSelector restaurants={restaurants} selectedId={restaurant?.id ?? null} onChange={selectRestaurant} />
       </div>
 
-      {loading && <p style={{ color: '#6A8FAB' }}>Chargement...</p>}
+      {loading && <p style={{ color: 'var(--text-muted)' }}>Chargement...</p>}
       {!loading && costs.length === 0 && (
-        <p style={{ color: '#6A8FAB' }}>Aucun article de menu. Créez-en d'abord depuis "Menus et produits".</p>
+        <p style={{ color: 'var(--text-muted)' }}>Aucun article de menu. Créez-en d'abord depuis "Menus et produits".</p>
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {costs.map((c) => (
-          <div key={c.menu_item_id} style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, overflow: 'hidden' }}>
+          <div key={c.menu_item_id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, overflow: 'hidden' }}>
             <div
               onClick={() => setExpandedId(expandedId === c.menu_item_id ? null : c.menu_item_id)}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, cursor: 'pointer' }}
             >
               <div>
-                <div style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>{c.menu_item_name}</div>
-                <div style={{ color: '#8BAABF', fontSize: 12 }}>Prix de vente : {c.price.toFixed(3)} TND</div>
+                <div style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: 15 }}>{c.menu_item_name}</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>Prix de vente : {c.price.toFixed(3)} TND</div>
               </div>
               <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 11, color: '#6A8FAB', textTransform: 'uppercase' }}>Coût matière</div>
-                  <div style={{ color: '#fff', fontWeight: 700 }}>{c.recipe_cost.toFixed(3)} TND</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Coût matière</div>
+                  <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{c.recipe_cost.toFixed(3)} TND</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 11, color: '#6A8FAB', textTransform: 'uppercase' }}>Food cost</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Food cost</div>
                   <div style={{ color: foodCostColor(c.food_cost_pct), fontWeight: 700 }}>{c.food_cost_pct.toFixed(1)}%</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 11, color: '#6A8FAB', textTransform: 'uppercase' }}>Marge</div>
-                  <div style={{ color: '#00C48C', fontWeight: 700 }}>{c.margin_unit.toFixed(3)} TND ({c.margin_pct.toFixed(1)}%)</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Marge</div>
+                  <div style={{ color: 'var(--accent)', fontWeight: 700 }}>{c.margin_unit.toFixed(3)} TND ({c.margin_pct.toFixed(1)}%)</div>
                 </div>
-                <span style={{ color: '#6A8FAB' }}>{expandedId === c.menu_item_id ? '▲' : '▼'}</span>
+                <span style={{ color: 'var(--text-muted)' }}>{expandedId === c.menu_item_id ? '▲' : '▼'}</span>
               </div>
             </div>
 
             {expandedId === c.menu_item_id && (
-              <div style={{ padding: '0 16px 16px', borderTop: '1px solid #1A3A52' }}>
+              <div style={{ padding: '0 16px 16px', borderTop: '1px solid var(--border-color)' }}>
                 <table style={{ width: '100%', fontSize: 13, marginTop: 12, borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ color: '#6A8FAB', textAlign: 'left' }}>
+                    <tr style={{ color: 'var(--text-muted)', textAlign: 'left' }}>
                       <th style={{ padding: '6px 0' }}>Ingrédient</th>
                       <th style={{ padding: '6px 0' }}>Quantité</th>
                       <th style={{ padding: '6px 0' }}>Coût unitaire</th>
@@ -132,15 +132,15 @@ export default function RecipesPage() {
                   </thead>
                   <tbody>
                     {c.ingredients.map((ing) => (
-                      <tr key={ing.recipe_ingredient_id} style={{ borderTop: '1px solid #1A3A52' }}>
-                        <td style={{ padding: '8px 0', color: '#fff' }}>{ing.name}</td>
-                        <td style={{ padding: '8px 0', color: '#8BAABF' }}>{ing.quantity} {ing.unit}</td>
-                        <td style={{ padding: '8px 0', color: '#8BAABF' }}>{ing.unit_cost.toFixed(3)} TND</td>
-                        <td style={{ padding: '8px 0', color: '#fff' }}>{ing.line_cost.toFixed(3)} TND</td>
+                      <tr key={ing.recipe_ingredient_id} style={{ borderTop: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '8px 0', color: 'var(--text-primary)' }}>{ing.name}</td>
+                        <td style={{ padding: '8px 0', color: 'var(--text-secondary)' }}>{ing.quantity} {ing.unit}</td>
+                        <td style={{ padding: '8px 0', color: 'var(--text-secondary)' }}>{ing.unit_cost.toFixed(3)} TND</td>
+                        <td style={{ padding: '8px 0', color: 'var(--text-primary)' }}>{ing.line_cost.toFixed(3)} TND</td>
                         <td style={{ padding: '8px 0', textAlign: 'right' }}>
                           <button
                             onClick={() => removeIngredient(ing.recipe_ingredient_id)}
-                            style={{ background: 'transparent', border: 'none', color: '#E84545', cursor: 'pointer', fontSize: 12 }}
+                            style={{ background: 'transparent', border: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: 12 }}
                           >
                             Retirer
                           </button>
@@ -154,7 +154,7 @@ export default function RecipesPage() {
                   <select
                     value={addForm.ingredient_id}
                     onChange={(e) => setAddForm({ ...addForm, ingredient_id: e.target.value })}
-                    style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13 }}
+                    style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13 }}
                   >
                     <option value="">Ingrédient...</option>
                     {ingredients.map((i) => (
@@ -167,11 +167,11 @@ export default function RecipesPage() {
                     placeholder="Quantité"
                     value={addForm.quantity}
                     onChange={(e) => setAddForm({ ...addForm, quantity: e.target.value })}
-                    style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13, width: 100 }}
+                    style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13, width: 100 }}
                   />
                   <button
                     onClick={() => addIngredientToRecipe(c.menu_item_id)}
-                    style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: '#00C48C', color: '#081522', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+                    style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: 'var(--accent)', color: 'var(--navy)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
                   >
                     + Ajouter
                   </button>

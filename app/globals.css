@@ -13,6 +13,37 @@
   --red:    #E84545;
   --muted:  #6A8FAB;
   --gray:   #8BAABF;
+
+  /* Tokens sémantiques — module "Gestion du restaurant" (Lot 6, thème clair/sombre) */
+  --bg-page:        #050d15;
+  --bg-card:        #0F2D40;
+  --bg-card-alt:    #081522;
+  --border-color:   #1A3A52;
+  --text-primary:   #ffffff;
+  --text-secondary: #8BAABF;
+  --text-muted:     #6A8FAB;
+  --accent:         #00C48C;
+  --danger:         #E84545;
+  --warning:        #F5A623;
+  --success:        #27AE60;
+  --info:           #3B82F6;
+  --purple:         #8B5CF6;
+}
+
+[data-theme="light"] {
+  --bg-page:        #F1F5F9;
+  --bg-card:        #ffffff;
+  --bg-card-alt:    #F8FAFC;
+  --border-color:   #E2E8F0;
+  --text-primary:   #0D2137;
+  --text-secondary: #475569;
+  --text-muted:     #64748B;
+  --accent:         #00A876;
+  --danger:         #DC2626;
+  --warning:        #D97706;
+  --success:        #16A34A;
+  --info:           #2563EB;
+  --purple:         #7C3AED;
 }
 
 * { box-sizing: border-box; }

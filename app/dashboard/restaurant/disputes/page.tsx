@@ -28,9 +28,9 @@ const STATUS_LABELS: Record<string, string> = {
   refused: 'Refusée', refunded: 'Remboursée', closed: 'Clôturée'
 };
 const STATUS_COLORS: Record<string, string> = {
-  to_analyze: '#6A8FAB', evidence_needed: '#F5A623', contest_prepared: '#F5A623', sent: '#3B82F6',
-  pending: '#F5A623', accepted: '#00C48C', partially_accepted: '#00C48C', refused: '#E84545',
-  refunded: '#00C48C', closed: '#6A8FAB'
+  to_analyze: 'var(--text-muted)', evidence_needed: 'var(--warning)', contest_prepared: 'var(--warning)', sent: 'var(--info)',
+  pending: 'var(--warning)', accepted: 'var(--accent)', partially_accepted: 'var(--accent)', refused: 'var(--danger)',
+  refunded: 'var(--accent)', closed: 'var(--text-muted)'
 };
 const NEXT_ACTIONS: Record<string, string[]> = {
   to_analyze: ['evidence_needed', 'contest_prepared', 'closed'],
@@ -90,14 +90,14 @@ export default function DisputesPage() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: '#fff' }}>
-          ⚖️ Litiges <span style={{ color: '#00C48C' }}>et remboursements</span>
+        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: 'var(--text-primary)' }}>
+          ⚖️ Litiges <span style={{ color: 'var(--accent)' }}>et remboursements</span>
         </h1>
         <div style={{ display: 'flex', gap: 8 }}>
           <RestaurantSelector restaurants={restaurants} selectedId={restaurant?.id ?? null} onChange={selectRestaurant} />
           <button
             onClick={() => setShowForm(!showForm)}
-            style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #00C48C', background: 'transparent', color: '#00C48C', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
           >
             + Nouveau litige
           </button>
@@ -114,30 +114,30 @@ export default function DisputesPage() {
       )}
 
       {showForm && (
-        <div style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, padding: 16, marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <input placeholder="Motif du litige" value={newDispute.reason} onChange={(e) => setNewDispute({ ...newDispute, reason: e.target.value })}
-            style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13, flex: 1, minWidth: 200 }} />
+            style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13, flex: 1, minWidth: 200 }} />
           <input placeholder="Plateforme" value={newDispute.platform} onChange={(e) => setNewDispute({ ...newDispute, platform: e.target.value })}
-            style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13, width: 140 }} />
+            style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13, width: 140 }} />
           <input type="number" step="0.001" placeholder="Montant demandé" value={newDispute.amount_requested}
             onChange={(e) => setNewDispute({ ...newDispute, amount_requested: e.target.value })}
-            style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13, width: 140 }} />
-          <button onClick={createDispute} style={{ padding: '6px 16px', borderRadius: 8, border: 'none', background: '#00C48C', color: '#081522', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+            style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13, width: 140 }} />
+          <button onClick={createDispute} style={{ padding: '6px 16px', borderRadius: 8, border: 'none', background: 'var(--accent)', color: 'var(--navy)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
             Créer
           </button>
         </div>
       )}
 
-      {loading && <p style={{ color: '#6A8FAB' }}>Chargement...</p>}
-      {!loading && disputes.length === 0 && <p style={{ color: '#6A8FAB' }}>Aucun litige.</p>}
+      {loading && <p style={{ color: 'var(--text-muted)' }}>Chargement...</p>}
+      {!loading && disputes.length === 0 && <p style={{ color: 'var(--text-muted)' }}>Aucun litige.</p>}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {disputes.map((d) => (
-          <div key={d.id} style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, padding: 16 }}>
+          <div key={d.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ color: '#fff', fontWeight: 700 }}>{d.reason}</div>
-                <div style={{ color: '#8BAABF', fontSize: 12 }}>
+                <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{d.reason}</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
                   {d.platform && `${d.platform} · `}
                   Demandé : {Number(d.amount_requested).toFixed(3)} TND
                   {Number(d.amount_refunded) > 0 && ` · Remboursé : ${Number(d.amount_refunded).toFixed(3)} TND`}
@@ -155,12 +155,12 @@ export default function DisputesPage() {
                       type="number" step="0.001" placeholder="Montant"
                       value={refundInputs[d.id] || ''}
                       onChange={(e) => setRefundInputs({ ...refundInputs, [d.id]: e.target.value })}
-                      style={{ width: 80, background: '#081522', border: '1px solid #1A3A52', borderRadius: 6, padding: '4px 8px', color: '#fff', fontSize: 12 }}
+                      style={{ width: 80, background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '4px 8px', color: 'var(--text-primary)', fontSize: 12 }}
                     />
                   )}
                   <button
                     onClick={() => changeStatus(d.id, next)}
-                    style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid #00C48C', color: '#00C48C', background: 'transparent', cursor: 'pointer' }}
+                    style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--accent)', color: 'var(--accent)', background: 'transparent', cursor: 'pointer' }}
                   >
                     {STATUS_LABELS[next]}
                   </button>
@@ -176,9 +176,9 @@ export default function DisputesPage() {
 
 function KpiCard({ label, value, danger }: { label: string; value: string | number; danger?: boolean }) {
   return (
-    <div style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, padding: 16 }}>
-      <div style={{ fontSize: 10, color: '#6A8FAB', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 20, fontWeight: 800, color: danger ? '#E84545' : '#fff' }}>{value}</div>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16 }}>
+      <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 20, fontWeight: 800, color: danger ? 'var(--danger)' : 'var(--text-primary)' }}>{value}</div>
     </div>
   );
 }

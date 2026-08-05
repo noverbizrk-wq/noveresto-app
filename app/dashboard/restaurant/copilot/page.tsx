@@ -26,7 +26,7 @@ const SUGGESTED_QUESTIONS = [
   'Quelle plateforme génère le meilleur résultat net ?'
 ];
 
-const CONFIDENCE_COLORS: Record<string, string> = { haute: '#00C48C', moyenne: '#F5A623', basse: '#6A8FAB' };
+const CONFIDENCE_COLORS: Record<string, string> = { haute: 'var(--accent)', moyenne: 'var(--warning)', basse: 'var(--text-muted)' };
 
 export default function CopilotPage() {
   const { restaurant, restaurants, selectRestaurant, token } = useCurrentRestaurant();
@@ -66,19 +66,19 @@ export default function CopilotPage() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: '#fff' }}>
-          🧠 Copilote <span style={{ color: '#00C48C' }}>Restaurant</span>
+        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: 'var(--text-primary)' }}>
+          🧠 Copilote <span style={{ color: 'var(--accent)' }}>Restaurant</span>
         </h1>
         <RestaurantSelector restaurants={restaurants} selectedId={restaurant?.id ?? null} onChange={selectRestaurant} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20, alignItems: 'start' }}>
         {/* Chat */}
-        <div style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, display: 'flex', flexDirection: 'column', height: 520 }}>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, display: 'flex', flexDirection: 'column', height: 520 }}>
           <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {messages.length === 0 && (
               <div>
-                <p style={{ color: '#6A8FAB', fontSize: 13, marginBottom: 12 }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 12 }}>
                   Posez une question sur votre restaurant — le copilote répond à partir de vos données réelles.
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -86,7 +86,7 @@ export default function CopilotPage() {
                     <button
                       key={q}
                       onClick={() => ask(q)}
-                      style={{ textAlign: 'left', padding: '8px 12px', borderRadius: 8, border: '1px solid #1A3A52', background: '#081522', color: '#8BAABF', fontSize: 12, cursor: 'pointer' }}
+                      style={{ textAlign: 'left', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card-alt)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
                     >
                       {q}
                     </button>
@@ -98,28 +98,28 @@ export default function CopilotPage() {
               <div key={i} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
                 <div style={{
                   padding: '10px 14px', borderRadius: 12, fontSize: 13, lineHeight: 1.5,
-                  background: m.role === 'user' ? '#00C48C' : m.role === 'error' ? 'rgba(232,69,69,.15)' : '#081522',
-                  color: m.role === 'user' ? '#081522' : m.role === 'error' ? '#E84545' : '#fff'
+                  background: m.role === 'user' ? 'var(--accent)' : m.role === 'error' ? 'rgba(232,69,69,.15)' : 'var(--bg-card-alt)',
+                  color: m.role === 'user' ? 'var(--bg-card-alt)' : m.role === 'error' ? 'var(--danger)' : 'var(--text-primary)'
                 }}>
                   {m.text}
                 </div>
               </div>
             ))}
-            {asking && <div style={{ color: '#6A8FAB', fontSize: 12 }}>Le copilote réfléchit...</div>}
+            {asking && <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>Le copilote réfléchit...</div>}
             <div ref={chatEndRef} />
           </div>
-          <div style={{ display: 'flex', gap: 8, padding: 12, borderTop: '1px solid #1A3A52' }}>
+          <div style={{ display: 'flex', gap: 8, padding: 12, borderTop: '1px solid var(--border-color)' }}>
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') ask(input); }}
               placeholder="Posez votre question..."
-              style={{ flex: 1, background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '8px 12px', color: '#fff', fontSize: 13 }}
+              style={{ flex: 1, background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13 }}
             />
             <button
               onClick={() => ask(input)}
               disabled={asking}
-              style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#00C48C', color: '#081522', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+              style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: 'var(--accent)', color: 'var(--navy)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
             >
               Envoyer
             </button>
@@ -128,21 +128,21 @@ export default function CopilotPage() {
 
         {/* Recommandations */}
         <div>
-          <h2 style={{ color: '#fff', fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Recommandations</h2>
-          {loading && <p style={{ color: '#6A8FAB', fontSize: 13 }}>Chargement...</p>}
+          <h2 style={{ color: 'var(--text-primary)', fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Recommandations</h2>
+          {loading && <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>Chargement...</p>}
           {!loading && recommendations.length === 0 && (
-            <p style={{ color: '#6A8FAB', fontSize: 13 }}>Aucune alerte pour le moment. Tout semble sous contrôle.</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>Aucune alerte pour le moment. Tout semble sous contrôle.</p>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {recommendations.map((r, i) => (
-              <div key={i} style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, padding: 14 }}>
+              <div key={i} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <span style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>{r.constat}</span>
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: 13 }}>{r.constat}</span>
                   <span style={{ fontSize: 10, color: CONFIDENCE_COLORS[r.confiance], fontWeight: 700, textTransform: 'uppercase' }}>{r.confiance}</span>
                 </div>
-                <div style={{ color: '#8BAABF', fontSize: 12, marginBottom: 6 }}>{r.donnees}</div>
-                <div style={{ color: '#6A8FAB', fontSize: 11, fontStyle: 'italic', marginBottom: 8 }}>{r.impact}</div>
-                <div style={{ color: '#00C48C', fontSize: 12, fontWeight: 600 }}>→ {r.action}</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginBottom: 6 }}>{r.donnees}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: 11, fontStyle: 'italic', marginBottom: 8 }}>{r.impact}</div>
+                <div style={{ color: 'var(--accent)', fontSize: 12, fontWeight: 600 }}>→ {r.action}</div>
               </div>
             ))}
           </div>

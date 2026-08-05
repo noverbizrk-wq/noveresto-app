@@ -48,36 +48,36 @@ export default function KdsPage() {
   };
 
   return (
-    <div style={{ margin: -24, padding: 24, minHeight: 'calc(100vh - 56px)', background: '#050d15' }}>
+    <div style={{ margin: -24, padding: 24, minHeight: 'calc(100vh - 56px)', background: 'var(--bg-page)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <h1 style={{ color: '#fff', fontSize: 20, fontWeight: 800 }}>🔥 Écran cuisine</h1>
+        <h1 style={{ color: 'var(--text-primary)', fontSize: 20, fontWeight: 800 }}>🔥 Écran cuisine</h1>
         <RestaurantSelector restaurants={restaurants} selectedId={restaurant?.id ?? null} onChange={selectRestaurant} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
         {queue.map((order) => {
           const elapsedMin = Math.floor(order.seconds_elapsed / 60);
-          const borderColor = order.is_late ? '#E84545' : elapsedMin > 10 ? '#F5A623' : '#00C48C';
-          const bgColor = order.is_late ? 'rgba(232,69,69,.08)' : elapsedMin > 10 ? 'rgba(245,166,35,.08)' : '#0F2D40';
+          const borderColor = order.is_late ? 'var(--danger)' : elapsedMin > 10 ? 'var(--warning)' : 'var(--accent)';
+          const bgColor = order.is_late ? 'rgba(232,69,69,.08)' : elapsedMin > 10 ? 'rgba(245,166,35,.08)' : 'var(--bg-card)';
 
           return (
             <div key={order.id} style={{ borderRadius: 12, border: `2px solid ${borderColor}`, background: bgColor, padding: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span style={{ color: '#fff', fontWeight: 800, fontSize: 16 }}>#{order.id}</span>
-                <span style={{ color: '#fff', fontFamily: 'monospace', fontSize: 13 }}>
+                <span style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: 16 }}>#{order.id}</span>
+                <span style={{ color: 'var(--text-primary)', fontFamily: 'monospace', fontSize: 13 }}>
                   {String(elapsedMin).padStart(2, '0')}:{String(order.seconds_elapsed % 60).padStart(2, '0')}
                 </span>
               </div>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 12px' }}>
                 {order.items.filter((it) => !it.is_cancelled).map((it, idx) => (
-                  <li key={idx} style={{ color: '#fff', fontSize: 13, marginBottom: 4 }}>
+                  <li key={idx} style={{ color: 'var(--text-primary)', fontSize: 13, marginBottom: 4 }}>
                     <b>{it.quantity}×</b> {it.item_name ?? it.product_name}
                   </li>
                 ))}
               </ul>
               <button
                 onClick={() => advance(order.id, order.status)}
-                style={{ width: '100%', padding: '8px 0', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 700, background: '#00C48C', color: '#081522', cursor: 'pointer' }}
+                style={{ width: '100%', padding: '8px 0', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 700, background: 'var(--accent)', color: 'var(--navy)', cursor: 'pointer' }}
               >
                 {order.status === 'accepted' ? 'Démarrer préparation'
                   : order.status === 'in_preparation' ? 'Marquer prête'
@@ -88,7 +88,7 @@ export default function KdsPage() {
         })}
       </div>
 
-      {queue.length === 0 && <p style={{ color: '#6A8FAB', marginTop: 24 }}>Aucune commande en cours.</p>}
+      {queue.length === 0 && <p style={{ color: 'var(--text-muted)', marginTop: 24 }}>Aucune commande en cours.</p>}
     </div>
   );
 }

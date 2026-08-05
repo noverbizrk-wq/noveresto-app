@@ -76,32 +76,32 @@ export default function FinancePage() {
   const totalTTC = vatData.reduce((s, r) => s + Number(r.revenue_ttc), 0);
 
   const inp: React.CSSProperties = {
-    background: '#081522', border: '1px solid #1A3A52', borderRadius: 8,
-    padding: '6px 10px', fontSize: 13, color: '#fff'
+    background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8,
+    padding: '6px 10px', fontSize: 13, color: 'var(--text-primary)'
   };
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: '#fff' }}>
-          💰 Finance <span style={{ color: '#00C48C' }}>et TVA</span>
+        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: 'var(--text-primary)' }}>
+          💰 Finance <span style={{ color: 'var(--accent)' }}>et TVA</span>
         </h1>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <RestaurantSelector restaurants={restaurants} selectedId={restaurant?.id ?? null} onChange={selectRestaurant} />
           <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} style={inp} />
-          <span style={{ color: '#6A8FAB' }}>→</span>
+          <span style={{ color: 'var(--text-muted)' }}>→</span>
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)} style={inp} />
           <button
             onClick={downloadCsv}
             disabled={exporting}
-            style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #00C48C', background: 'transparent', color: '#00C48C', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
           >
             {exporting ? '...' : '⬇ Export CSV'}
           </button>
         </div>
       </div>
 
-      {loading && <p style={{ color: '#6A8FAB' }}>Chargement...</p>}
+      {loading && <p style={{ color: 'var(--text-muted)' }}>Chargement...</p>}
 
       {!loading && (
         <>
@@ -112,11 +112,11 @@ export default function FinancePage() {
           </div>
 
           <div style={{ marginBottom: 24 }}>
-            <h2 style={{ color: '#fff', fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Ventilation par taux de TVA</h2>
-            <div style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, overflow: 'hidden' }}>
+            <h2 style={{ color: 'var(--text-primary)', fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Ventilation par taux de TVA</h2>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, overflow: 'hidden' }}>
               <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ background: '#081522', color: '#6A8FAB', textAlign: 'left' }}>
+                  <tr style={{ background: 'var(--bg-card-alt)', color: 'var(--text-muted)', textAlign: 'left' }}>
                     <th style={{ padding: 12 }}>Taux</th>
                     <th style={{ padding: 12 }}>CA HT</th>
                     <th style={{ padding: 12 }}>TVA</th>
@@ -125,29 +125,29 @@ export default function FinancePage() {
                 </thead>
                 <tbody>
                   {vatData.map((r, i) => (
-                    <tr key={i} style={{ borderTop: '1px solid #1A3A52' }}>
-                      <td style={{ padding: 12, color: '#fff', fontWeight: 600 }}>{Number(r.vat_rate).toFixed(0)}%</td>
-                      <td style={{ padding: 12, color: '#8BAABF' }}>{Number(r.revenue_ht).toFixed(3)} TND</td>
-                      <td style={{ padding: 12, color: '#8BAABF' }}>{Number(r.vat_amount).toFixed(3)} TND</td>
-                      <td style={{ padding: 12, color: '#fff' }}>{Number(r.revenue_ttc).toFixed(3)} TND</td>
+                    <tr key={i} style={{ borderTop: '1px solid var(--border-color)' }}>
+                      <td style={{ padding: 12, color: 'var(--text-primary)', fontWeight: 600 }}>{Number(r.vat_rate).toFixed(0)}%</td>
+                      <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{Number(r.revenue_ht).toFixed(3)} TND</td>
+                      <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{Number(r.vat_amount).toFixed(3)} TND</td>
+                      <td style={{ padding: 12, color: 'var(--text-primary)' }}>{Number(r.revenue_ttc).toFixed(3)} TND</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              {vatData.length === 0 && <p style={{ color: '#6A8FAB', padding: 16 }}>Aucune vente sur la période.</p>}
+              {vatData.length === 0 && <p style={{ color: 'var(--text-muted)', padding: 16 }}>Aucune vente sur la période.</p>}
             </div>
-            <p style={{ color: '#6A8FAB', fontSize: 11, marginTop: 8 }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 8 }}>
               Calcul basé sur l'hypothèse prix de vente TTC (convention point de vente).
               Ces chiffres sont indicatifs — à faire valider par un professionnel avant toute déclaration fiscale.
             </p>
           </div>
 
           <div>
-            <h2 style={{ color: '#fff', fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Ventilation par canal</h2>
-            <div style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, overflow: 'hidden' }}>
+            <h2 style={{ color: 'var(--text-primary)', fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Ventilation par canal</h2>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, overflow: 'hidden' }}>
               <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ background: '#081522', color: '#6A8FAB', textAlign: 'left' }}>
+                  <tr style={{ background: 'var(--bg-card-alt)', color: 'var(--text-muted)', textAlign: 'left' }}>
                     <th style={{ padding: 12 }}>Canal</th>
                     <th style={{ padding: 12 }}>Commandes</th>
                     <th style={{ padding: 12 }}>CA brut</th>
@@ -158,18 +158,18 @@ export default function FinancePage() {
                 </thead>
                 <tbody>
                   {channelData.map((c, i) => (
-                    <tr key={i} style={{ borderTop: '1px solid #1A3A52' }}>
-                      <td style={{ padding: 12, color: '#fff', fontWeight: 600 }}>{c.channel_label}</td>
-                      <td style={{ padding: 12, color: '#8BAABF' }}>{c.order_count}</td>
-                      <td style={{ padding: 12, color: '#8BAABF' }}>{Number(c.gross).toFixed(3)} TND</td>
-                      <td style={{ padding: 12, color: '#E84545' }}>{Number(c.discounts).toFixed(3)} TND</td>
-                      <td style={{ padding: 12, color: '#E84545' }}>{Number(c.commissions).toFixed(3)} TND</td>
-                      <td style={{ padding: 12, color: '#00C48C', fontWeight: 700 }}>{Number(c.net).toFixed(3)} TND</td>
+                    <tr key={i} style={{ borderTop: '1px solid var(--border-color)' }}>
+                      <td style={{ padding: 12, color: 'var(--text-primary)', fontWeight: 600 }}>{c.channel_label}</td>
+                      <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{c.order_count}</td>
+                      <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{Number(c.gross).toFixed(3)} TND</td>
+                      <td style={{ padding: 12, color: 'var(--danger)' }}>{Number(c.discounts).toFixed(3)} TND</td>
+                      <td style={{ padding: 12, color: 'var(--danger)' }}>{Number(c.commissions).toFixed(3)} TND</td>
+                      <td style={{ padding: 12, color: 'var(--accent)', fontWeight: 700 }}>{Number(c.net).toFixed(3)} TND</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              {channelData.length === 0 && <p style={{ color: '#6A8FAB', padding: 16 }}>Aucune vente sur la période.</p>}
+              {channelData.length === 0 && <p style={{ color: 'var(--text-muted)', padding: 16 }}>Aucune vente sur la période.</p>}
             </div>
           </div>
         </>
@@ -180,10 +180,10 @@ export default function FinancePage() {
 
 function KpiCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, padding: 16, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: '#00C48C' }}></div>
-      <div style={{ fontSize: 10, color: '#6A8FAB', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>{value}</div>
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'var(--accent)' }}></div>
+      <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>{value}</div>
     </div>
   );
 }

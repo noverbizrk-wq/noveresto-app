@@ -21,18 +21,18 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  new: '#3B82F6',
-  to_validate: '#F5A623',
-  accepted: '#8B5CF6',
-  in_preparation: '#F5A623',
-  ready: '#00C48C',
-  awaiting_courier: '#8B5CF6',
-  handed_off: '#8B5CF6',
-  delivered: '#27AE60',
-  completed: '#27AE60',
-  cancelled: '#6A8FAB',
-  refunded: '#E84545',
-  disputed: '#E84545'
+  new: 'var(--info)',
+  to_validate: 'var(--warning)',
+  accepted: 'var(--purple)',
+  in_preparation: 'var(--warning)',
+  ready: 'var(--accent)',
+  awaiting_courier: 'var(--purple)',
+  handed_off: 'var(--purple)',
+  delivered: 'var(--success)',
+  completed: 'var(--success)',
+  cancelled: 'var(--text-muted)',
+  refunded: 'var(--danger)',
+  disputed: 'var(--danger)'
 };
 
 const NEXT_ACTIONS: Record<string, string[]> = {
@@ -79,15 +79,15 @@ export default function RestaurantOrdersPage() {
   };
 
   const inp: React.CSSProperties = {
-    background: '#081522', border: '1px solid #1A3A52', borderRadius: 8,
-    padding: '8px 12px', fontSize: 13, color: '#fff', outline: 'none'
+    background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8,
+    padding: '8px 12px', fontSize: 13, color: 'var(--text-primary)', outline: 'none'
   };
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: '#fff' }}>
-          🛒 <span style={{ color: '#00C48C' }}>Commandes</span>
+        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: 'var(--text-primary)' }}>
+          🛒 <span style={{ color: 'var(--accent)' }}>Commandes</span>
         </h1>
         <div style={{ display: 'flex', gap: 8 }}>
           <RestaurantSelector restaurants={restaurants} selectedId={restaurant?.id ?? null} onChange={selectRestaurant} />
@@ -100,13 +100,13 @@ export default function RestaurantOrdersPage() {
         </div>
       </div>
 
-      {loading && <p style={{ color: '#6A8FAB' }}>Chargement...</p>}
-      {!loading && orders.length === 0 && <p style={{ color: '#6A8FAB' }}>Aucune commande à afficher.</p>}
+      {loading && <p style={{ color: 'var(--text-muted)' }}>Chargement...</p>}
+      {!loading && orders.length === 0 && <p style={{ color: 'var(--text-muted)' }}>Aucune commande à afficher.</p>}
 
-      <div style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: '#081522', color: '#6A8FAB', textAlign: 'left' }}>
+            <tr style={{ background: 'var(--bg-card-alt)', color: 'var(--text-muted)', textAlign: 'left' }}>
               <th style={{ padding: 12 }}>#</th>
               <th style={{ padding: 12 }}>Canal</th>
               <th style={{ padding: 12 }}>Reçue à</th>
@@ -117,15 +117,15 @@ export default function RestaurantOrdersPage() {
           </thead>
           <tbody>
             {orders.map((o) => (
-              <tr key={o.id} style={{ borderTop: '1px solid #1A3A52' }}>
-                <td style={{ padding: 12, fontWeight: 600, color: '#fff' }}>#{o.id}</td>
-                <td style={{ padding: 12, color: '#8BAABF' }}>
+              <tr key={o.id} style={{ borderTop: '1px solid var(--border-color)' }}>
+                <td style={{ padding: 12, fontWeight: 600, color: 'var(--text-primary)' }}>#{o.id}</td>
+                <td style={{ padding: 12, color: 'var(--text-secondary)' }}>
                   {o.channel_label}{o.platform_label ? ` · ${o.platform_label}` : ''}
                 </td>
-                <td style={{ padding: 12, color: '#8BAABF' }}>
+                <td style={{ padding: 12, color: 'var(--text-secondary)' }}>
                   {new Date(o.received_at).toLocaleTimeString('fr-FR')}
                 </td>
-                <td style={{ padding: 12, color: '#fff' }}>{Number(o.net_amount).toFixed(3)} TND</td>
+                <td style={{ padding: 12, color: 'var(--text-primary)' }}>{Number(o.net_amount).toFixed(3)} TND</td>
                 <td style={{ padding: 12 }}>
                   <span style={{
                     padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600,
@@ -142,7 +142,7 @@ export default function RestaurantOrdersPage() {
                         onClick={() => changeStatus(o.id, next)}
                         style={{
                           fontSize: 11, padding: '4px 10px', borderRadius: 6,
-                          border: '1px solid #00C48C', color: '#00C48C', background: 'transparent', cursor: 'pointer'
+                          border: '1px solid var(--accent)', color: 'var(--accent)', background: 'transparent', cursor: 'pointer'
                         }}
                       >
                         {STATUS_LABELS[next]}

@@ -66,14 +66,14 @@ export default function StocksPage() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: '#fff' }}>
-          📦 Stocks <span style={{ color: '#00C48C' }}>et inventaire</span>
+        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: 'var(--text-primary)' }}>
+          📦 Stocks <span style={{ color: 'var(--accent)' }}>et inventaire</span>
         </h1>
         <div style={{ display: 'flex', gap: 8 }}>
           <RestaurantSelector restaurants={restaurants} selectedId={restaurant?.id ?? null} onChange={selectRestaurant} />
           <button
             onClick={() => setShowNewForm(!showNewForm)}
-            style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #00C48C', background: 'transparent', color: '#00C48C', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
           >
             + Nouvel ingrédient
           </button>
@@ -81,11 +81,11 @@ export default function StocksPage() {
       </div>
 
       {showNewForm && (
-        <div style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, padding: 16, marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
           <input placeholder="Nom" value={newIngredient.name} onChange={(e) => setNewIngredient({ ...newIngredient, name: e.target.value })}
-            style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13, flex: 1, minWidth: 140 }} />
+            style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13, flex: 1, minWidth: 140 }} />
           <select value={newIngredient.unit} onChange={(e) => setNewIngredient({ ...newIngredient, unit: e.target.value })}
-            style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13 }}>
+            style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13 }}>
             <option value="kg">kg</option>
             <option value="g">g</option>
             <option value="l">l</option>
@@ -94,26 +94,26 @@ export default function StocksPage() {
           </select>
           <input type="number" step="0.001" placeholder="Stock initial" value={newIngredient.current_stock}
             onChange={(e) => setNewIngredient({ ...newIngredient, current_stock: e.target.value })}
-            style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13, width: 120 }} />
+            style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13, width: 120 }} />
           <input type="number" step="0.001" placeholder="Seuil alerte" value={newIngredient.min_stock}
             onChange={(e) => setNewIngredient({ ...newIngredient, min_stock: e.target.value })}
-            style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13, width: 120 }} />
+            style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13, width: 120 }} />
           <input type="number" step="0.001" placeholder="Prix unitaire" value={newIngredient.unit_cost}
             onChange={(e) => setNewIngredient({ ...newIngredient, unit_cost: e.target.value })}
-            style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13, width: 120 }} />
+            style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13, width: 120 }} />
           <button onClick={createIngredient}
-            style={{ padding: '6px 16px', borderRadius: 8, border: 'none', background: '#00C48C', color: '#081522', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+            style={{ padding: '6px 16px', borderRadius: 8, border: 'none', background: 'var(--accent)', color: 'var(--navy)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
             Créer
           </button>
         </div>
       )}
 
-      {loading && <p style={{ color: '#6A8FAB' }}>Chargement...</p>}
+      {loading && <p style={{ color: 'var(--text-muted)' }}>Chargement...</p>}
 
-      <div style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: '#081522', color: '#6A8FAB', textAlign: 'left' }}>
+            <tr style={{ background: 'var(--bg-card-alt)', color: 'var(--text-muted)', textAlign: 'left' }}>
               <th style={{ padding: 12 }}>Ingrédient</th>
               <th style={{ padding: 12 }}>Stock actuel</th>
               <th style={{ padding: 12 }}>Seuil alerte</th>
@@ -126,15 +126,15 @@ export default function StocksPage() {
             {ingredients.map((ing) => {
               const isLow = lowStockIds.has(ing.id);
               return (
-                <tr key={ing.id} style={{ borderTop: '1px solid #1A3A52', background: isLow ? 'rgba(232,69,69,.06)' : 'transparent' }}>
-                  <td style={{ padding: 12, color: '#fff', fontWeight: 600 }}>
+                <tr key={ing.id} style={{ borderTop: '1px solid var(--border-color)', background: isLow ? 'rgba(232,69,69,.06)' : 'transparent' }}>
+                  <td style={{ padding: 12, color: 'var(--text-primary)', fontWeight: 600 }}>
                     {ing.name}
-                    {isLow && <span style={{ marginLeft: 8, fontSize: 10, padding: '2px 8px', borderRadius: 999, background: 'rgba(232,69,69,.15)', color: '#E84545' }}>STOCK FAIBLE</span>}
+                    {isLow && <span style={{ marginLeft: 8, fontSize: 10, padding: '2px 8px', borderRadius: 999, background: 'rgba(232,69,69,.15)', color: 'var(--danger)' }}>STOCK FAIBLE</span>}
                   </td>
-                  <td style={{ padding: 12, color: isLow ? '#E84545' : '#fff' }}>{Number(ing.current_stock).toFixed(3)} {ing.unit}</td>
-                  <td style={{ padding: 12, color: '#8BAABF' }}>{Number(ing.min_stock).toFixed(3)} {ing.unit}</td>
-                  <td style={{ padding: 12, color: '#8BAABF' }}>{Number(ing.unit_cost).toFixed(3)} TND</td>
-                  <td style={{ padding: 12, color: '#8BAABF' }}>{ing.supplier_name || '—'}</td>
+                  <td style={{ padding: 12, color: isLow ? 'var(--danger)' : 'var(--text-primary)' }}>{Number(ing.current_stock).toFixed(3)} {ing.unit}</td>
+                  <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{Number(ing.min_stock).toFixed(3)} {ing.unit}</td>
+                  <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{Number(ing.unit_cost).toFixed(3)} TND</td>
+                  <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{ing.supplier_name || '—'}</td>
                   <td style={{ padding: 12 }}>
                     {adjusting === ing.id ? (
                       <div style={{ display: 'flex', gap: 4 }}>
@@ -143,15 +143,15 @@ export default function StocksPage() {
                           value={adjustValue}
                           onChange={(e) => setAdjustValue(e.target.value)}
                           placeholder="+/- qté"
-                          style={{ width: 80, background: '#081522', border: '1px solid #1A3A52', borderRadius: 6, padding: '4px 8px', color: '#fff', fontSize: 12 }}
+                          style={{ width: 80, background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '4px 8px', color: 'var(--text-primary)', fontSize: 12 }}
                         />
-                        <button onClick={() => submitAdjustment(ing.id)} style={{ background: '#00C48C', border: 'none', borderRadius: 6, padding: '4px 8px', color: '#081522', fontSize: 12, cursor: 'pointer' }}>OK</button>
-                        <button onClick={() => setAdjusting(null)} style={{ background: 'transparent', border: '1px solid #1A3A52', borderRadius: 6, padding: '4px 8px', color: '#8BAABF', fontSize: 12, cursor: 'pointer' }}>✕</button>
+                        <button onClick={() => submitAdjustment(ing.id)} style={{ background: 'var(--accent)', border: 'none', borderRadius: 6, padding: '4px 8px', color: 'var(--navy)', fontSize: 12, cursor: 'pointer' }}>OK</button>
+                        <button onClick={() => setAdjusting(null)} style={{ background: 'transparent', border: '1px solid var(--border-color)', borderRadius: 6, padding: '4px 8px', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>✕</button>
                       </div>
                     ) : (
                       <button
                         onClick={() => { setAdjusting(ing.id); setAdjustValue(''); }}
-                        style={{ background: 'transparent', border: '1px solid #1A3A52', borderRadius: 6, padding: '4px 10px', color: '#8BAABF', fontSize: 12, cursor: 'pointer' }}
+                        style={{ background: 'transparent', border: '1px solid var(--border-color)', borderRadius: 6, padding: '4px 10px', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
                       >
                         Corriger
                       </button>
@@ -165,7 +165,7 @@ export default function StocksPage() {
       </div>
 
       {!loading && ingredients.length === 0 && (
-        <p style={{ color: '#6A8FAB', marginTop: 16 }}>Aucun ingrédient. Créez-en un avec le bouton ci-dessus.</p>
+        <p style={{ color: 'var(--text-muted)', marginTop: 16 }}>Aucun ingrédient. Créez-en un avec le bouton ci-dessus.</p>
       )}
     </div>
   );

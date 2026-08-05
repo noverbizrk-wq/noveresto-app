@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { ThemeToggleButton } from '@/lib/use-theme'
 
 const navItems = [
   { href: '/dashboard',            icon: '📊', label: 'Dashboard'     },
@@ -140,6 +141,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+            <ThemeToggleButton />
             <div style={{ width:8, height:8, borderRadius:'50%', background:'#00C48C' }}></div>
             <span style={{ fontSize:12, color:'#00C48C', fontWeight:600 }}>Burger House · Lac Tunis</span>
           </div>

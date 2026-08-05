@@ -30,7 +30,7 @@ const STATUS_LABELS: Record<string, string> = {
   draft: 'Brouillon', sent: 'Envoyée', received: 'Reçue', cancelled: 'Annulée'
 };
 const STATUS_COLORS: Record<string, string> = {
-  draft: '#6A8FAB', sent: '#F5A623', received: '#00C48C', cancelled: '#E84545'
+  draft: 'var(--text-muted)', sent: 'var(--warning)', received: 'var(--accent)', cancelled: 'var(--danger)'
 };
 
 export default function PurchasesPage() {
@@ -101,14 +101,14 @@ export default function PurchasesPage() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: '#fff' }}>
-          🧑‍🍳 Achats <span style={{ color: '#00C48C' }}>et fournisseurs</span>
+        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: 'var(--text-primary)' }}>
+          🧑‍🍳 Achats <span style={{ color: 'var(--accent)' }}>et fournisseurs</span>
         </h1>
         <div style={{ display: 'flex', gap: 8 }}>
           <RestaurantSelector restaurants={restaurants} selectedId={restaurant?.id ?? null} onChange={selectRestaurant} />
           <button
             onClick={() => setShowNewForm(!showNewForm)}
-            style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #00C48C', background: 'transparent', color: '#00C48C', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
           >
             + Nouvelle commande
           </button>
@@ -117,21 +117,21 @@ export default function PurchasesPage() {
 
       {/* Fournisseurs rapide */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' }}>
-        <span style={{ fontSize: 12, color: '#6A8FAB' }}>Fournisseurs : {suppliers.map(s => s.name).join(', ') || 'aucun'}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Fournisseurs : {suppliers.map(s => s.name).join(', ') || 'aucun'}</span>
         <input
           placeholder="Nouveau fournisseur"
           value={newSupplierName}
           onChange={(e) => setNewSupplierName(e.target.value)}
-          style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 6, padding: '4px 8px', color: '#fff', fontSize: 12, width: 160 }}
+          style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '4px 8px', color: 'var(--text-primary)', fontSize: 12, width: 160 }}
         />
-        <button onClick={createSupplier} style={{ background: 'transparent', border: '1px solid #1A3A52', borderRadius: 6, padding: '4px 10px', color: '#8BAABF', fontSize: 12, cursor: 'pointer' }}>+ Ajouter</button>
+        <button onClick={createSupplier} style={{ background: 'transparent', border: '1px solid var(--border-color)', borderRadius: 6, padding: '4px 10px', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>+ Ajouter</button>
       </div>
 
       {showNewForm && (
-        <div style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
           <div style={{ marginBottom: 10 }}>
             <select value={newSupplierId} onChange={(e) => setNewSupplierId(e.target.value)}
-              style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13 }}>
+              style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13 }}>
               <option value="">Fournisseur (optionnel)</option>
               {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
@@ -139,32 +139,32 @@ export default function PurchasesPage() {
           {lines.map((line, idx) => (
             <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
               <select value={line.ingredient_id} onChange={(e) => updateLine(idx, 'ingredient_id', e.target.value)}
-                style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13, flex: 1 }}>
+                style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13, flex: 1 }}>
                 <option value="">Ingrédient...</option>
                 {ingredients.map(i => <option key={i.id} value={i.id}>{i.name} ({i.unit})</option>)}
               </select>
               <input type="number" step="0.001" placeholder="Quantité" value={line.quantity}
                 onChange={(e) => updateLine(idx, 'quantity', e.target.value)}
-                style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13, width: 100 }} />
+                style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13, width: 100 }} />
               <input type="number" step="0.001" placeholder="Prix unitaire" value={line.unit_price}
                 onChange={(e) => updateLine(idx, 'unit_price', e.target.value)}
-                style={{ background: '#081522', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 13, width: 120 }} />
+                style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-primary)', fontSize: 13, width: 120 }} />
             </div>
           ))}
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={addLine} style={{ background: 'transparent', border: '1px solid #1A3A52', borderRadius: 8, padding: '6px 14px', color: '#8BAABF', fontSize: 13, cursor: 'pointer' }}>+ Ligne</button>
-            <button onClick={createOrder} style={{ background: '#00C48C', border: 'none', borderRadius: 8, padding: '6px 16px', color: '#081522', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Créer la commande</button>
+            <button onClick={addLine} style={{ background: 'transparent', border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 14px', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>+ Ligne</button>
+            <button onClick={createOrder} style={{ background: 'var(--accent)', border: 'none', borderRadius: 8, padding: '6px 16px', color: 'var(--navy)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Créer la commande</button>
           </div>
         </div>
       )}
 
-      {loading && <p style={{ color: '#6A8FAB' }}>Chargement...</p>}
-      {!loading && orders.length === 0 && <p style={{ color: '#6A8FAB' }}>Aucune commande d'achat.</p>}
+      {loading && <p style={{ color: 'var(--text-muted)' }}>Chargement...</p>}
+      {!loading && orders.length === 0 && <p style={{ color: 'var(--text-muted)' }}>Aucune commande d'achat.</p>}
 
-      <div style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: '#081522', color: '#6A8FAB', textAlign: 'left' }}>
+            <tr style={{ background: 'var(--bg-card-alt)', color: 'var(--text-muted)', textAlign: 'left' }}>
               <th style={{ padding: 12 }}>#</th>
               <th style={{ padding: 12 }}>Fournisseur</th>
               <th style={{ padding: 12 }}>Montant</th>
@@ -174,10 +174,10 @@ export default function PurchasesPage() {
           </thead>
           <tbody>
             {orders.map((o) => (
-              <tr key={o.id} style={{ borderTop: '1px solid #1A3A52' }}>
-                <td style={{ padding: 12, fontWeight: 600, color: '#fff' }}>#{o.id}</td>
-                <td style={{ padding: 12, color: '#8BAABF' }}>{o.supplier_name || '—'}</td>
-                <td style={{ padding: 12, color: '#fff' }}>{Number(o.total_amount).toFixed(3)} TND</td>
+              <tr key={o.id} style={{ borderTop: '1px solid var(--border-color)' }}>
+                <td style={{ padding: 12, fontWeight: 600, color: 'var(--text-primary)' }}>#{o.id}</td>
+                <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{o.supplier_name || '—'}</td>
+                <td style={{ padding: 12, color: 'var(--text-primary)' }}>{Number(o.total_amount).toFixed(3)} TND</td>
                 <td style={{ padding: 12 }}>
                   <span style={{ padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: `${STATUS_COLORS[o.status]}20`, color: STATUS_COLORS[o.status] }}>
                     {STATUS_LABELS[o.status]}
@@ -187,7 +187,7 @@ export default function PurchasesPage() {
                   {o.status === 'sent' && (
                     <button
                       onClick={() => receiveOrder(o.id)}
-                      style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid #00C48C', color: '#00C48C', background: 'transparent', cursor: 'pointer' }}
+                      style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--accent)', color: 'var(--accent)', background: 'transparent', cursor: 'pointer' }}
                     >
                       Marquer reçue
                     </button>

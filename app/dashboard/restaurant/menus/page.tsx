@@ -37,21 +37,21 @@ export default function MenusPage() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: '#fff' }}>
-          🍔 Menus <span style={{ color: '#00C48C' }}>et produits</span>
+        <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'serif', color: 'var(--text-primary)' }}>
+          🍔 Menus <span style={{ color: 'var(--accent)' }}>et produits</span>
         </h1>
         <RestaurantSelector restaurants={restaurants} selectedId={restaurant?.id ?? null} onChange={selectRestaurant} />
       </div>
 
-      {loading && <p style={{ color: '#6A8FAB' }}>Chargement...</p>}
+      {loading && <p style={{ color: 'var(--text-muted)' }}>Chargement...</p>}
       {!loading && items.length === 0 && (
-        <p style={{ color: '#6A8FAB' }}>Aucun article. Ajoutez votre premier article via l'API.</p>
+        <p style={{ color: 'var(--text-muted)' }}>Aucun article. Ajoutez votre premier article via l'API.</p>
       )}
 
-      <div style={{ background: '#0F2D40', border: '1px solid #1A3A52', borderRadius: 12, overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: '#081522', color: '#6A8FAB', textAlign: 'left' }}>
+            <tr style={{ background: 'var(--bg-card-alt)', color: 'var(--text-muted)', textAlign: 'left' }}>
               <th style={{ padding: 12 }}>Article</th>
               <th style={{ padding: 12 }}>Catégorie</th>
               <th style={{ padding: 12 }}>Prix</th>
@@ -60,17 +60,17 @@ export default function MenusPage() {
           </thead>
           <tbody>
             {items.map((p) => (
-              <tr key={p.id} style={{ borderTop: '1px solid #1A3A52' }}>
-                <td style={{ padding: 12, fontWeight: 600, color: '#fff' }}>{p.name}</td>
-                <td style={{ padding: 12, color: '#8BAABF' }}>{p.category_name || '—'}</td>
-                <td style={{ padding: 12, color: '#fff' }}>{Number(p.price).toFixed(3)} TND</td>
+              <tr key={p.id} style={{ borderTop: '1px solid var(--border-color)' }}>
+                <td style={{ padding: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{p.name}</td>
+                <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{p.category_name || '—'}</td>
+                <td style={{ padding: 12, color: 'var(--text-primary)' }}>{Number(p.price).toFixed(3)} TND</td>
                 <td style={{ padding: 12 }}>
                   <button
                     onClick={() => toggleAvailability(p.id, p.is_available)}
                     style={{
                       padding: '4px 12px', borderRadius: 999, fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer',
                       background: p.is_available ? 'rgba(0,196,140,.15)' : 'rgba(232,69,69,.15)',
-                      color: p.is_available ? '#00C48C' : '#E84545'
+                      color: p.is_available ? 'var(--accent)' : 'var(--danger)'
                     }}
                   >
                     {p.is_available ? 'Disponible' : 'Rupture'}

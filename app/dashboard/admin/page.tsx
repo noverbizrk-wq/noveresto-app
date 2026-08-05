@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-const C = { navyD:'#081522', navyM:'#0F2D40', navyL:'#1A3A52', teal:'#00C48C', amber:'#F5A623', red:'#E84545', muted:'#6A8FAB', gray:'#8BAABF' }
+const C = { navyD:'var(--bg-page)', navyM:'var(--bg-card)', navyL:'var(--border-color)', teal:'var(--accent)', amber:'var(--warning)', red:'var(--danger)', muted:'var(--text-muted)', gray:'var(--text-secondary)' }
 
 function getToken() {
   return document.cookie.split(';').find(c => c.trim().startsWith('nr_token='))?.split('=')[1] || ''
@@ -16,7 +16,7 @@ function getUser() {
 
 function Badge({ text, color }: any) {
   return (
-    <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:10, background:`${color}20`, color, border:`1px solid ${color}40` }}>
+    <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:10, background:`color-mix(in srgb, ${color} 20%, transparent)`, color, border:`1px solid color-mix(in srgb, ${color} 40%, transparent)` }}>
       {text}
     </span>
   )
@@ -24,7 +24,7 @@ function Badge({ text, color }: any) {
 
 function StatCard({ label, value, color, sub }: any) {
   return (
-    <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:12, padding:16, borderTop:`2px solid ${color}` }}>
+    <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:12, padding:16, borderTop:`2px solid ${color}` }}>
       <div style={{ fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5, marginBottom:6 }}>{label}</div>
       <div style={{ fontSize:26, fontWeight:800, color }}>{value}</div>
       {sub && <div style={{ fontSize:11, color:C.muted, marginTop:4 }}>{sub}</div>}
@@ -83,7 +83,7 @@ export default function AdminPage() {
   const adminCount   = users.filter(u => u.role === 'admin').length
   const clientCount  = users.filter(u => u.role === 'client').length
 
-  const inp = { width:'100%', background:'#081522', border:'1px solid #1A3A52', borderRadius:8, padding:'9px 13px', fontSize:13, color:'#fff', outline:'none', fontFamily:'Inter,sans-serif' } as any
+  const inp = { width:'100%', background:'var(--bg-page)', border:'1px solid var(--border-color)', borderRadius:8, padding:'9px 13px', fontSize:13, color:'var(--text-primary)', outline:'none', fontFamily:'Inter,sans-serif' } as any
 
   return (
     <div style={{ maxWidth:1100 }}>
@@ -103,13 +103,13 @@ export default function AdminPage() {
       {/* Stats */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:24 }}>
         <StatCard label="Total utilisateurs" value={users.length}    color={C.teal}  sub={`${adminCount} admin · ${clientCount} clients`} />
-        <StatCard label="Contacts reçus"     value={contacts.length} color="#3B82F6" sub={`${newContacts} nouveaux`} />
+        <StatCard label="Contacts reçus"     value={contacts.length} color="var(--info)" sub={`${newContacts} nouveaux`} />
         <StatCard label="Nouveaux contacts"  value={newContacts}     color={C.amber} sub="En attente de traitement" />
-        <StatCard label="Rôle actuel"        value="Admin"           color="#8B5CF6" sub="Accès complet" />
+        <StatCard label="Rôle actuel"        value="Admin"           color="var(--purple)" sub="Accès complet" />
       </div>
 
       {/* Tabs */}
-      <div style={{ display:'flex', gap:4, background:'#081522', borderRadius:10, padding:4, marginBottom:20, width:'fit-content' }}>
+      <div style={{ display:'flex', gap:4, background:'var(--bg-page)', borderRadius:10, padding:4, marginBottom:20, width:'fit-content' }}>
         {[
           { key:'users',   label:`👥 Utilisateurs (${users.length})` },
           { key:'contacts',label:`📧 Contacts (${contacts.length})` },
@@ -149,9 +149,9 @@ export default function AdminPage() {
         <>
           {/* USERS TAB */}
           {tab === 'users' && (
-            <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, overflow:'hidden' }}>
+            <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, overflow:'hidden' }}>
               {/* Table header */}
-              <div style={{ display:'grid', gridTemplateColumns:'2fr 2fr 2fr 1fr 1fr', gap:12, padding:'12px 16px', background:'#0D2137', fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'2fr 2fr 2fr 1fr 1fr', gap:12, padding:'12px 16px', background:'var(--bg-card-alt)', fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5 }}>
                 <span>Utilisateur</span><span>Email</span><span>Restaurant</span><span>Rôle</span><span>Inscrit le</span>
               </div>
               {filteredUsers.length === 0 ? (
@@ -159,8 +159,8 @@ export default function AdminPage() {
               ) : filteredUsers.map((u, i) => (
                 <div key={u.id} style={{
                   display:'grid', gridTemplateColumns:'2fr 2fr 2fr 1fr 1fr', gap:12,
-                  padding:'12px 16px', borderBottom:'1px solid #1A3A5230',
-                  background: i%2===0 ? 'transparent' : '#0A1A27',
+                  padding:'12px 16px', borderBottom:'1px solid color-mix(in srgb, var(--border-color) 30%, transparent)',
+                  background: i%2===0 ? 'transparent' : 'var(--bg-card-alt)',
                   transition:'background .15s',
                 }}>
                   <div style={{ display:'flex', alignItems:'center', gap:10 }}>
@@ -175,14 +175,14 @@ export default function AdminPage() {
                   <div style={{ fontSize:12, color:C.gray, display:'flex', alignItems:'center' }}>{u.email}</div>
                   <div style={{ fontSize:12, color:C.gray, display:'flex', alignItems:'center' }}>{u.restaurant || '—'}</div>
                   <div style={{ display:'flex', alignItems:'center' }}>
-                    <Badge text={u.role === 'admin' ? '👑 Admin' : '🏪 Client'} color={u.role === 'admin' ? '#8B5CF6' : C.teal} />
+                    <Badge text={u.role === 'admin' ? '👑 Admin' : '🏪 Client'} color={u.role === 'admin' ? 'var(--purple)' : C.teal} />
                   </div>
                   <div style={{ fontSize:11, color:C.muted, display:'flex', alignItems:'center' }}>
                     {u.created_at ? new Date(u.created_at).toLocaleDateString('fr-FR') : '—'}
                   </div>
                 </div>
               ))}
-              <div style={{ padding:'10px 16px', borderTop:'1px solid #1A3A52', fontSize:11, color:C.muted, background:'#0D2137' }}>
+              <div style={{ padding:'10px 16px', borderTop:'1px solid var(--border-color)', fontSize:11, color:C.muted, background:'var(--bg-card-alt)' }}>
                 {filteredUsers.length} utilisateur(s) affiché(s) sur {users.length} total
               </div>
             </div>
@@ -190,14 +190,14 @@ export default function AdminPage() {
 
           {/* CONTACTS TAB */}
           {tab === 'contacts' && (
-            <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, overflow:'hidden' }}>
-              <div style={{ display:'grid', gridTemplateColumns:'2fr 2fr 1.5fr 1fr 1fr 1fr', gap:8, padding:'12px 16px', background:'#0D2137', fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5 }}>
+            <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, overflow:'hidden' }}>
+              <div style={{ display:'grid', gridTemplateColumns:'2fr 2fr 1.5fr 1fr 1fr 1fr', gap:8, padding:'12px 16px', background:'var(--bg-card-alt)', fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5 }}>
                 <span>Contact</span><span>Email</span><span>Restaurant</span><span>Pays</span><span>Objet</span><span>Date</span>
               </div>
               {filteredContacts.length === 0 ? (
                 <div style={{ padding:32, textAlign:'center', color:C.muted }}>Aucun contact trouvé</div>
               ) : filteredContacts.map((c, i) => (
-                <div key={c.id} style={{ borderBottom:'1px solid #1A3A5230', background: i%2===0 ? 'transparent' : '#0A1A27' }}>
+                <div key={c.id} style={{ borderBottom:'1px solid color-mix(in srgb, var(--border-color) 30%, transparent)', background: i%2===0 ? 'transparent' : 'var(--bg-card-alt)' }}>
                   <div style={{ display:'grid', gridTemplateColumns:'2fr 2fr 1.5fr 1fr 1fr 1fr', gap:8, padding:'12px 16px', alignItems:'center' }}>
                     <div>
                       <div style={{ fontSize:13, fontWeight:700 }}>{c.name}</div>
@@ -210,7 +210,7 @@ export default function AdminPage() {
                       <Badge text={c.type || 'général'} color={
                         c.type === 'demo' ? C.teal :
                         c.type === 'pricing' ? C.amber :
-                        c.type === 'partnership' ? '#8B5CF6' : C.muted
+                        c.type === 'partnership' ? 'var(--purple)' : C.muted
                       } />
                     </div>
                     <div style={{ fontSize:11, color:C.muted }}>
@@ -219,13 +219,13 @@ export default function AdminPage() {
                   </div>
                   {/* Message */}
                   {c.message && (
-                    <div style={{ margin:'0 16px 12px', padding:'8px 12px', background:'#081522', borderRadius:8, fontSize:12, color:C.gray, lineHeight:1.6, borderLeft:`3px solid ${C.teal}` }}>
+                    <div style={{ margin:'0 16px 12px', padding:'8px 12px', background:'var(--bg-page)', borderRadius:8, fontSize:12, color:C.gray, lineHeight:1.6, borderLeft:`3px solid ${C.teal}` }}>
                       {c.message}
                     </div>
                   )}
                 </div>
               ))}
-              <div style={{ padding:'10px 16px', borderTop:'1px solid #1A3A52', fontSize:11, color:C.muted, background:'#0D2137' }}>
+              <div style={{ padding:'10px 16px', borderTop:'1px solid var(--border-color)', fontSize:11, color:C.muted, background:'var(--bg-card-alt)' }}>
                 {filteredContacts.length} contact(s) affiché(s) sur {contacts.length} total
               </div>
             </div>
@@ -234,15 +234,15 @@ export default function AdminPage() {
           {/* SYSTEM TAB */}
           {tab === 'system' && (
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
-              <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:20 }}>
+              <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:20 }}>
                 <div style={{ fontSize:13, fontWeight:700, marginBottom:16 }}>🖥️ Services</div>
                 {[
                   { name:'API Node.js v1.3.0',    url:'/api/v1/health',         port:'3000', color:C.teal },
-                  { name:'Prophet ML v1.0.0',      url:'http://localhost:5000/health', port:'5000', color:'#3B82F6' },
-                  { name:'Dashboard Next.js',      url:null,                    port:'3001', color:'#8B5CF6' },
+                  { name:'Prophet ML v1.0.0',      url:'http://localhost:5000/health', port:'5000', color:'var(--info)' },
+                  { name:'Dashboard Next.js',      url:null,                    port:'3001', color:'var(--purple)' },
                   { name:'PostgreSQL 16',          url:null,                    port:'5432', color:C.amber },
                 ].map((s, i) => (
-                  <div key={i} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid #1A3A5230' }}>
+                  <div key={i} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid color-mix(in srgb, var(--border-color) 30%, transparent)' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:10 }}>
                       <div style={{ width:8, height:8, borderRadius:'50%', background:s.color }} />
                       <div>
@@ -255,7 +255,7 @@ export default function AdminPage() {
                 ))}
               </div>
 
-              <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:20 }}>
+              <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:20 }}>
                 <div style={{ fontSize:13, fontWeight:700, marginBottom:16 }}>📊 Base de données</div>
                 {[
                   { table:'users',              count: users.length },
@@ -266,14 +266,14 @@ export default function AdminPage() {
                   { table:'sales_data',         count: '365' },
                   { table:'ml_forecasts',       count: '14+' },
                 ].map((t, i) => (
-                  <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid #1A3A5230', fontSize:12 }}>
+                  <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid color-mix(in srgb, var(--border-color) 30%, transparent)', fontSize:12 }}>
                     <span style={{ color:C.gray, fontFamily:'monospace' }}>{t.table}</span>
                     <span style={{ fontWeight:700, color:C.teal }}>{t.count} lignes</span>
                   </div>
                 ))}
               </div>
 
-              <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:20 }}>
+              <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:20 }}>
                 <div style={{ fontSize:13, fontWeight:700, marginBottom:16 }}>🔐 Sécurité</div>
                 {[
                   { label:'Authentification',  val:'JWT RS256 · 7 jours' },
@@ -283,14 +283,14 @@ export default function AdminPage() {
                   { label:'Hébergeur',         val:'Hetzner · Frankfurt' },
                   { label:'CDN/Proxy',         val:'Nginx · AWS Paris eu-west-3' },
                 ].map((s, i) => (
-                  <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid #1A3A5230', fontSize:12 }}>
+                  <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid color-mix(in srgb, var(--border-color) 30%, transparent)', fontSize:12 }}>
                     <span style={{ color:C.gray }}>{s.label}</span>
-                    <span style={{ fontWeight:600, color:'#fff' }}>{s.val}</span>
+                    <span style={{ fontWeight:600, color:'var(--text-primary)' }}>{s.val}</span>
                   </div>
                 ))}
               </div>
 
-              <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:20 }}>
+              <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:20 }}>
                 <div style={{ fontSize:13, fontWeight:700, marginBottom:16 }}>🚀 Stack technique</div>
                 {[
                   { label:'Frontend',   val:'Next.js 16 · Tailwind · TypeScript' },
@@ -301,9 +301,9 @@ export default function AdminPage() {
                   { label:'AI Social',  val:'Claude API · claude-sonnet-4-6' },
                   { label:'Domaine',    val:'noveresto.app · Cloudflare' },
                 ].map((s, i) => (
-                  <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid #1A3A5230', fontSize:12 }}>
+                  <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid color-mix(in srgb, var(--border-color) 30%, transparent)', fontSize:12 }}>
                     <span style={{ color:C.gray }}>{s.label}</span>
-                    <span style={{ fontWeight:600, color:'#fff', textAlign:'right', maxWidth:200 }}>{s.val}</span>
+                    <span style={{ fontWeight:600, color:'var(--text-primary)', textAlign:'right', maxWidth:200 }}>{s.val}</span>
                   </div>
                 ))}
               </div>

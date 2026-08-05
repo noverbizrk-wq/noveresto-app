@@ -28,6 +28,7 @@
   --success:        #27AE60;
   --info:           #3B82F6;
   --purple:         #8B5CF6;
+  --bg-sidebar:     #0D2137;
 }
 
 [data-theme="light"] {
@@ -44,6 +45,7 @@
   --success:        #16A34A;
   --info:           #2563EB;
   --purple:         #7C3AED;
+  --bg-sidebar:     #ffffff;
 }
 
 * { box-sizing: border-box; }

@@ -33,28 +33,28 @@ export default function LoginPage() {
     setLoading(false)
   }
 
-  const inp: React.CSSProperties = { width:'100%', background:'#081522', border:'1px solid #1A3A52', borderRadius:8, padding:'10px 13px', fontSize:14, color:'#fff', outline:'none', fontFamily:'Inter,sans-serif', boxSizing:'border-box' }
-  const lbl: React.CSSProperties = { display:'block', fontSize:11, fontWeight:600, color:'#8BAABF', textTransform:'uppercase', letterSpacing:.4, marginBottom:5 }
+  const inp: React.CSSProperties = { width:'100%', background:'var(--bg-page)', border:'1px solid var(--border-color)', borderRadius:8, padding:'10px 13px', fontSize:14, color:'var(--text-primary)', outline:'none', fontFamily:'Inter,sans-serif', boxSizing:'border-box' }
+  const lbl: React.CSSProperties = { display:'block', fontSize:11, fontWeight:600, color:'var(--text-secondary)', textTransform:'uppercase', letterSpacing:.4, marginBottom:5 }
 
   return (
-    <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'#081522', padding:20 }}>
+    <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--bg-page)', padding:20 }}>
       <div style={{ width:'100%', maxWidth:420 }}>
         {/* Logo */}
         <div style={{ textAlign:'center', marginBottom:32 }}>
-          <div style={{ fontSize:28, fontWeight:800 }}>Nover<span style={{ color:'#00C48C' }}>Resto</span></div>
-          <div style={{ fontSize:13, color:'#6A8FAB', marginTop:4 }}>Plateforme IA de gestion de restaurants MENA</div>
+          <div style={{ fontSize:28, fontWeight:800 }}>Nover<span style={{ color:'var(--accent)' }}>Resto</span></div>
+          <div style={{ fontSize:13, color:'var(--text-muted)', marginTop:4 }}>Plateforme IA de gestion de restaurants MENA</div>
         </div>
 
         {/* Card */}
-        <div style={{ background:'#0F2D40', border:'1px solid #1A3A52', borderRadius:16, padding:32 }}>
+        <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:16, padding:32 }}>
           {/* Tabs */}
-          <div style={{ display:'flex', gap:4, background:'#081522', borderRadius:10, padding:4, marginBottom:24 }}>
+          <div style={{ display:'flex', gap:4, background:'var(--bg-page)', borderRadius:10, padding:4, marginBottom:24 }}>
             {(['login','register'] as const).map(t => (
               <button key={t} onClick={() => { setTab(t); setError('') }} style={{
                 flex:1, padding:'8px 0', borderRadius:7, border:'none', fontSize:13, fontWeight:600,
                 cursor:'pointer', fontFamily:'Inter,sans-serif',
-                background: tab===t ? '#00C48C' : 'transparent',
-                color: tab===t ? '#081522' : '#6A8FAB',
+                background: tab===t ? 'var(--accent)' : 'transparent',
+                color: tab===t ? 'var(--bg-page)' : 'var(--text-muted)',
                 transition:'all .2s'
               }}>
                 {t === 'login' ? 'Connexion' : 'Inscription'}
@@ -65,10 +65,10 @@ export default function LoginPage() {
           {tab === 'login' ? (
             <div>
               {/* Demo creds */}
-              <div style={{ background:'#081522', border:'1px solid #1A3A52', borderRadius:8, padding:'10px 13px', marginBottom:16, fontSize:12 }}>
-                <div style={{ color:'#00C48C', fontWeight:700, marginBottom:6 }}>🔐 Comptes de démo</div>
-                <div style={{ color:'#8BAABF', marginBottom:3 }}>Admin : <span style={{ color:'#00C48C' }}>admin@noveresto.app</span> / <span style={{ color:'#00C48C' }}>Admin2025!</span></div>
-                <div style={{ color:'#8BAABF' }}>Client : <span style={{ color:'#00C48C' }}>demo@noveresto.app</span> / <span style={{ color:'#00C48C' }}>Demo2025!</span></div>
+              <div style={{ background:'var(--bg-page)', border:'1px solid var(--border-color)', borderRadius:8, padding:'10px 13px', marginBottom:16, fontSize:12 }}>
+                <div style={{ color:'var(--accent)', fontWeight:700, marginBottom:6 }}>🔐 Comptes de démo</div>
+                <div style={{ color:'var(--text-secondary)', marginBottom:3 }}>Admin : <span style={{ color:'var(--accent)' }}>admin@noveresto.app</span> / <span style={{ color:'var(--accent)' }}>Admin2025!</span></div>
+                <div style={{ color:'var(--text-secondary)' }}>Client : <span style={{ color:'var(--accent)' }}>demo@noveresto.app</span> / <span style={{ color:'var(--accent)' }}>Demo2025!</span></div>
               </div>
               <div style={{ marginBottom:14 }}>
                 <label style={lbl}>Email</label>
@@ -78,13 +78,13 @@ export default function LoginPage() {
                 <label style={lbl}>Mot de passe</label>
                 <input style={inp} type="password" placeholder="••••••••" value={form.password} onChange={e=>set('password',e.target.value)} onKeyDown={e=>e.key==='Enter'&&doLogin()} />
               </div>
-              {error && <div style={{ background:'rgba(232,69,69,.12)', border:'1px solid #E84545', borderRadius:8, padding:'8px 13px', fontSize:13, color:'#E84545', marginBottom:12 }}>{error}</div>}
-              <button onClick={doLogin} disabled={loading} style={{ width:'100%', padding:'12px 0', background: loading ? '#1A3A52' : '#00C48C', color: loading ? '#6A8FAB' : '#081522', border:'none', borderRadius:8, fontSize:14, fontWeight:700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily:'Inter,sans-serif' }}>
+              {error && <div style={{ background:'rgba(232,69,69,.12)', border:'1px solid var(--danger)', borderRadius:8, padding:'8px 13px', fontSize:13, color:'var(--danger)', marginBottom:12 }}>{error}</div>}
+              <button onClick={doLogin} disabled={loading} style={{ width:'100%', padding:'12px 0', background: loading ? 'var(--border-color)' : 'var(--accent)', color: loading ? 'var(--text-muted)' : 'var(--bg-page)', border:'none', borderRadius:8, fontSize:14, fontWeight:700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily:'Inter,sans-serif' }}>
                 {loading ? 'Connexion...' : 'Se connecter'}
               </button>
               <div style={{ textAlign:'center', marginTop:14 }}>
-                <span style={{ fontSize:13, color:'#6A8FAB' }}>Pas encore de compte ? </span>
-                <span style={{ fontSize:13, color:'#00C48C', cursor:'pointer' }} onClick={() => setTab('register')}>S'inscrire →</span>
+                <span style={{ fontSize:13, color:'var(--text-muted)' }}>Pas encore de compte ? </span>
+                <span style={{ fontSize:13, color:'var(--accent)', cursor:'pointer' }} onClick={() => setTab('register')}>S'inscrire →</span>
               </div>
             </div>
           ) : (
@@ -103,19 +103,19 @@ export default function LoginPage() {
                 </select>
               </div>
               <div style={{ marginBottom:14 }}><label style={lbl}>Mot de passe * (8 min.)</label><input style={inp} type="password" placeholder="••••••••" value={form.password} onChange={e=>set('password',e.target.value)} /></div>
-              {error && <div style={{ background:'rgba(232,69,69,.12)', border:'1px solid #E84545', borderRadius:8, padding:'8px 13px', fontSize:13, color:'#E84545', marginBottom:12 }}>{error}</div>}
-              <button onClick={doRegister} disabled={loading} style={{ width:'100%', padding:'12px 0', background: loading ? '#1A3A52' : '#00C48C', color: loading ? '#6A8FAB' : '#081522', border:'none', borderRadius:8, fontSize:14, fontWeight:700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily:'Inter,sans-serif' }}>
+              {error && <div style={{ background:'rgba(232,69,69,.12)', border:'1px solid var(--danger)', borderRadius:8, padding:'8px 13px', fontSize:13, color:'var(--danger)', marginBottom:12 }}>{error}</div>}
+              <button onClick={doRegister} disabled={loading} style={{ width:'100%', padding:'12px 0', background: loading ? 'var(--border-color)' : 'var(--accent)', color: loading ? 'var(--text-muted)' : 'var(--bg-page)', border:'none', borderRadius:8, fontSize:14, fontWeight:700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily:'Inter,sans-serif' }}>
                 {loading ? 'Création...' : 'Créer mon compte gratuitement'}
               </button>
               <div style={{ textAlign:'center', marginTop:14 }}>
-                <span style={{ fontSize:13, color:'#6A8FAB' }}>Déjà un compte ? </span>
-                <span style={{ fontSize:13, color:'#00C48C', cursor:'pointer' }} onClick={() => setTab('login')}>Se connecter →</span>
+                <span style={{ fontSize:13, color:'var(--text-muted)' }}>Déjà un compte ? </span>
+                <span style={{ fontSize:13, color:'var(--accent)', cursor:'pointer' }} onClick={() => setTab('login')}>Se connecter →</span>
               </div>
             </div>
           )}
         </div>
         <div style={{ textAlign:'center', marginTop:16 }}>
-          <a href="/" style={{ fontSize:12, color:'#3A5570', textDecoration:'none' }}>← Retour au site</a>
+          <a href="/" style={{ fontSize:12, color:'var(--text-muted)', textDecoration:'none' }}>← Retour au site</a>
         </div>
       </div>
     </div>

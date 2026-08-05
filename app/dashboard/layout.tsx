@@ -56,26 +56,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const initials = user?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0,2) || 'NR'
 
   return (
-    <div style={{ display:'flex', minHeight:'100vh', background:'#081522' }}>
+    <div style={{ display:'flex', minHeight:'100vh', background:'var(--bg-page)' }}>
       {/* SIDEBAR */}
-      <aside style={{ width:220, background:'#0D2137', borderRight:'1px solid #1A3A52', display:'flex', flexDirection:'column', position:'fixed', top:0, left:0, bottom:0, zIndex:50 }}>
+      <aside style={{ width:220, background:'var(--bg-sidebar)', borderRight:'1px solid var(--border-color)', display:'flex', flexDirection:'column', position:'fixed', top:0, left:0, bottom:0, zIndex:50 }}>
         {/* Logo */}
-        <div style={{ padding:'20px 16px', borderBottom:'1px solid #1A3A52' }}>
-          <div style={{ fontSize:20, fontWeight:800 }}>Nover<span style={{ color:'#00C48C' }}>Resto</span></div>
-          <div style={{ fontSize:10, color:'#6A8FAB', marginTop:2, textTransform:'uppercase', letterSpacing:1 }}>v1.2.0</div>
+        <div style={{ padding:'20px 16px', borderBottom:'1px solid var(--border-color)' }}>
+          <div style={{ fontSize:20, fontWeight:800 }}>Nover<span style={{ color:'var(--accent)' }}>Resto</span></div>
+          <div style={{ fontSize:10, color:'var(--text-muted)', marginTop:2, textTransform:'uppercase', letterSpacing:1 }}>v1.2.0</div>
         </div>
 
         {/* Nav */}
         <nav style={{ flex:1, padding:'12px 0', overflowY:'auto' }}>
-          <div style={{ fontSize:9, color:'#6A8FAB', padding:'0 16px 8px', textTransform:'uppercase', letterSpacing:1 }}>Principal</div>
+          <div style={{ fontSize:9, color:'var(--text-muted)', padding:'0 16px 8px', textTransform:'uppercase', letterSpacing:1 }}>Principal</div>
           {navItems.slice(0,5).map(item => {
             const active = pathname === item.href
             return (
               <Link key={item.href} href={item.href} style={{
                 display:'flex', alignItems:'center', gap:10, padding:'9px 16px',
-                fontSize:13, color: active ? '#fff' : '#6A8FAB',
-                background: active ? '#0F2D40' : 'transparent',
-                borderLeft: `3px solid ${active ? '#00C48C' : 'transparent'}`,
+                fontSize:13, color: active ? 'var(--text-primary)' : 'var(--text-muted)',
+                background: active ? 'var(--bg-card)' : 'transparent',
+                borderLeft: `3px solid ${active ? 'var(--accent)' : 'transparent'}`,
                 textDecoration:'none', fontWeight: active ? 600 : 400,
                 transition:'all .15s'
               }}>
@@ -83,15 +83,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
             )
           })}
-          <div style={{ fontSize:9, color:'#6A8FAB', padding:'12px 16px 8px', textTransform:'uppercase', letterSpacing:1 }}>Croissance</div>
+          <div style={{ fontSize:9, color:'var(--text-muted)', padding:'12px 16px 8px', textTransform:'uppercase', letterSpacing:1 }}>Croissance</div>
           {navItems.slice(5).map(item => {
             const active = pathname === item.href
             return (
               <Link key={item.href} href={item.href} style={{
                 display:'flex', alignItems:'center', gap:10, padding:'9px 16px',
-                fontSize:13, color: active ? '#fff' : '#6A8FAB',
-                background: active ? '#0F2D40' : 'transparent',
-                borderLeft: `3px solid ${active ? '#00C48C' : 'transparent'}`,
+                fontSize:13, color: active ? 'var(--text-primary)' : 'var(--text-muted)',
+                background: active ? 'var(--bg-card)' : 'transparent',
+                borderLeft: `3px solid ${active ? 'var(--accent)' : 'transparent'}`,
                 textDecoration:'none', fontWeight: active ? 600 : 400,
                 transition:'all .15s'
               }}>
@@ -100,15 +100,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             )
           })}
 
-          <div style={{ fontSize:9, color:'#6A8FAB', padding:'12px 16px 8px', textTransform:'uppercase', letterSpacing:1 }}>Gestion du restaurant</div>
+          <div style={{ fontSize:9, color:'var(--text-muted)', padding:'12px 16px 8px', textTransform:'uppercase', letterSpacing:1 }}>Gestion du restaurant</div>
           {restaurantNavItems.map(item => {
             const active = pathname === item.href
             return (
               <Link key={item.href} href={item.href} style={{
                 display:'flex', alignItems:'center', gap:10, padding:'9px 16px',
-                fontSize:13, color: active ? '#fff' : '#6A8FAB',
-                background: active ? '#0F2D40' : 'transparent',
-                borderLeft: `3px solid ${active ? '#00C48C' : 'transparent'}`,
+                fontSize:13, color: active ? 'var(--text-primary)' : 'var(--text-muted)',
+                background: active ? 'var(--bg-card)' : 'transparent',
+                borderLeft: `3px solid ${active ? 'var(--accent)' : 'transparent'}`,
                 textDecoration:'none', fontWeight: active ? 600 : 400,
                 transition:'all .15s'
               }}>
@@ -119,15 +119,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         {/* User */}
-        <div style={{ padding:'14px 16px', borderTop:'1px solid #1A3A52' }}>
+        <div style={{ padding:'14px 16px', borderTop:'1px solid var(--border-color)' }}>
           <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-            <div style={{ width:34, height:34, borderRadius:'50%', background:'#00C48C', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:'#081522', flexShrink:0 }}>{initials}</div>
+            <div style={{ width:34, height:34, borderRadius:'50%', background:'var(--accent)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:'var(--bg-page)', flexShrink:0 }}>{initials}</div>
             <div style={{ overflow:'hidden' }}>
               <div style={{ fontSize:12, fontWeight:700, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{user?.name || '...'}</div>
-              <div style={{ fontSize:10, color:'#00C48C', textTransform:'uppercase', letterSpacing:.5 }}>{user?.role || 'client'}</div>
+              <div style={{ fontSize:10, color:'var(--accent)', textTransform:'uppercase', letterSpacing:.5 }}>{user?.role || 'client'}</div>
             </div>
           </div>
-          <button onClick={logout} style={{ width:'100%', padding:'7px', background:'#1A3A52', border:'none', borderRadius:7, color:'#8BAABF', fontSize:12, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>
+          <button onClick={logout} style={{ width:'100%', padding:'7px', background:'var(--border-color)', border:'none', borderRadius:7, color:'var(--text-secondary)', fontSize:12, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>
             🚪 Déconnexion
           </button>
         </div>
@@ -136,14 +136,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* MAIN */}
       <main style={{ flex:1, marginLeft:220, minHeight:'100vh', overflow:'auto' }}>
         {/* Topbar */}
-        <div style={{ background:'#0D2137', borderBottom:'1px solid #1A3A52', padding:'0 24px', height:56, display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:40 }}>
-          <div style={{ fontSize:13, color:'#6A8FAB' }}>
+        <div style={{ background:'var(--bg-sidebar)', borderBottom:'1px solid var(--border-color)', padding:'0 24px', height:56, display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:40 }}>
+          <div style={{ fontSize:13, color:'var(--text-muted)' }}>
             {new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:12 }}>
             <ThemeToggleButton />
-            <div style={{ width:8, height:8, borderRadius:'50%', background:'#00C48C' }}></div>
-            <span style={{ fontSize:12, color:'#00C48C', fontWeight:600 }}>Burger House · Lac Tunis</span>
+            <div style={{ width:8, height:8, borderRadius:'50%', background:'var(--accent)' }}></div>
+            <span style={{ fontSize:12, color:'var(--accent)', fontWeight:600 }}>Burger House · Lac Tunis</span>
           </div>
         </div>
         {/* Content */}

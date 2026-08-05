@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
-const C = { navyD:'#081522', navyM:'#0F2D40', navyL:'#1A3A52', teal:'#00C48C', amber:'#F5A623', red:'#E84545', blue:'#3B82F6', green:'#27AE60', purple:'#8B5CF6', muted:'#6A8FAB', gray:'#8BAABF' }
+const C = { navyD:'var(--bg-page)', navyM:'var(--bg-card)', navyL:'var(--border-color)', teal:'var(--accent)', amber:'var(--warning)', red:'var(--danger)', blue:'var(--info)', green:'var(--success)', purple:'var(--purple)', muted:'var(--text-muted)', gray:'var(--text-secondary)' }
 
 function getToken() {
   return document.cookie.split(';').find(c => c.trim().startsWith('nr_token='))?.split('=')[1] || ''
@@ -25,7 +25,7 @@ function Stars({ rating, size=12 }: { rating:number, size?:number }) {
   return (
     <span style={{ fontSize:size }}>
       {[1,2,3,4,5].map(i => (
-        <span key={i} style={{ color: i <= Math.round(rating) ? C.amber : '#2A3F55' }}>★</span>
+        <span key={i} style={{ color: i <= Math.round(rating) ? C.amber : 'var(--border-color)' }}>★</span>
       ))}
     </span>
   )
@@ -34,13 +34,13 @@ function Stars({ rating, size=12 }: { rating:number, size?:number }) {
 function SentimentBadge({ sentiment }: { sentiment:string }) {
   const s: any = { positive:{c:C.green,l:'😊 Positif'}, negative:{c:C.red,l:'😞 Négatif'}, neutral:{c:C.muted,l:'😐 Neutre'} }
   const st = s[sentiment] || s.neutral
-  return <span style={{ fontSize:10, padding:'2px 8px', borderRadius:10, background:`${st.c}20`, color:st.c, fontWeight:700 }}>{st.l}</span>
+  return <span style={{ fontSize:10, padding:'2px 8px', borderRadius:10, background:`color-mix(in srgb, ${st.c} 20%, transparent)`, color:st.c, fontWeight:700 }}>{st.l}</span>
 }
 
 function UrgencyBadge({ urgency }: { urgency:string }) {
   const u: any = { critical:{c:C.red,l:'🚨 Urgent'}, medium:{c:C.amber,l:'⚠️ Moyen'}, low:{c:C.green,l:'✅ Normal'} }
   const st = u[urgency] || u.low
-  return <span style={{ fontSize:10, padding:'2px 8px', borderRadius:10, background:`${st.c}20`, color:st.c, fontWeight:700 }}>{st.l}</span>
+  return <span style={{ fontSize:10, padding:'2px 8px', borderRadius:10, background:`color-mix(in srgb, ${st.c} 20%, transparent)`, color:st.c, fontWeight:700 }}>{st.l}</span>
 }
 
 function RatingCircle({ rating, size=80 }: { rating:number, size?:number }) {
@@ -132,7 +132,7 @@ export default function ReputationPage() {
     return matchFilter && matchPlatform
   })
 
-  const inp = { width:'100%', background:'#081522', border:'1px solid #1A3A52', borderRadius:8, padding:'10px 14px', fontSize:13, color:'#fff', outline:'none', fontFamily:'Inter,sans-serif', boxSizing:'border-box' as any }
+  const inp = { width:'100%', background:'var(--bg-page)', border:'1px solid var(--border-color)', borderRadius:8, padding:'10px 14px', fontSize:13, color:'var(--text-primary)', outline:'none', fontFamily:'Inter,sans-serif', boxSizing:'border-box' as any }
 
   return (
     <div style={{ maxWidth:1100 }}>
@@ -164,7 +164,7 @@ export default function ReputationPage() {
           { label:'Sans réponse',   value:data?.stats?.pending_reply||0,   color:C.amber,   sub:'en attente' },
           { label:'Urgents',        value:data?.stats?.critical||0,        color:C.red,     sub:'🚨 critiques' },
         ].map((s,i) => (
-          <div key={i} style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:12, padding:'12px 14px', borderTop:`2px solid ${s.color}` }}>
+          <div key={i} style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:12, padding:'12px 14px', borderTop:`2px solid ${s.color}` }}>
             <div style={{ fontSize:9, color:C.muted, textTransform:'uppercase', letterSpacing:.5, marginBottom:4 }}>{s.label}</div>
             <div style={{ fontSize:20, fontWeight:800, color:s.color }}>{s.value}</div>
             <div style={{ fontSize:10, color:C.muted, marginTop:2 }}>{s.sub}</div>
@@ -175,13 +175,13 @@ export default function ReputationPage() {
       {/* Sources + Graphe */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:20 }}>
         {/* Sources plateformes */}
-        <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:20 }}>
+        <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:20 }}>
           <div style={{ fontSize:13, fontWeight:700, marginBottom:16 }}>📊 Par plateforme</div>
           <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
             {(data?.sources || []).map((s: any, i: number) => {
               const pl = PLATFORMS[s.platform] || { icon:'⭐', color:C.muted, label:s.platform }
               return (
-                <div key={i} style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 12px', background:'#081522', borderRadius:8, cursor:'pointer', border:`1px solid ${platform===s.platform?pl.color:C.navyL}` }}
+                <div key={i} style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 12px', background:'var(--bg-page)', borderRadius:8, cursor:'pointer', border:`1px solid ${platform===s.platform?pl.color:C.navyL}` }}
                   onClick={() => setPlatform(platform===s.platform?'all':s.platform)}>
                   <div style={{ fontSize:20 }}>{pl.icon}</div>
                   <div style={{ flex:1 }}>
@@ -199,16 +199,16 @@ export default function ReputationPage() {
         </div>
 
         {/* Graphe tendance */}
-        <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:20 }}>
+        <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:20 }}>
           <div style={{ fontSize:13, fontWeight:700, marginBottom:4 }}>📈 Tendance note (5 semaines)</div>
           <div style={{ fontSize:11, color:C.muted, marginBottom:16 }}>Évolution de votre réputation</div>
           {stats?.weekly_trend ? (
             <ResponsiveContainer width="100%" height={160}>
               <LineChart data={stats.weekly_trend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1A3A52" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
                 <XAxis dataKey="week" tick={{ fill:C.muted, fontSize:10 }} axisLine={false} tickLine={false} />
                 <YAxis domain={[3,5]} tick={{ fill:C.muted, fontSize:10 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ background:'#0D2137', border:'1px solid #1A3A52', borderRadius:8, fontSize:12 }} />
+                <Tooltip contentStyle={{ background:'var(--bg-card-alt)', border:'1px solid var(--border-color)', borderRadius:8, fontSize:12 }} />
                 <Line type="monotone" dataKey="rating" name="Note" stroke={C.teal} strokeWidth={2} dot={{ fill:C.teal, r:4 }} />
               </LineChart>
             </ResponsiveContainer>
@@ -221,7 +221,7 @@ export default function ReputationPage() {
               { label:'Cette semaine', val:`${stats?.weekly_trend?.[4]?.reviews||0} avis`, c:C.blue },
               { label:'Tendance', val:'+0.2 ⬆', c:C.green },
             ].map((s,i) => (
-              <div key={i} style={{ background:'#081522', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
+              <div key={i} style={{ background:'var(--bg-page)', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
                 <div style={{ fontSize:9, color:C.muted, marginBottom:2 }}>{s.label}</div>
                 <div style={{ fontSize:13, fontWeight:700, color:s.c }}>{s.val}</div>
               </div>
@@ -267,7 +267,7 @@ export default function ReputationPage() {
                 onClick={() => { setSelected(r); setAiReply('') }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10, flexWrap:'wrap', gap:8 }}>
                   <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                    <div style={{ width:36, height:36, borderRadius:'50%', background:`${pl.color}20`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, flexShrink:0 }}>{pl.icon}</div>
+                    <div style={{ width:36, height:36, borderRadius:'50%', background:`color-mix(in srgb, ${pl.color} 20%, transparent)`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, flexShrink:0 }}>{pl.icon}</div>
                     <div>
                       <div style={{ fontSize:13, fontWeight:700 }}>{r.author}</div>
                       <div style={{ fontSize:11, color:C.muted }}>{r.relative || new Date(r.date).toLocaleDateString('fr-FR')} · {pl.label}</div>
@@ -297,7 +297,7 @@ export default function ReputationPage() {
       {selected && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.8)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20, backdropFilter:'blur(4px)' }}
           onClick={() => { setSelected(null); setAiReply('') }}>
-          <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:16, padding:28, width:'100%', maxWidth:580, maxHeight:'90vh', overflowY:'auto', position:'relative' }}
+          <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:16, padding:28, width:'100%', maxWidth:580, maxHeight:'90vh', overflowY:'auto', position:'relative' }}
             onClick={e => e.stopPropagation()}>
             <button onClick={() => { setSelected(null); setAiReply('') }} style={{ position:'absolute', top:12, right:14, background:'none', border:'none', color:C.muted, fontSize:20, cursor:'pointer' }}>✕</button>
 
@@ -309,7 +309,7 @@ export default function ReputationPage() {
                 {selected.urgency !== 'low' && <UrgencyBadge urgency={selected.urgency} />}
                 <span style={{ fontSize:11, color:C.muted }}>{selected.author} · {PLATFORMS[selected.platform]?.label}</span>
               </div>
-              <div style={{ fontSize:14, color:C.gray, lineHeight:1.7, background:'#081522', borderRadius:8, padding:'12px 16px', borderLeft:`3px solid ${PLATFORMS[selected.platform]?.color||C.teal}` }}>
+              <div style={{ fontSize:14, color:C.gray, lineHeight:1.7, background:'var(--bg-page)', borderRadius:8, padding:'12px 16px', borderLeft:`3px solid ${PLATFORMS[selected.platform]?.color||C.teal}` }}>
                 {selected.text}
               </div>
             </div>
@@ -330,7 +330,7 @@ export default function ReputationPage() {
                   🚨 Avis urgent — Validation obligatoire avant publication
                 </div>
               )}
-              <button onClick={() => generateReply(selected)} disabled={generating} style={{ width:'100%', padding:'12px', borderRadius:8, border:'none', background:generating?C.navyL:C.purple, color:generating?C.muted:'#fff', fontSize:13, fontWeight:700, cursor:generating?'not-allowed':'pointer', fontFamily:'Inter,sans-serif', marginBottom:10 }}>
+              <button onClick={() => generateReply(selected)} disabled={generating} style={{ width:'100%', padding:'12px', borderRadius:8, border:'none', background:generating?C.navyL:C.purple, color:generating?C.muted:'var(--text-primary)', fontSize:13, fontWeight:700, cursor:generating?'not-allowed':'pointer', fontFamily:'Inter,sans-serif', marginBottom:10 }}>
                 {generating ? '⟳ Claude génère...' : '🤖 Générer une réponse avec Claude IA'}
               </button>
               {aiReply && (

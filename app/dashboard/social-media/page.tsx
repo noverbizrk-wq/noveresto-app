@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 
-const C = { navyD:'#081522', navyM:'#0F2D40', navyL:'#1A3A52', teal:'#00C48C', amber:'#F5A623', red:'#E84545', muted:'#6A8FAB', gray:'#8BAABF' }
+const C = { navyD:'var(--bg-page)', navyM:'var(--bg-card)', navyL:'var(--border-color)', teal:'var(--accent)', amber:'var(--warning)', red:'var(--danger)', muted:'var(--text-muted)', gray:'var(--text-secondary)' }
 
 function getToken() {
   return document.cookie.split(';').find(c => c.trim().startsWith('nr_token='))?.split('=')[1] || ''
@@ -44,7 +44,7 @@ const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','A
 function PlatformBadge({ platform }: { platform: string }) {
   const p = PLATFORMS[platform] || { icon:'📱', color:C.muted, label:platform }
   return (
-    <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:10, background:`${p.color}20`, color:p.color, border:`1px solid ${p.color}40`, display:'inline-flex', alignItems:'center', gap:4 }}>
+    <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:10, background:`color-mix(in srgb, ${p.color} 20%, transparent)`, color:p.color, border:`1px solid ${p.color}40`, display:'inline-flex', alignItems:'center', gap:4 }}>
       {p.icon} {p.label}
     </span>
   )
@@ -55,13 +55,13 @@ function StatusBadge({ status }: { status: string }) {
     draft:              { color:C.muted,   label:'Brouillon'   },
     pending_validation: { color:C.amber,   label:'À valider'   },
     validated:          { color:C.teal,    label:'Validé ✓'    },
-    scheduled:          { color:'#3B82F6', label:'Programmé'   },
-    published:          { color:'#27AE60', label:'Publié ✅'   },
+    scheduled:          { color:'var(--info)', label:'Programmé'   },
+    published:          { color:'var(--success)', label:'Publié ✅'   },
     failed:             { color:C.red,     label:'Échoué ❌'   },
   }
   const st = s[status] || { color:C.muted, label:status }
   return (
-    <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:10, background:`${st.color}20`, color:st.color }}>
+    <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:10, background:`color-mix(in srgb, ${st.color} 20%, transparent)`, color:st.color }}>
       {st.label}
     </span>
   )
@@ -98,7 +98,7 @@ function CalendarView({ posts, currentMonth, onSelectPost }: any) {
               {dayPosts.slice(0,3).map((p: any, pi: number) => {
                 const pl = PLATFORMS[p.platform] || { color:C.muted }
                 return (
-                  <div key={pi} onClick={() => onSelectPost(p)} style={{ fontSize:9, padding:'2px 5px', borderRadius:4, marginBottom:2, background:`${pl.color}20`, color:pl.color, fontWeight:600, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', cursor:'pointer' }}>
+                  <div key={pi} onClick={() => onSelectPost(p)} style={{ fontSize:9, padding:'2px 5px', borderRadius:4, marginBottom:2, background:`color-mix(in srgb, ${pl.color} 20%, transparent)`, color:pl.color, fontWeight:600, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', cursor:'pointer' }}>
                     {PLATFORMS[p.platform]?.icon} {p.theme?.replace(/_/g,' ')}
                   </div>
                 )
@@ -194,7 +194,7 @@ export default function SocialMediaPage() {
   const scheduledCount = posts.filter(p => p.status==='scheduled').length
   const publishedCount = posts.filter(p => p.status==='published').length
 
-  const inp = { width:'100%', background:'#081522', border:'1px solid #1A3A52', borderRadius:8, padding:'9px 13px', fontSize:13, color:'#fff', outline:'none', fontFamily:'Inter,sans-serif', boxSizing:'border-box' as any }
+  const inp = { width:'100%', background:'var(--bg-page)', border:'1px solid var(--border-color)', borderRadius:8, padding:'9px 13px', fontSize:13, color:'var(--text-primary)', outline:'none', fontFamily:'Inter,sans-serif', boxSizing:'border-box' as any }
 
   return (
     <div style={{ maxWidth:1100 }}>
@@ -205,7 +205,7 @@ export default function SocialMediaPage() {
         </div>
         <div style={{ display:'flex', gap:8 }}>
           {Object.entries(PLATFORMS).map(([k,p]:any) => (
-            <div key={k} style={{ display:'flex', alignItems:'center', gap:6, background:C.navyM, border:'1px solid #1A3A52', borderRadius:8, padding:'6px 12px' }}>
+            <div key={k} style={{ display:'flex', alignItems:'center', gap:6, background:C.navyM, border:'1px solid var(--border-color)', borderRadius:8, padding:'6px 12px' }}>
               <div style={{ width:8, height:8, borderRadius:'50%', background:p.color }} />
               <span style={{ fontSize:12, color:C.gray }}>{p.label}</span>
             </div>
@@ -217,10 +217,10 @@ export default function SocialMediaPage() {
         {[
           { label:'Publications ce mois', value:posts.length,   color:C.teal,    sub:'Toutes plateformes' },
           { label:'À valider',            value:pendingCount,   color:C.amber,   sub:'En attente'         },
-          { label:'Programmées',          value:scheduledCount, color:'#3B82F6', sub:'Prêtes à publier'   },
-          { label:'Publiées',             value:publishedCount, color:'#27AE60', sub:'Ce mois'            },
+          { label:'Programmées',          value:scheduledCount, color:'var(--info)', sub:'Prêtes à publier'   },
+          { label:'Publiées',             value:publishedCount, color:'var(--success)', sub:'Ce mois'            },
         ].map((s,i) => (
-          <div key={i} style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:12, padding:16, borderTop:`2px solid ${s.color}` }}>
+          <div key={i} style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:12, padding:16, borderTop:`2px solid ${s.color}` }}>
             <div style={{ fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5, marginBottom:6 }}>{s.label}</div>
             <div style={{ fontSize:26, fontWeight:800, color:s.color }}>{s.value}</div>
             <div style={{ fontSize:11, color:C.muted, marginTop:4 }}>{s.sub}</div>
@@ -228,7 +228,7 @@ export default function SocialMediaPage() {
         ))}
       </div>
 
-      <div style={{ display:'flex', gap:4, background:'#081522', borderRadius:10, padding:4, marginBottom:20, width:'fit-content' }}>
+      <div style={{ display:'flex', gap:4, background:'var(--bg-page)', borderRadius:10, padding:4, marginBottom:20, width:'fit-content' }}>
         {[
           { key:'calendar', label:'📅 Calendrier'                     },
           { key:'generate', label:'🤖 Générer avec IA'               },
@@ -241,11 +241,11 @@ export default function SocialMediaPage() {
       </div>
 
       {tab === 'calendar' && (
-        <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:24 }}>
+        <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:24 }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
-            <button onClick={() => setMonth(d => new Date(d.getFullYear(), d.getMonth()-1, 1))} style={{ background:C.navyD, border:'1px solid #1A3A52', borderRadius:8, padding:'6px 14px', color:'#fff', cursor:'pointer', fontSize:16 }}>‹</button>
+            <button onClick={() => setMonth(d => new Date(d.getFullYear(), d.getMonth()-1, 1))} style={{ background:C.navyD, border:'1px solid var(--border-color)', borderRadius:8, padding:'6px 14px', color:'var(--text-primary)', cursor:'pointer', fontSize:16 }}>‹</button>
             <div style={{ fontSize:16, fontWeight:800 }}>{MONTHS_FR[currentMonth.getMonth()]} {currentMonth.getFullYear()}</div>
-            <button onClick={() => setMonth(d => new Date(d.getFullYear(), d.getMonth()+1, 1))} style={{ background:C.navyD, border:'1px solid #1A3A52', borderRadius:8, padding:'6px 14px', color:'#fff', cursor:'pointer', fontSize:16 }}>›</button>
+            <button onClick={() => setMonth(d => new Date(d.getFullYear(), d.getMonth()+1, 1))} style={{ background:C.navyD, border:'1px solid var(--border-color)', borderRadius:8, padding:'6px 14px', color:'var(--text-primary)', cursor:'pointer', fontSize:16 }}>›</button>
           </div>
           <CalendarView posts={posts} currentMonth={currentMonth} onSelectPost={setPost} />
           <div style={{ display:'flex', gap:16, marginTop:16, flexWrap:'wrap' }}>
@@ -260,13 +260,13 @@ export default function SocialMediaPage() {
 
       {tab === 'generate' && (
         <div style={{ display:'grid', gridTemplateColumns:'350px 1fr', gap:16 }}>
-          <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:24 }}>
+          <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:24 }}>
             <div style={{ fontSize:14, fontWeight:700, marginBottom:20 }}>🤖 Paramètres de génération</div>
             <div style={{ marginBottom:14 }}>
               <label style={{ display:'block', fontSize:11, fontWeight:600, color:C.muted, textTransform:'uppercase', letterSpacing:.4, marginBottom:6 }}>Plateforme</label>
               <div style={{ display:'flex', gap:6 }}>
                 {Object.entries(PLATFORMS).map(([k,p]:any) => (
-                  <button key={k} onClick={() => setPlatform(k)} style={{ flex:1, padding:'8px 4px', borderRadius:8, border:`1px solid ${platform===k?p.color:C.navyL}`, background:platform===k?`${p.color}20`:'transparent', color:platform===k?p.color:C.muted, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>
+                  <button key={k} onClick={() => setPlatform(k)} style={{ flex:1, padding:'8px 4px', borderRadius:8, border:`1px solid ${platform===k?p.color:C.navyL}`, background:platform===k?`color-mix(in srgb, ${p.color} 20%, transparent)`:'transparent', color:platform===k?p.color:C.muted, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>
                     {p.icon} {p.label}
                   </button>
                 ))}
@@ -300,25 +300,25 @@ export default function SocialMediaPage() {
               {generating ? '⟳ Génération en cours...' : '🤖 Générer avec Claude IA'}
             </button>
             {genError && (
-              <div style={{ marginTop:12, padding:'10px 13px', background:'rgba(232,69,69,.12)', border:'1px solid #E84545', borderRadius:8, fontSize:12, color:'#E84545' }}>
+              <div style={{ marginTop:12, padding:'10px 13px', background:'rgba(232,69,69,.12)', border:'1px solid var(--danger)', borderRadius:8, fontSize:12, color:'var(--danger)' }}>
                 ❌ {genError.includes('credit') ? 'Crédit Claude API insuffisant — rechargez sur console.anthropic.com' : genError}
               </div>
             )}
-            <div style={{ marginTop:16, padding:'10px 13px', background:'#081522', borderRadius:8, fontSize:11, color:C.muted, lineHeight:1.6 }}>
+            <div style={{ marginTop:16, padding:'10px 13px', background:'var(--bg-page)', borderRadius:8, fontSize:11, color:C.muted, lineHeight:1.6 }}>
               💡 Génération via Claude API (claude-sonnet-4-6) avec le profil complet de votre restaurant.
             </div>
           </div>
 
           <div>
             {!genResult && !generating && (
-              <div style={{ background:C.navyM, border:'1px dashed #1A3A52', borderRadius:14, padding:40, textAlign:'center', height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:12 }}>
+              <div style={{ background:C.navyM, border:'1px dashed var(--border-color)', borderRadius:14, padding:40, textAlign:'center', height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:12 }}>
                 <div style={{ fontSize:48 }}>🤖</div>
                 <div style={{ fontSize:16, fontWeight:700, color:C.gray }}>Prêt à générer</div>
                 <div style={{ fontSize:13, color:C.muted, maxWidth:280, lineHeight:1.6 }}>Remplissez le formulaire et cliquez sur Générer pour créer une publication optimisée avec Claude IA.</div>
               </div>
             )}
             {generating && (
-              <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:40, textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:16, height:'100%' }}>
+              <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:40, textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:16, height:'100%' }}>
                 <div style={{ width:48, height:48, border:`4px solid ${C.navyL}`, borderTopColor:C.teal, borderRadius:'50%', animation:'spin 1s linear infinite' }} />
                 <div style={{ fontSize:14, fontWeight:700 }}>Claude IA génère votre publication...</div>
                 <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -334,11 +334,11 @@ export default function SocialMediaPage() {
                     </div>
                     <StatusBadge status="pending_validation" />
                   </div>
-                  <div style={{ background:'#081522', borderRadius:8, padding:'10px 14px', marginBottom:10, borderLeft:`3px solid ${C.teal}` }}>
+                  <div style={{ background:'var(--bg-page)', borderRadius:8, padding:'10px 14px', marginBottom:10, borderLeft:`3px solid ${C.teal}` }}>
                     <div style={{ fontSize:10, color:C.teal, fontWeight:700, marginBottom:4 }}>ACCROCHE</div>
                     <div style={{ fontSize:14, fontWeight:700 }}>{genResult.caption_hook}</div>
                   </div>
-                  <div style={{ background:'#081522', borderRadius:8, padding:'10px 14px', marginBottom:10 }}>
+                  <div style={{ background:'var(--bg-page)', borderRadius:8, padding:'10px 14px', marginBottom:10 }}>
                     <div style={{ fontSize:10, color:C.muted, fontWeight:700, marginBottom:6 }}>TEXTE COMPLET</div>
                     <div style={{ fontSize:13, color:C.gray, lineHeight:1.7, whiteSpace:'pre-wrap' }}>{genResult.caption_full}</div>
                   </div>
@@ -350,11 +350,11 @@ export default function SocialMediaPage() {
                   {genResult.cta && <div style={{ fontSize:12, color:C.amber, fontWeight:600 }}>📣 CTA : {genResult.cta}</div>}
                 </div>
                 {genResult.visual_suggestion && (
-                  <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:16 }}>
+                  <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:16 }}>
                     <div style={{ fontSize:12, fontWeight:700, marginBottom:8 }}>🎨 Suggestion visuelle</div>
                     <div style={{ fontSize:12, color:C.gray, lineHeight:1.6 }}>
-                      <strong style={{ color:'#fff' }}>Type :</strong> {genResult.visual_suggestion?.type}<br/>
-                      <strong style={{ color:'#fff' }}>Description :</strong> {genResult.visual_suggestion?.description}<br/>
+                      <strong style={{ color:'var(--text-primary)' }}>Type :</strong> {genResult.visual_suggestion?.type}<br/>
+                      <strong style={{ color:'var(--text-primary)' }}>Description :</strong> {genResult.visual_suggestion?.description}<br/>
                     </div>
                   </div>
                 )}
@@ -369,12 +369,12 @@ export default function SocialMediaPage() {
       )}
 
       {tab === 'posts' && (
-        <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, overflow:'hidden' }}>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr', gap:8, padding:'12px 16px', background:'#0D2137', fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5 }}>
+        <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, overflow:'hidden' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr', gap:8, padding:'12px 16px', background:'var(--bg-card-alt)', fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5 }}>
             <span>Date / Heure</span><span>Plateforme</span><span>Thème</span><span>Objectif</span><span>Statut</span>
           </div>
           {posts.map((p,i) => (
-            <div key={p.id} onClick={() => setPost(p)} style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr', gap:8, padding:'11px 16px', borderBottom:'1px solid #1A3A5230', background:i%2===0?'transparent':'#0A1A27', cursor:'pointer' }}>
+            <div key={p.id} onClick={() => setPost(p)} style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr', gap:8, padding:'11px 16px', borderBottom:'1px solid color-mix(in srgb, var(--border-color) 30%, transparent)', background:i%2===0?'transparent':'var(--bg-card-alt)', cursor:'pointer' }}>
               <div style={{ fontSize:12 }}>
                 <div style={{ fontWeight:600 }}>{p.scheduled_at?new Date(p.scheduled_at).toLocaleDateString('fr-FR'):'—'}</div>
                 <div style={{ color:C.muted, fontSize:11 }}>{p.scheduled_at?new Date(p.scheduled_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):''}</div>
@@ -385,13 +385,13 @@ export default function SocialMediaPage() {
               <div style={{ display:'flex', alignItems:'center' }}><StatusBadge status={p.status} /></div>
             </div>
           ))}
-          <div style={{ padding:'10px 16px', borderTop:'1px solid #1A3A52', fontSize:11, color:C.muted, background:'#0D2137' }}>{posts.length} publication(s) ce mois</div>
+          <div style={{ padding:'10px 16px', borderTop:'1px solid var(--border-color)', fontSize:11, color:C.muted, background:'var(--bg-card-alt)' }}>{posts.length} publication(s) ce mois</div>
         </div>
       )}
 
       {selectedPost && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.75)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)', padding:20 }} onClick={() => setPost(null)}>
-          <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:16, padding:28, width:'100%', maxWidth:540, position:'relative' }} onClick={e => e.stopPropagation()}>
+          <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:16, padding:28, width:'100%', maxWidth:540, position:'relative' }} onClick={e => e.stopPropagation()}>
             <button onClick={() => setPost(null)} style={{ position:'absolute', top:12, right:14, background:'none', border:'none', color:C.muted, fontSize:20, cursor:'pointer' }}>✕</button>
             <div style={{ display:'flex', gap:10, alignItems:'center', marginBottom:16 }}>
               <PlatformBadge platform={selectedPost.platform} />
@@ -399,10 +399,10 @@ export default function SocialMediaPage() {
               <span style={{ fontSize:12, color:C.muted }}>{selectedPost.scheduled_at?new Date(selectedPost.scheduled_at).toLocaleString('fr-FR'):'—'}</span>
             </div>
             <div style={{ fontSize:13, fontWeight:700, marginBottom:6, color:C.teal }}>{selectedPost.theme?.replace(/_/g,' ')}</div>
-            {selectedPost.caption_hook && <div style={{ background:'#081522', borderRadius:8, padding:'10px 14px', marginBottom:10, borderLeft:`3px solid ${C.teal}` }}><div style={{ fontSize:13, fontWeight:700 }}>{selectedPost.caption_hook}</div></div>}
-            {selectedPost.caption_full && <div style={{ background:'#081522', borderRadius:8, padding:'10px 14px', marginBottom:10 }}><div style={{ fontSize:13, color:C.gray, lineHeight:1.7 }}>{selectedPost.caption_full}</div></div>}
+            {selectedPost.caption_hook && <div style={{ background:'var(--bg-page)', borderRadius:8, padding:'10px 14px', marginBottom:10, borderLeft:`3px solid ${C.teal}` }}><div style={{ fontSize:13, fontWeight:700 }}>{selectedPost.caption_hook}</div></div>}
+            {selectedPost.caption_full && <div style={{ background:'var(--bg-page)', borderRadius:8, padding:'10px 14px', marginBottom:10 }}><div style={{ fontSize:13, color:C.gray, lineHeight:1.7 }}>{selectedPost.caption_full}</div></div>}
             {selectedPost.hashtags?.length > 0 && <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:12 }}>{selectedPost.hashtags.map((h:string,i:number) => <span key={i} style={{ fontSize:11, padding:'2px 8px', borderRadius:10, background:'rgba(0,196,140,.1)', color:C.teal }}>{h}</span>)}</div>}
-            {selectedPost.visual_suggestion && <div style={{ fontSize:12, color:C.muted, background:'#081522', borderRadius:8, padding:'8px 12px', marginBottom:14 }}>🎨 {selectedPost.visual_suggestion}</div>}
+            {selectedPost.visual_suggestion && <div style={{ fontSize:12, color:C.muted, background:'var(--bg-page)', borderRadius:8, padding:'8px 12px', marginBottom:14 }}>🎨 {selectedPost.visual_suggestion}</div>}
             {selectedPost.status === 'pending_validation' && (
               <div style={{ display:'flex', gap:10 }}>
                 <button style={{ flex:1, padding:'10px', borderRadius:8, border:`1px solid ${C.red}`, background:'transparent', color:C.red, fontSize:13, fontWeight:600, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>❌ Refuser</button>

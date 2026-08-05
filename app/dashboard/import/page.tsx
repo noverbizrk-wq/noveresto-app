@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef } from 'react'
 
-const C = { navyD:'#081522', navyM:'#0F2D40', navyL:'#1A3A52', teal:'#00C48C', amber:'#F5A623', red:'#E84545', muted:'#6A8FAB', gray:'#8BAABF' }
+const C = { navyD:'var(--bg-page)', navyM:'var(--bg-card)', navyL:'var(--border-color)', teal:'var(--accent)', amber:'var(--warning)', red:'var(--danger)', muted:'var(--text-muted)', gray:'var(--text-secondary)' }
 
 function getToken() {
   return document.cookie.split(';').find(c => c.trim().startsWith('nr_token='))?.split('=')[1] || ''
@@ -42,7 +42,7 @@ export default function ImportCSVPage() {
   const [forecast, setFc]     = useState<any>(null)
   const [dragOver, setDrag]   = useState(false)
   const [step, setStep]       = useState<'upload'|'preview'|'done'>('upload')
-  const inp = { width:'100%', background:'#081522', border:'1px solid #1A3A52', borderRadius:8, padding:'10px 14px', fontSize:13, color:'#fff', outline:'none', fontFamily:'Inter,sans-serif', boxSizing:'border-box' as any }
+  const inp = { width:'100%', background:'var(--bg-page)', border:'1px solid var(--border-color)', borderRadius:8, padding:'10px 14px', fontSize:13, color:'var(--text-primary)', outline:'none', fontFamily:'Inter,sans-serif', boxSizing:'border-box' as any }
 
   function handleFile(f: File) {
     setFile(f); setResult(null); setFc(null)
@@ -80,19 +80,19 @@ export default function ImportCSVPage() {
         <div style={{fontSize:13,color:C.muted}}>Importez vos données de ventes réelles pour entraîner Prophet IA</div>
       </div>
 
-      <div style={{background:C.navyM,border:'1px solid #1A3A52',borderRadius:12,padding:20,marginBottom:20}}>
+      <div style={{background:C.navyM,border:'1px solid var(--border-color)',borderRadius:12,padding:20,marginBottom:20}}>
         <div style={{fontSize:13,fontWeight:700,marginBottom:12}}>📋 Format CSV attendu</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
           <div>
             {[{col:'date',desc:'Date (YYYY-MM-DD)',req:true},{col:'revenue',desc:'Chiffre d\'affaires',req:true},{col:'covers',desc:'Couverts (optionnel)',req:false}].map((c,i)=>(
-              <div key={i} style={{display:'flex',gap:8,alignItems:'center',padding:'5px 0',borderBottom:'1px solid #1A3A5220'}}>
-                <code style={{fontSize:11,background:'#081522',padding:'2px 8px',borderRadius:4,color:C.teal,fontFamily:'monospace'}}>{c.col}</code>
+              <div key={i} style={{display:'flex',gap:8,alignItems:'center',padding:'5px 0',borderBottom:'1px solid color-mix(in srgb, var(--border-color) 20%, transparent)'}}>
+                <code style={{fontSize:11,background:'var(--bg-page)',padding:'2px 8px',borderRadius:4,color:C.teal,fontFamily:'monospace'}}>{c.col}</code>
                 <span style={{fontSize:11,color:C.gray}}>{c.desc}</span>
                 {c.req&&<span style={{fontSize:9,color:C.red,fontWeight:700}}>REQUIS</span>}
               </div>
             ))}
           </div>
-          <pre style={{background:'#081522',borderRadius:8,padding:'10px 14px',fontSize:11,color:C.teal,fontFamily:'monospace',margin:0,lineHeight:1.8}}>{`date,revenue,covers\n2026-07-01,12480,249\n2026-07-02,9240,185\n2026-07-03,11850,237`}</pre>
+          <pre style={{background:'var(--bg-page)',borderRadius:8,padding:'10px 14px',fontSize:11,color:C.teal,fontFamily:'monospace',margin:0,lineHeight:1.8}}>{`date,revenue,covers\n2026-07-01,12480,249\n2026-07-02,9240,185\n2026-07-03,11850,237`}</pre>
         </div>
       </div>
 
@@ -110,29 +110,29 @@ export default function ImportCSVPage() {
       {step==='preview'&&parsed&&(
         <div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
-            {[{l:'Lignes',v:parsed.rows.length,c:C.teal},{l:'Erreurs',v:parsed.errors.length,c:parsed.errors.length?C.red:C.teal},{l:'Fichier',v:file?.name?.slice(0,12),c:'#8B5CF6'},{l:'Taille',v:`${((file?.size||0)/1024).toFixed(1)} KB`,c:C.amber}].map((s,i)=>(
-              <div key={i} style={{background:C.navyM,border:'1px solid #1A3A52',borderRadius:10,padding:'12px 16px',borderTop:`2px solid ${s.c}`}}>
+            {[{l:'Lignes',v:parsed.rows.length,c:C.teal},{l:'Erreurs',v:parsed.errors.length,c:parsed.errors.length?C.red:C.teal},{l:'Fichier',v:file?.name?.slice(0,12),c:'var(--purple)'},{l:'Taille',v:`${((file?.size||0)/1024).toFixed(1)} KB`,c:C.amber}].map((s,i)=>(
+              <div key={i} style={{background:C.navyM,border:'1px solid var(--border-color)',borderRadius:10,padding:'12px 16px',borderTop:`2px solid ${s.c}`}}>
                 <div style={{fontSize:10,color:C.muted,textTransform:'uppercase',letterSpacing:.5,marginBottom:4}}>{s.l}</div>
                 <div style={{fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
               </div>
             ))}
           </div>
-          {parsed.errors.length>0&&<div style={{background:'rgba(232,69,69,.08)',border:'1px solid rgba(232,69,69,.3)',borderRadius:10,padding:16,marginBottom:16}}>{parsed.errors.map((e:string,i:number)=><div key={i} style={{fontSize:12,color:'#ff8080'}}>• {e}</div>)}</div>}
+          {parsed.errors.length>0&&<div style={{background:'rgba(232,69,69,.08)',border:'1px solid rgba(232,69,69,.3)',borderRadius:10,padding:16,marginBottom:16}}>{parsed.errors.map((e:string,i:number)=><div key={i} style={{fontSize:12,color:'var(--danger)'}}>• {e}</div>)}</div>}
           {parsed.rows.length>0&&(
-            <div style={{background:C.navyM,border:'1px solid #1A3A52',borderRadius:12,overflow:'hidden',marginBottom:16}}>
-              <div style={{padding:'12px 16px',background:'#0D2137',fontSize:13,fontWeight:700}}>📊 Aperçu — {parsed.rows.length} lignes</div>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8,padding:'10px 16px',background:'#0D2137',fontSize:10,color:C.muted,textTransform:'uppercase',borderTop:'1px solid #1A3A52'}}>
+            <div style={{background:C.navyM,border:'1px solid var(--border-color)',borderRadius:12,overflow:'hidden',marginBottom:16}}>
+              <div style={{padding:'12px 16px',background:'var(--bg-card-alt)',fontSize:13,fontWeight:700}}>📊 Aperçu — {parsed.rows.length} lignes</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8,padding:'10px 16px',background:'var(--bg-card-alt)',fontSize:10,color:C.muted,textTransform:'uppercase',borderTop:'1px solid var(--border-color)'}}>
                 <span>Date</span><span>CA (TND)</span><span>Couverts</span><span>Ticket moy.</span>
               </div>
               {parsed.rows.slice(0,8).map((row:any,i:number)=>(
-                <div key={i} style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8,padding:'9px 16px',borderTop:'1px solid #1A3A5220',fontSize:12,background:i%2===0?'transparent':'#0A1A27'}}>
+                <div key={i} style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8,padding:'9px 16px',borderTop:'1px solid color-mix(in srgb, var(--border-color) 20%, transparent)',fontSize:12,background:i%2===0?'transparent':'var(--bg-card-alt)'}}>
                   <span style={{color:C.gray}}>{row.date}</span>
                   <span style={{fontWeight:700,color:C.teal}}>{row.revenue_tnd.toLocaleString('fr-FR')}</span>
                   <span style={{color:C.gray}}>{row.covers}</span>
                   <span style={{color:C.gray}}>{row.avg_ticket}</span>
                 </div>
               ))}
-              {parsed.rows.length>8&&<div style={{padding:'8px 16px',fontSize:11,color:C.muted,background:'#0D2137',borderTop:'1px solid #1A3A52'}}>... et {parsed.rows.length-8} lignes supplémentaires</div>}
+              {parsed.rows.length>8&&<div style={{padding:'8px 16px',fontSize:11,color:C.muted,background:'var(--bg-card-alt)',borderTop:'1px solid var(--border-color)'}}>... et {parsed.rows.length-8} lignes supplémentaires</div>}
             </div>
           )}
           <div style={{display:'flex',gap:12}}>
@@ -151,10 +151,10 @@ export default function ImportCSVPage() {
             <div style={{fontSize:20,fontWeight:800,marginBottom:8}}>Import réussi !</div>
             <div style={{fontSize:14,color:C.gray}}><strong style={{color:C.teal}}>{result.inserted}</strong> lignes importées · {result.skipped} doublon(s) ignoré(s)</div>
           </div>
-          <div style={{background:C.navyM,border:'1px solid #1A3A52',borderRadius:16,padding:24,marginBottom:16}}>
+          <div style={{background:C.navyM,border:'1px solid var(--border-color)',borderRadius:16,padding:24,marginBottom:16}}>
             <div style={{fontSize:14,fontWeight:700,marginBottom:8}}>🧠 Réentraîner Prophet avec vos données réelles</div>
             <div style={{fontSize:13,color:C.muted,marginBottom:16}}>Prophet va utiliser vos vraies données pour des prévisions plus précises.</div>
-            <button onClick={retrain} disabled={retraining} style={{width:'100%',padding:'13px',borderRadius:10,border:'none',background:retraining?C.navyL:'#8B5CF6',color:retraining?C.muted:'#fff',fontSize:14,fontWeight:700,cursor:retraining?'not-allowed':'pointer',fontFamily:'Inter,sans-serif'}}>
+            <button onClick={retrain} disabled={retraining} style={{width:'100%',padding:'13px',borderRadius:10,border:'none',background:retraining?C.navyL:'var(--purple)',color:retraining?C.muted:'var(--text-primary)',fontSize:14,fontWeight:700,cursor:retraining?'not-allowed':'pointer',fontFamily:'Inter,sans-serif'}}>
               {retraining?'⟳ Entraînement Prophet... (30-60s)':'🚀 Réentraîner Prophet maintenant'}
             </button>
           </div>
@@ -176,7 +176,7 @@ export default function ImportCSVPage() {
               </div>
               <div style={{display:'flex',gap:12}}>
                 <a href="/app/dashboard/forecasts" style={{flex:1,padding:'10px',borderRadius:8,background:C.teal,color:C.navyD,fontSize:13,fontWeight:700,textDecoration:'none',textAlign:'center',display:'block'}}>📊 Voir prévisions</a>
-                <a href="/app/dashboard" style={{flex:1,padding:'10px',borderRadius:8,background:C.navyL,color:'#fff',fontSize:13,fontWeight:600,textDecoration:'none',textAlign:'center',display:'block'}}>🏠 Dashboard</a>
+                <a href="/app/dashboard" style={{flex:1,padding:'10px',borderRadius:8,background:C.navyL,color:'var(--text-primary)',fontSize:13,fontWeight:600,textDecoration:'none',textAlign:'center',display:'block'}}>🏠 Dashboard</a>
               </div>
             </div>
           )}

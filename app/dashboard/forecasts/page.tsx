@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 
-const C = { navyD:'#081522', navyM:'#0F2D40', navyL:'#1A3A52', teal:'#00C48C', amber:'#F5A623', red:'#E84545', muted:'#6A8FAB', gray:'#8BAABF' }
+const C = { navyD:'var(--bg-page)', navyM:'var(--bg-card)', navyL:'var(--border-color)', teal:'var(--accent)', amber:'var(--warning)', red:'var(--danger)', muted:'var(--text-muted)', gray:'var(--text-secondary)' }
 
 function getToken() {
   return document.cookie.split(';').find(c => c.trim().startsWith('nr_token='))?.split('=')[1] || ''
@@ -25,9 +25,9 @@ function BarChart({ forecasts }: { forecasts: any[] }) {
           return (
             <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', height:'100%', justifyContent:'flex-end', gap:4, position:'relative' }}>
               {/* Tooltip */}
-              <div style={{ position:'absolute', top:0, left:'50%', transform:'translateX(-50%)', background:'#0D2137', border:'1px solid #1A3A52', borderRadius:6, padding:'4px 8px', fontSize:10, whiteSpace:'nowrap', textAlign:'center', zIndex:10 }}>
-                <div style={{ color:'#00C48C', fontWeight:700 }}>{f.revenue_tnd.toLocaleString('fr-FR')} TND</div>
-                <div style={{ color:'#6A8FAB' }}>{f.covers} couverts</div>
+              <div style={{ position:'absolute', top:0, left:'50%', transform:'translateX(-50%)', background:'var(--bg-card-alt)', border:'1px solid var(--border-color)', borderRadius:6, padding:'4px 8px', fontSize:10, whiteSpace:'nowrap', textAlign:'center', zIndex:10 }}>
+                <div style={{ color:'var(--accent)', fontWeight:700 }}>{f.revenue_tnd.toLocaleString('fr-FR')} TND</div>
+                <div style={{ color:'var(--text-muted)' }}>{f.covers} couverts</div>
               </div>
               {/* Barre max (interval) */}
               <div style={{ width:'100%', position:'relative', height:`${pctMax}%`, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
@@ -42,7 +42,7 @@ function BarChart({ forecasts }: { forecasts: any[] }) {
               <div style={{ fontSize:10, color: isWeekend ? C.teal : C.muted, fontWeight: isWeekend ? 700 : 400, textAlign:'center' }}>
                 {days[f.day] || f.day}
               </div>
-              <div style={{ fontSize:9, color:'#3A5570', textAlign:'center' }}>
+              <div style={{ fontSize:9, color:'var(--text-muted)', textAlign:'center' }}>
                 {f.date.slice(5)}
               </div>
             </div>
@@ -70,14 +70,14 @@ function BarChart({ forecasts }: { forecasts: any[] }) {
 
 function MAPEGauge({ mape }: { mape: number }) {
   const score = mape < 5 ? '🏆 Excellent' : mape < 10 ? '✅ Très bon' : mape < 15 ? '👍 Bon' : '⚠️ À améliorer'
-  const color = mape < 5 ? '#27AE60' : mape < 10 ? C.teal : mape < 15 ? C.amber : C.red
+  const color = mape < 5 ? 'var(--success)' : mape < 10 ? C.teal : mape < 15 ? C.amber : C.red
   const pct = Math.min(100, (mape / 20) * 100)
 
   return (
     <div style={{ textAlign:'center' }}>
       <div style={{ fontSize:28, fontWeight:900, color }}>{mape}%</div>
       <div style={{ fontSize:11, color:C.muted, margin:'4px 0' }}>MAPE (erreur moyenne)</div>
-      <div style={{ height:6, background:'#1A3A52', borderRadius:3, overflow:'hidden', margin:'8px 0' }}>
+      <div style={{ height:6, background:'var(--border-color)', borderRadius:3, overflow:'hidden', margin:'8px 0' }}>
         <div style={{ height:'100%', width:`${100-pct}%`, background:color, borderRadius:3, transition:'width 1s' }} />
       </div>
       <div style={{ fontSize:12, fontWeight:700, color }}>{score}</div>
@@ -158,7 +158,7 @@ export default function ForecastsPage() {
       </div>
 
       {error && (
-        <div style={{ background:'rgba(232,69,69,.12)', border:'1px solid #E84545', borderRadius:10, padding:'12px 16px', color:'#E84545', marginBottom:20, fontSize:14 }}>
+        <div style={{ background:'rgba(232,69,69,.12)', border:'1px solid var(--danger)', borderRadius:10, padding:'12px 16px', color:'var(--danger)', marginBottom:20, fontSize:14 }}>
           ❌ {error} — <span style={{ cursor:'pointer', textDecoration:'underline' }} onClick={() => load()}>Réessayer</span>
         </div>
       )}
@@ -167,29 +167,29 @@ export default function ForecastsPage() {
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:300, gap:16 }}>
           <div style={{ width:48, height:48, border:`4px solid ${C.navyL}`, borderTopColor:C.teal, borderRadius:'50%', animation:'spin 1s linear infinite' }} />
           <div style={{ color:C.muted, fontSize:14 }}>Entraînement du modèle Prophet...</div>
-          <div style={{ color:'#3A5570', fontSize:12 }}>Cela peut prendre 30-60 secondes</div>
+          <div style={{ color:'var(--text-muted)', fontSize:12 }}>Cela peut prendre 30-60 secondes</div>
           <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
         </div>
       ) : data && (
         <>
           {/* KPI Cards */}
           <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
-            <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:12, padding:16, borderTop:`2px solid ${C.teal}` }}>
+            <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:12, padding:16, borderTop:`2px solid ${C.teal}` }}>
               <div style={{ fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5, marginBottom:6 }}>Horizon</div>
               <div style={{ fontSize:22, fontWeight:800 }}>J+{horizon}</div>
               <div style={{ fontSize:11, color:C.muted, marginTop:4 }}>Prophet v1.3.0</div>
             </div>
-            <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:12, padding:16, borderTop:'2px solid #3B82F6' }}>
+            <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:12, padding:16, borderTop:'2px solid var(--info)' }}>
               <div style={{ fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5, marginBottom:6 }}>CA total prévu</div>
               <div style={{ fontSize:18, fontWeight:800 }}>{totalRev?.toLocaleString('fr-FR')} TND</div>
               <div style={{ fontSize:11, color:C.muted, marginTop:4 }}>{horizon} jours</div>
             </div>
-            <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:12, padding:16, borderTop:'2px solid #F5A623' }}>
+            <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:12, padding:16, borderTop:'2px solid var(--warning)' }}>
               <div style={{ fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5, marginBottom:6 }}>Pic prévu</div>
               <div style={{ fontSize:16, fontWeight:800, color:C.teal }}>{bestDay?.revenue_tnd?.toLocaleString('fr-FR')} TND</div>
               <div style={{ fontSize:11, color:C.muted, marginTop:4 }}>{days[bestDay?.day]} {bestDay?.date?.slice(5)}</div>
             </div>
-            <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:12, padding:16, borderTop:'2px solid #27AE60' }}>
+            <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:12, padding:16, borderTop:'2px solid var(--success)' }}>
               <div style={{ fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5, marginBottom:6 }}>Moy. couverts/jour</div>
               <div style={{ fontSize:22, fontWeight:800 }}>{avgCovers}</div>
               <div style={{ fontSize:11, color:C.muted, marginTop:4 }}>Ticket moyen ~50 TND</div>
@@ -197,13 +197,13 @@ export default function ForecastsPage() {
           </div>
 
           {/* Graphe principal */}
-          <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:24, marginBottom:20 }}>
+          <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:24, marginBottom:20 }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
               <div>
                 <div style={{ fontSize:14, fontWeight:700 }}>📊 Prévisions CA — J+{horizon}</div>
                 <div style={{ fontSize:12, color:C.muted, marginTop:2 }}>Réalisé vs Prévision Prophet · Intervalles de confiance 95%</div>
               </div>
-              <div style={{ background:'#081522', border:'1px solid #1A3A52', borderRadius:8, padding:'6px 12px', fontSize:11, color:C.teal, fontWeight:700 }}>
+              <div style={{ background:'var(--bg-page)', border:'1px solid var(--border-color)', borderRadius:8, padding:'6px 12px', fontSize:11, color:C.teal, fontWeight:700 }}>
                 🔴 Live · {new Date().toLocaleDateString('fr-FR')}
               </div>
             </div>
@@ -213,11 +213,11 @@ export default function ForecastsPage() {
           {/* Tableau détaillé + MAPE */}
           <div style={{ display:'grid', gridTemplateColumns:'1fr 220px', gap:16, marginBottom:20 }}>
             {/* Tableau */}
-            <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:20 }}>
+            <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:20 }}>
               <div style={{ fontSize:13, fontWeight:700, marginBottom:14 }}>📋 Détail jour par jour</div>
               <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
                 {/* Header */}
-                <div style={{ display:'grid', gridTemplateColumns:'80px 1fr 1fr 1fr 60px', gap:8, fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5, paddingBottom:8, borderBottom:'1px solid #1A3A52' }}>
+                <div style={{ display:'grid', gridTemplateColumns:'80px 1fr 1fr 1fr 60px', gap:8, fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5, paddingBottom:8, borderBottom:'1px solid var(--border-color)' }}>
                   <span>Date</span><span>CA prévu</span><span>Min — Max</span><span>Couverts</span><span>Jour</span>
                 </div>
                 {data.forecasts.map((f: any, i: number) => {
@@ -227,19 +227,19 @@ export default function ForecastsPage() {
                     <div key={i} style={{
                       display:'grid', gridTemplateColumns:'80px 1fr 1fr 1fr 60px', gap:8,
                       padding:'8px 6px', borderRadius:7, fontSize:12,
-                      background: isToday ? 'rgba(0,196,140,.08)' : i%2===0 ? 'transparent' : '#0A1A27',
+                      background: isToday ? 'rgba(0,196,140,.08)' : i%2===0 ? 'transparent' : 'var(--bg-card-alt)',
                       border: isToday ? '1px solid rgba(0,196,140,.25)' : '1px solid transparent'
                     }}>
                       <span style={{ color: isToday ? C.teal : C.muted, fontWeight: isToday ? 700 : 400 }}>
                         {isToday ? '▶ ' : ''}{f.date.slice(5)}
                       </span>
-                      <span style={{ fontWeight:700, color: isWeekend ? C.teal : '#fff' }}>
+                      <span style={{ fontWeight:700, color: isWeekend ? C.teal : 'var(--text-primary)' }}>
                         {f.revenue_tnd.toLocaleString('fr-FR')} TND
                       </span>
                       <span style={{ color:C.muted }}>
                         {f.revenue_min.toLocaleString('fr-FR')} — {f.revenue_max.toLocaleString('fr-FR')}
                       </span>
-                      <span style={{ color:'#8BAABF' }}>{f.covers} cvts</span>
+                      <span style={{ color:'var(--text-secondary)' }}>{f.covers} cvts</span>
                       <span style={{ color: isWeekend ? C.teal : C.muted, fontWeight: isWeekend ? 700 : 400 }}>
                         {days[f.day] || f.day}
                       </span>
@@ -251,12 +251,12 @@ export default function ForecastsPage() {
 
             {/* Qualité modèle */}
             <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-              <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:20 }}>
+              <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:20 }}>
                 <div style={{ fontSize:13, fontWeight:700, marginBottom:16 }}>🎯 Qualité du modèle</div>
                 <MAPEGauge mape={data.mape || 0} />
               </div>
 
-              <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:20 }}>
+              <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:20 }}>
                 <div style={{ fontSize:13, fontWeight:700, marginBottom:12 }}>📊 Dataset</div>
                 <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                   {[
@@ -268,9 +268,9 @@ export default function ForecastsPage() {
                     { lbl:'Saisonnalité', val:'Hebdo + Mensuel' },
                     { lbl:'Jours fériés', val:'Tunisie + Ramadan' },
                   ].map((item, i) => (
-                    <div key={i} style={{ display:'flex', justifyContent:'space-between', fontSize:11, paddingBottom:6, borderBottom:'1px solid #1A3A5230' }}>
+                    <div key={i} style={{ display:'flex', justifyContent:'space-between', fontSize:11, paddingBottom:6, borderBottom:'1px solid color-mix(in srgb, var(--border-color) 30%, transparent)' }}>
                       <span style={{ color:C.muted }}>{item.lbl}</span>
-                      <span style={{ fontWeight:600, color:'#fff' }}>{item.val}</span>
+                      <span style={{ fontWeight:600, color:'var(--text-primary)' }}>{item.val}</span>
                     </div>
                   ))}
                 </div>
@@ -289,7 +289,7 @@ export default function ForecastsPage() {
           </div>
 
           {/* Saisonnalité */}
-          <div style={{ background:C.navyM, border:'1px solid #1A3A52', borderRadius:14, padding:20 }}>
+          <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, padding:20 }}>
             <div style={{ fontSize:13, fontWeight:700, marginBottom:14 }}>📅 Saisonnalité hebdomadaire détectée</div>
             <div style={{ display:'flex', gap:8 }}>
               {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(day => {
@@ -303,7 +303,7 @@ export default function ForecastsPage() {
                       <div style={{ width:'70%', borderRadius:'3px 3px 0 0', height:`${pct}%`, background: isWeekend ? C.teal : 'rgba(0,196,140,0.5)', minHeight:4, transition:'height .5s' }} />
                     </div>
                     <div style={{ fontSize:11, fontWeight:700, color: isWeekend ? C.teal : C.muted }}>{days[day]}</div>
-                    {dayData && <div style={{ fontSize:10, color:'#3A5570', marginTop:2 }}>{Math.round(dayData.revenue_tnd/1000)}k</div>}
+                    {dayData && <div style={{ fontSize:10, color:'var(--text-muted)', marginTop:2 }}>{Math.round(dayData.revenue_tnd/1000)}k</div>}
                   </div>
                 )
               })}

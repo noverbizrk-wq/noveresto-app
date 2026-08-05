@@ -129,7 +129,7 @@ export default function RestaurantOrdersPage() {
                 <td style={{ padding: 12 }}>
                   <span style={{
                     padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600,
-                    background: `${STATUS_COLORS[o.status]}20`, color: STATUS_COLORS[o.status]
+                    background: `color-mix(in srgb, ${STATUS_COLORS[o.status]} 20%, transparent)`, color: STATUS_COLORS[o.status]
                   }}>
                     {STATUS_LABELS[o.status]}
                   </span>

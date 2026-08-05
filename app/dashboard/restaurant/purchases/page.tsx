@@ -179,7 +179,7 @@ export default function PurchasesPage() {
                 <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{o.supplier_name || '—'}</td>
                 <td style={{ padding: 12, color: 'var(--text-primary)' }}>{Number(o.total_amount).toFixed(3)} TND</td>
                 <td style={{ padding: 12 }}>
-                  <span style={{ padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: `${STATUS_COLORS[o.status]}20`, color: STATUS_COLORS[o.status] }}>
+                  <span style={{ padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: `color-mix(in srgb, ${STATUS_COLORS[o.status]} 20%, transparent)`, color: STATUS_COLORS[o.status] }}>
                     {STATUS_LABELS[o.status]}
                   </span>
                 </td>

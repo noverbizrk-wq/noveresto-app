@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-const C = { navyD:'#081522', navyM:'#0F2D40', navyL:'#1A3A52', teal:'#00C48C', amber:'#F5A623', red:'#E84545', muted:'#6A8FAB', gray:'#8BAABF', white:'#FFFFFF' }
+const C = { navyD:'var(--bg-page)', navyM:'var(--bg-card)', navyL:'var(--border-color)', teal:'var(--accent)', amber:'var(--warning)', red:'var(--danger)', muted:'var(--text-muted)', gray:'var(--text-secondary)', white:'var(--text-primary)' }
 
 const STEPS = [
   { id:1, title:'Votre restaurant',   icon:'🏪', desc:'Informations générales'    },
@@ -88,8 +88,8 @@ export default function OnboardingPage() {
   })
 
   const inp = {
-    width:'100%', background:'#081522', border:'1px solid #1A3A52', borderRadius:8,
-    padding:'10px 14px', fontSize:13, color:'#fff', outline:'none',
+    width:'100%', background:'var(--bg-page)', border:'1px solid var(--border-color)', borderRadius:8,
+    padding:'10px 14px', fontSize:13, color:'var(--text-primary)', outline:'none',
     fontFamily:'Inter,sans-serif', boxSizing:'border-box' as any,
   }
 
@@ -191,7 +191,7 @@ export default function OnboardingPage() {
           Bienvenue sur <span style={{ color:C.teal }}>NoveResto</span> !
         </div>
         <div style={{ fontSize:16, color:C.muted, marginBottom:24 }}>
-          Votre restaurant <strong style={{ color:'#fff' }}>{form.restaurant_name}</strong> est prêt.
+          Votre restaurant <strong style={{ color:'var(--text-primary)' }}>{form.restaurant_name}</strong> est prêt.
         </div>
         <div style={{ fontSize:14, color:C.teal }}>Redirection vers votre dashboard...</div>
       </div>
@@ -199,7 +199,7 @@ export default function OnboardingPage() {
   )
 
   return (
-    <div style={{ minHeight:'100vh', background:C.navyD, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'40px 20px', fontFamily:'Inter,sans-serif', color:'#fff' }}>
+    <div style={{ minHeight:'100vh', background:C.navyD, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'40px 20px', fontFamily:'Inter,sans-serif', color:'var(--text-primary)' }}>
 
       {/* Logo */}
       <div style={{ marginBottom:32, textAlign:'center' }}>
@@ -412,7 +412,7 @@ export default function OnboardingPage() {
 
         {/* Erreur */}
         {error && (
-          <div style={{ margin:'16px 0', padding:'10px 14px', background:'rgba(232,69,69,.12)', border:'1px solid #E84545', borderRadius:8, fontSize:13, color:'#E84545' }}>
+          <div style={{ margin:'16px 0', padding:'10px 14px', background:'rgba(232,69,69,.12)', border:'1px solid var(--danger)', borderRadius:8, fontSize:13, color:'var(--danger)' }}>
             ❌ {error}
           </div>
         )}
@@ -444,7 +444,7 @@ export default function OnboardingPage() {
       </div>
 
       {/* Footer */}
-      <div style={{ marginTop:24, fontSize:11, color:'#3A5570', textAlign:'center' }}>
+      <div style={{ marginTop:24, fontSize:11, color:'var(--text-muted)', textAlign:'center' }}>
         🔒 RGPD · JWT Auth · AWS Paris eu-west-3 · noveresto.app
       </div>
     </div>

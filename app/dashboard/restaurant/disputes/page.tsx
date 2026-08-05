@@ -143,7 +143,7 @@ export default function DisputesPage() {
                   {Number(d.amount_refunded) > 0 && ` · Remboursé : ${Number(d.amount_refunded).toFixed(3)} TND`}
                 </div>
               </div>
-              <span style={{ padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: `${STATUS_COLORS[d.status]}20`, color: STATUS_COLORS[d.status] }}>
+              <span style={{ padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: `color-mix(in srgb, ${STATUS_COLORS[d.status]} 20%, transparent)`, color: STATUS_COLORS[d.status] }}>
                 {STATUS_LABELS[d.status]}
               </span>
             </div>

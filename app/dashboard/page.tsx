@@ -7,7 +7,7 @@ import {
   RadialBarChart, RadialBar, Cell, Legend, ReferenceLine
 } from 'recharts'
 
-const C = { navyD:'#081522', navyM:'#0F2D40', navyL:'#1A3A52', teal:'#00C48C', amber:'#F5A623', red:'#E84545', blue:'#3B82F6', green:'#27AE60', purple:'#8B5CF6', muted:'#6A8FAB', gray:'#8BAABF' }
+const C = { navyD:'var(--bg-page)', navyM:'var(--bg-card)', navyL:'var(--border-color)', teal:'var(--accent)', amber:'var(--warning)', red:'var(--danger)', blue:'var(--info)', green:'var(--success)', purple:'var(--purple)', muted:'var(--text-muted)', gray:'var(--text-secondary)' }
 
 function getToken() {
   if (typeof document === 'undefined') return ''
@@ -18,7 +18,7 @@ function getToken() {
 const CustomTooltip = ({ active, payload, label, prefix='', suffix='' }: any) => {
   if (!active || !payload?.length) return null
   return (
-    <div style={{ background:'#0D2137', border:'1px solid #1A3A52', borderRadius:8, padding:'10px 14px', fontSize:12 }}>
+    <div style={{ background:'var(--bg-card-alt)', border:'1px solid var(--border-color)', borderRadius:8, padding:'10px 14px', fontSize:12 }}>
       <div style={{ color:C.muted, marginBottom:6, fontWeight:600 }}>{label}</div>
       {payload.map((p: any, i: number) => (
         <div key={i} style={{ color:p.color, fontWeight:700 }}>
@@ -37,14 +37,14 @@ function KPI({ label, value, delta, color, sub, trend }: any) {
       <div style={{ fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5, marginBottom:6 }}>{label}</div>
       <div style={{ fontSize:22, fontWeight:800 }}>{value}</div>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:6 }}>
-        <div style={{ fontSize:11, padding:'2px 8px', borderRadius:10, background:`${color}20`, color }}>{delta}</div>
+        <div style={{ fontSize:11, padding:'2px 8px', borderRadius:10, background:`color-mix(in srgb, ${color} 20%, transparent)`, color }}>{delta}</div>
         {sub && <div style={{ fontSize:10, color:C.muted }}>{sub}</div>}
       </div>
       {trend && (
         <div style={{ marginTop:8, height:32 }}>
           <ResponsiveContainer width="100%" height={32}>
             <AreaChart data={trend} margin={{ top:0, right:0, bottom:0, left:0 }}>
-              <Area type="monotone" dataKey="v" stroke={color} fill={`${color}20`} strokeWidth={1.5} dot={false} />
+              <Area type="monotone" dataKey="v" stroke={color} fill={`color-mix(in srgb, ${color} 20%, transparent)`} strokeWidth={1.5} dot={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -58,7 +58,7 @@ function Alert({ severity, title, detail }: any) {
   const colors: any = { critical:C.red, warning:C.amber, info:C.blue }
   const c = colors[severity] || C.muted
   return (
-    <div style={{ display:'flex', gap:10, padding:'10px 12px', borderRadius:8, background:`${c}10`, border:`1px solid ${c}30` }}>
+    <div style={{ display:'flex', gap:10, padding:'10px 12px', borderRadius:8, background:`color-mix(in srgb, ${c} 10%, transparent)`, border:`1px solid ${c}30` }}>
       <div style={{ width:3, borderRadius:2, background:c, flexShrink:0 }} />
       <div>
         <div style={{ fontSize:12, fontWeight:700, color:c }}>{title}</div>
@@ -153,7 +153,7 @@ export default function DashboardPage() {
                   <stop offset="95%" stopColor={C.teal} stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1A3A52" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
               <XAxis dataKey="day" tick={{ fill:C.muted, fontSize:11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill:C.muted, fontSize:10 }} axisLine={false} tickLine={false} tickFormatter={v=>`${Math.round(v/1000)}k`} />
               <Tooltip content={<CustomTooltip suffix=" TND" />} />
@@ -209,7 +209,7 @@ export default function DashboardPage() {
           </div>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={prophetData} margin={{ top:5, right:10, bottom:0, left:0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1A3A52" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
               <XAxis dataKey="day" tick={{ fill:C.muted, fontSize:11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill:C.muted, fontSize:10 }} axisLine={false} tickLine={false} tickFormatter={v=>`${Math.round(v/1000)}k`} />
               <Tooltip content={<CustomTooltip suffix=" TND" />} />
@@ -232,7 +232,7 @@ export default function DashboardPage() {
           </div>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={caWeekData.map((d:any, i:number) => ({ ...d, covers:[196,204,210,224,242,276,284,249][i] || 0, objectif_covers:220 }))} margin={{ top:5, right:10, bottom:0, left:0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1A3A52" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
               <XAxis dataKey="day" tick={{ fill:C.muted, fontSize:11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill:C.muted, fontSize:10 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip suffix=" cvts" />} />

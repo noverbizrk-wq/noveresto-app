@@ -16,12 +16,12 @@ export default function SocialPage() {
   ]
   return (
     <div>
-      <h1 style={{ fontSize:24, fontWeight:800, fontFamily:'serif', marginBottom:4 }}>📲 Social Media <span style={{ color:'#00C48C' }}>IA</span></h1>
-      <div style={{ fontSize:13, color:'#6A8FAB', marginBottom:24 }}>Planning éditorial automatique · TikTok · Instagram · Facebook</div>
+      <h1 style={{ fontSize:24, fontWeight:800, fontFamily:'serif', marginBottom:4 }}>📲 Social Media <span style={{ color:'var(--accent)' }}>IA</span></h1>
+      <div style={{ fontSize:13, color:'var(--text-muted)', marginBottom:24 }}>Planning éditorial automatique · TikTok · Instagram · Facebook</div>
 
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:20 }}>
         {platforms.map((p,i) => (
-          <div key={i} style={{ background:'#0F2D40', border:'1px solid #1A3A52', borderRadius:12, padding:20, textAlign:'center', position:'relative', overflow:'hidden' }}>
+          <div key={i} style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:12, padding:20, textAlign:'center', position:'relative', overflow:'hidden' }}>
             <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:p.color }}></div>
             <div style={{ fontSize:32, marginBottom:8 }}>{p.icon}</div>
             <div style={{ fontSize:14, fontWeight:700, marginBottom:6 }}>{p.name}</div>
@@ -31,15 +31,15 @@ export default function SocialPage() {
         ))}
       </div>
 
-      <div style={{ background:'#0F2D40', border:'1px solid #1A3A52', borderRadius:12, padding:20 }}>
+      <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:12, padding:20 }}>
         <div style={{ fontSize:13, fontWeight:700, marginBottom:16 }}>📅 Planning éditorial IA — Cette semaine</div>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:8 }}>
           {planning.map((p,i) => (
             <div key={i}>
-              <div style={{ background:'#1A3A52', borderRadius:6, padding:'4px 6px', textAlign:'center', fontSize:11, fontWeight:700, marginBottom:6 }}>{p.day}</div>
-              <div style={{ background:'#081522', border:`1px solid ${p.color}50`, borderRadius:6, padding:'8px 4px', textAlign:'center' }}>
+              <div style={{ background:'var(--border-color)', borderRadius:6, padding:'4px 6px', textAlign:'center', fontSize:11, fontWeight:700, marginBottom:6 }}>{p.day}</div>
+              <div style={{ background:'var(--bg-page)', border:`1px solid ${p.color}50`, borderRadius:6, padding:'8px 4px', textAlign:'center' }}>
                 <div style={{ fontSize:10, color:p.color, fontWeight:700 }}>{p.type}</div>
-                <div style={{ fontSize:9, color:'#6A8FAB', marginTop:2 }}>{p.time}</div>
+                <div style={{ fontSize:9, color:'var(--text-muted)', marginTop:2 }}>{p.time}</div>
               </div>
             </div>
           ))}

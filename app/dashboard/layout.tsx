@@ -40,8 +40,10 @@ const restaurantNavItems = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router   = useRouter()
   const pathname = usePathname()
+
+  useEffect(() => { setSidebarOpen(false) }, [pathname])
   const [user, setUser]     = useState<any>(null)
-  const [mobile, setMobile] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [myModules, setMyModules] = useState<string[] | null>(null) // null = pas encore chargé
 
   useEffect(() => {
@@ -68,8 +70,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div style={{ display:'flex', minHeight:'100vh', background:'var(--bg-page)' }}>
+      {/* Overlay mobile — ferme le tiroir au clic en dehors */}
+      <div className={`nr-overlay ${sidebarOpen ? 'nr-overlay-open' : ''}`} onClick={() => setSidebarOpen(false)}></div>
+
       {/* SIDEBAR */}
-      <aside style={{ width:220, background:'var(--bg-sidebar)', borderRight:'1px solid var(--border-color)', display:'flex', flexDirection:'column', position:'fixed', top:0, left:0, bottom:0, zIndex:50 }}>
+      <aside className={`nr-sidebar ${sidebarOpen ? 'nr-sidebar-open' : ''}`} style={{ width:220, background:'var(--bg-sidebar)', borderRight:'1px solid var(--border-color)', display:'flex', flexDirection:'column', position:'fixed', top:0, left:0, bottom:0, zIndex:50 }}>
         {/* Logo */}
         <div style={{ padding:'20px 16px', borderBottom:'1px solid var(--border-color)' }}>
           <div style={{ fontSize:20, fontWeight:800 }}>Nover<span style={{ color:'var(--accent)' }}>Resto</span></div>
@@ -149,11 +154,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* MAIN */}
-      <main style={{ flex:1, marginLeft:220, minHeight:'100vh', overflow:'auto' }}>
+      <main className="nr-main" style={{ flex:1, marginLeft:220, minHeight:'100vh', overflow:'auto' }}>
         {/* Topbar */}
         <div style={{ background:'var(--bg-sidebar)', borderBottom:'1px solid var(--border-color)', padding:'0 24px', height:56, display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:40 }}>
-          <div style={{ fontSize:13, color:'var(--text-muted)' }}>
-            {new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}
+          <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+            <button
+              className="nr-hamburger"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Ouvrir le menu"
+              style={{ alignItems:'center', justifyContent:'center', width:32, height:32, background:'transparent', border:'1px solid var(--border-color)', borderRadius:8, cursor:'pointer', fontSize:16, color:'var(--text-primary)' }}
+            >
+              ☰
+            </button>
+            <div className="nr-topbar-label" style={{ fontSize:13, color:'var(--text-muted)' }}>
+              {new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}
+            </div>
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:12 }}>
             <ThemeToggleButton />
@@ -162,7 +177,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </div>
         {/* Content */}
-        <div style={{ padding:24 }}>
+        <div className="nr-page-padding" style={{ padding:24 }}>
           {children}
         </div>
       </main>

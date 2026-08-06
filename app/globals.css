@@ -54,3 +54,65 @@ body { font-family: 'Inter', sans-serif; }
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: #081522; }
 ::-webkit-scrollbar-thumb { background: #1A3A52; border-radius: 3px; }
+
+/* ============================================================
+   Responsive — Lot 8 : sidebar en tiroir sur mobile, grilles et
+   tableaux adaptatifs. Approche par classes CSS car les styles
+   inline (utilisés partout dans l'app) ne peuvent pas contenir
+   de media queries.
+   ============================================================ */
+
+.nr-hamburger { display: none; }
+.nr-overlay { display: none; }
+
+@media (max-width: 768px) {
+  .nr-sidebar {
+    transform: translateX(-100%);
+  }
+  .nr-sidebar.nr-sidebar-open {
+    transform: translateX(0);
+  }
+  .nr-main {
+    margin-left: 0 !important;
+  }
+  .nr-hamburger {
+    display: flex !important;
+  }
+  .nr-overlay.nr-overlay-open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 45;
+  }
+  .nr-topbar-label {
+    display: none;
+  }
+
+  /* Grilles KPI : n colonnes -> 2 colonnes sur mobile */
+  .nr-grid-responsive {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Layout chat + panneau latéral (copilote) -> empilé sur mobile */
+  .nr-grid-chat-panel {
+    grid-template-columns: 1fr !important;
+  }
+  /* Tableaux : défilement horizontal plutôt que débordement cassé */
+  .nr-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nr-table-wrap table {
+    min-width: 640px;
+  }
+  /* Réduire le padding général sur mobile */
+  .nr-page-padding {
+    padding: 12px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .nr-grid-responsive {
+    grid-template-columns: 1fr !important;
+  }
+}

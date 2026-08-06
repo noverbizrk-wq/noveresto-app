@@ -54,7 +54,7 @@ export default function RestaurantOverviewPage() {
 
       {!restaurantLoading && !loading && !error && (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
+          <div className="nr-grid-responsive" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
             <KpiCard label="CA brut (jour)" value={`${Number(totals?.gross_revenue ?? 0).toFixed(3)} TND`} />
             <KpiCard label="CA net (jour)" value={`${Number(totals?.net_revenue ?? 0).toFixed(3)} TND`} />
             <KpiCard label="Commandes" value={totals?.order_count ?? '0'} />

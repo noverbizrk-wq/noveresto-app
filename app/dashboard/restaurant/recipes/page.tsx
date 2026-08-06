@@ -119,7 +119,7 @@ export default function RecipesPage() {
             </div>
 
             {expandedId === c.menu_item_id && (
-              <div style={{ padding: '0 16px 16px', borderTop: '1px solid var(--border-color)' }}>
+              <div className="nr-table-wrap" style={{ padding: '0 16px 16px', borderTop: '1px solid var(--border-color)' }}>
                 <table style={{ width: '100%', fontSize: 13, marginTop: 12, borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ color: 'var(--text-muted)', textAlign: 'left' }}>

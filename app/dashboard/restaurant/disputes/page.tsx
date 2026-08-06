@@ -105,7 +105,7 @@ export default function DisputesPage() {
       </div>
 
       {summary && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
+        <div className="nr-grid-responsive" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
           <KpiCard label="Litiges ouverts" value={summary.open_disputes} />
           <KpiCard label="Montant demandé" value={`${Number(summary.total_requested).toFixed(3)} TND`} />
           <KpiCard label="Montant remboursé" value={`${Number(summary.total_refunded).toFixed(3)} TND`} />

@@ -183,4 +183,17 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ restaurant_id: restaurantId, question })
     }, token),
+
+  // ── Lot 7 : permissions par module ────────────────────────────────────────
+  restaurantMyModules: (token: string) =>
+    apiCall('/api/v1/restaurant/my-modules', {}, token),
+  adminModulesReference: (token: string) =>
+    apiCall('/api/v1/admin/modules', {}, token),
+  adminClientsAccess: (token: string) =>
+    apiCall('/api/v1/admin/clients-access', {}, token),
+  adminSetClientModules: (token: string, userId: number, modules: string[]) =>
+    apiCall(`/api/v1/admin/clients/${userId}/modules`, {
+      method: 'PUT',
+      body: JSON.stringify({ modules })
+    }, token),
 }

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { ThemeToggleButton } from '@/lib/use-theme'
+import { api } from '@/lib/api'
 
 const navItems = [
   { href: '/dashboard',            icon: '📊', label: 'Dashboard'     },
@@ -22,17 +23,18 @@ const navItems = [
 // fixes qui casseraient si on insérait des éléments au milieu du tableau
 // ci-dessus).
 const restaurantNavItems = [
-  { href: '/dashboard/restaurant/overview', icon: '🏪', label: 'Pilotage restaurant' },
-  { href: '/dashboard/restaurant/orders',   icon: '🧾', label: 'Commandes (v2)'      },
-  { href: '/dashboard/restaurant/kds',      icon: '🔥', label: 'Écran cuisine'       },
-  { href: '/dashboard/restaurant/menus',    icon: '🍔', label: 'Menus et produits'   },
-  { href: '/dashboard/restaurant/recipes',   icon: '📋', label: 'Recettes et marges'     },
-  { href: '/dashboard/restaurant/stocks',    icon: '📦', label: 'Stocks (v2)'            },
-  { href: '/dashboard/restaurant/purchases', icon: '🚚', label: 'Achats et fournisseurs' },
-  { href: '/dashboard/restaurant/staff',     icon: '👥', label: 'Équipe et planning'      },
-  { href: '/dashboard/restaurant/disputes',  icon: '⚖️', label: 'Litiges'                 },
-  { href: '/dashboard/restaurant/finance',   icon: '💰', label: 'Finance et TVA'           },
-  { href: '/dashboard/restaurant/copilot',   icon: '🧠', label: 'Copilote IA'              },
+  { href: '/dashboard/restaurant/overview', icon: '🏪', label: 'Pilotage restaurant', key: 'overview' },
+  { href: '/dashboard/restaurant/orders',   icon: '🧾', label: 'Commandes (v2)',      key: 'orders'    },
+  { href: '/dashboard/restaurant/kds',      icon: '🔥', label: 'Écran cuisine',       key: 'kds'       },
+  { href: '/dashboard/restaurant/menus',    icon: '🍔', label: 'Menus et produits',   key: 'menus'     },
+  { href: '/dashboard/restaurant/recipes',   icon: '📋', label: 'Recettes et marges',     key: 'recipes'   },
+  { href: '/dashboard/restaurant/stocks',    icon: '📦', label: 'Stocks (v2)',            key: 'stocks'    },
+  { href: '/dashboard/restaurant/purchases', icon: '🚚', label: 'Achats et fournisseurs', key: 'purchases' },
+  { href: '/dashboard/restaurant/staff',     icon: '👥', label: 'Équipe et planning',     key: 'staff'     },
+  { href: '/dashboard/restaurant/disputes',  icon: '⚖️', label: 'Litiges',                key: 'disputes'  },
+  { href: '/dashboard/restaurant/finance',   icon: '💰', label: 'Finance et TVA',         key: 'finance'   },
+  { href: '/dashboard/restaurant/copilot',   icon: '🧠', label: 'Copilote IA',            key: 'copilot'   },
+  { href: '/dashboard/admin/module-access',  icon: '🔐', label: 'Gestion des accès',      key: '__admin_only__' },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -40,11 +42,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname()
   const [user, setUser]     = useState<any>(null)
   const [mobile, setMobile] = useState(false)
+  const [myModules, setMyModules] = useState<string[] | null>(null) // null = pas encore chargé
 
   useEffect(() => {
     const cookie = document.cookie.split(';').find(c => c.trim().startsWith('nr_user='))
     if (!cookie) { router.push('/login'); return }
     try { setUser(JSON.parse(decodeURIComponent(cookie.split('=')[1]))) } catch(e) { router.push('/login') }
+
+    const tokenCookie = document.cookie.split(';').find(c => c.trim().startsWith('nr_token='))
+    const token = tokenCookie?.split('=')[1]
+    if (token) {
+      api.restaurantMyModules(token)
+        .then((json) => setMyModules(json.data || []))
+        .catch(() => setMyModules([])) // fail-safe : rien affiché plutôt qu'une erreur bloquante
+    }
   }, [])
 
   function logout() {
@@ -101,7 +112,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           })}
 
           <div style={{ fontSize:9, color:'var(--text-muted)', padding:'12px 16px 8px', textTransform:'uppercase', letterSpacing:1 }}>Gestion du restaurant</div>
-          {restaurantNavItems.map(item => {
+          {restaurantNavItems
+            .filter(item => item.key === '__admin_only__'
+              ? user?.role === 'admin'
+              : (user?.role === 'admin' || myModules === null || myModules.includes(item.key)))
+            .map(item => {
             const active = pathname === item.href
             return (
               <Link key={item.href} href={item.href} style={{

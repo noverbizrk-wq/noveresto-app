@@ -25,6 +25,7 @@ interface Prospect {
   notes: string | null;
   contact_name: string | null;
   next_action_date: string | null;
+  phone_international: string | null;
 }
 
 interface Interaction {
@@ -100,6 +101,21 @@ const STATUS_LABELS: Record<string, string> = {
 
 const CATEGORIES = ['restaurant', 'café', 'fast food', 'pizzeria', 'boulangerie', 'salon de thé'];
 
+const WHATSAPP_TEMPLATES: Record<string, (name: string) => string> = {
+  invisible: (name) => `Bonjour, je me permets de vous contacter au sujet de ${name}. J'ai remarqué que votre établissement n'a pas encore de site web ni beaucoup d'avis en ligne — c'est justement ce qu'on aide les restaurants à améliorer avec NoveResto (gestion + présence digitale). Auriez-vous 5 minutes pour en discuter ?`,
+  presence_faible: (name) => `Bonjour, je me permets de vous contacter au sujet de ${name}. J'ai vu que votre présence en ligne pourrait être renforcée — c'est justement ce qu'on aide les restaurants à faire avec NoveResto. Auriez-vous 5 minutes pour en discuter ?`,
+  etabli: (name) => `Bonjour, je me permets de vous contacter au sujet de ${name}. Nous accompagnons des restaurants comme le vôtre avec NoveResto pour optimiser la gestion au quotidien (stocks, coûts, commandes). Seriez-vous intéressé pour en discuter ?`,
+};
+
+function buildWhatsAppLink(prospect: Prospect): string | null {
+  if (!prospect.phone_international) return null;
+  const digitsOnly = prospect.phone_international.replace(/[^\d]/g, '');
+  if (!digitsOnly) return null;
+  const template = WHATSAPP_TEMPLATES[prospect.opportunity_tier] || WHATSAPP_TEMPLATES.presence_faible;
+  const message = template(prospect.name);
+  return `https://wa.me/${digitsOnly}?text=${encodeURIComponent(message)}`;
+}
+
 export default function ProspectionPage() {
   const { restaurant, restaurants, selectRestaurant, token } = useCurrentRestaurant();
   const [prospects, setProspects] = useState<Prospect[]>([]);
@@ -154,6 +170,18 @@ export default function ProspectionPage() {
     if (!restaurant || !token) return;
     await api.restaurantProspectionUpdate(token, id, restaurant.id, { status });
     load();
+  };
+
+  const downloadCsv = async () => {
+    if (!restaurant || !token) return;
+    const url = api.restaurantProspectionExportCsvUrl(restaurant.id, tierFilter || undefined);
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    const blob = await res.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `prospects_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
   };
 
   const saveNotes = async (id: number) => {
@@ -287,6 +315,16 @@ export default function ProspectionPage() {
       </div>
 
       {/* KPIs par palier */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+        <button
+          onClick={downloadCsv}
+          disabled={prospects.length === 0}
+          style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'transparent', color: prospects.length === 0 ? 'var(--text-muted)' : 'var(--text-secondary)', fontSize: 12, cursor: prospects.length === 0 ? 'default' : 'pointer' }}
+        >
+          ⬇ Export CSV{tierFilter ? ` (${TIER_LABELS[tierFilter]})` : ''}
+        </button>
+      </div>
+
       <div className="nr-grid-responsive" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 20 }}>
         <button onClick={() => setTierFilter(tierFilter === 'invisible' ? '' : 'invisible')} style={{ textAlign: 'left', cursor: 'pointer', background: 'var(--bg-card)', border: `1px solid ${tierFilter === 'invisible' ? 'var(--danger)' : 'var(--border-color)'}`, borderRadius: 12, padding: 16 }}>
           <div style={{ fontSize: 10, color: 'var(--danger)', textTransform: 'uppercase', fontWeight: 700 }}>Invisible</div>
@@ -337,6 +375,19 @@ export default function ProspectionPage() {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {(() => {
+                  const waLink = buildWhatsAppLink(p);
+                  return waLink ? (
+                    <a
+                      href={waLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ padding: '4px 10px', borderRadius: 8, border: '1px solid var(--success)', background: 'color-mix(in srgb, var(--success) 12%, transparent)', color: 'var(--success)', fontSize: 12, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
+                    >
+                      💬 WhatsApp
+                    </a>
+                  ) : null;
+                })()}
                 <select
                   value={p.status}
                   onChange={(e) => updateStatus(p.id, e.target.value)}

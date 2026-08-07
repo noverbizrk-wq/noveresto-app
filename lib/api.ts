@@ -222,4 +222,6 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ restaurant_id: restaurantId, note })
     }, token),
+  restaurantProspectionExportCsvUrl: (restaurantId: number, tier?: string, status?: string) =>
+    `/api/v1/restaurant/prospection/export.csv?restaurant_id=${restaurantId}${tier ? `&tier=${tier}` : ''}${status ? `&status=${status}` : ''}`,
 }

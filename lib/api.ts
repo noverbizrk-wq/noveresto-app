@@ -210,9 +210,16 @@ export const api = {
     }, token),
   restaurantProspectionList: (token: string, restaurantId: number, tier?: string, status?: string) =>
     apiCall(`/api/v1/restaurant/prospection/list?restaurant_id=${restaurantId}${tier ? `&tier=${tier}` : ''}${status ? `&status=${status}` : ''}`, {}, token),
-  restaurantProspectionUpdate: (token: string, id: number, restaurantId: number, data: { status?: string; notes?: string }) =>
+  restaurantProspectionUpdate: (token: string, id: number, restaurantId: number, data: { status?: string; notes?: string; contact_name?: string; next_action_date?: string | null }) =>
     apiCall(`/api/v1/restaurant/prospection/${id}`, {
       method: 'PATCH',
       body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
+  restaurantProspectionInteractions: (token: string, id: number, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/prospection/${id}/interactions?restaurant_id=${restaurantId}`, {}, token),
+  restaurantProspectionAddInteraction: (token: string, id: number, restaurantId: number, note: string) =>
+    apiCall(`/api/v1/restaurant/prospection/${id}/interactions`, {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, note })
     }, token),
 }

@@ -23,6 +23,69 @@ interface Prospect {
   opportunity_tier: 'invisible' | 'presence_faible' | 'etabli';
   status: 'nouveau' | 'contacte' | 'qualifie' | 'rejete';
   notes: string | null;
+  contact_name: string | null;
+  next_action_date: string | null;
+}
+
+interface Interaction {
+  id: number;
+  note: string;
+  created_at: string;
+}
+
+const STAGES: { key: string; label: string }[] = [
+  { key: 'nouveau', label: 'Nouveau' },
+  { key: 'contacte', label: 'Contacté' },
+  { key: 'qualifie', label: 'Qualifié' },
+];
+
+function StageStepper({ status }: { status: string }) {
+  if (status === 'rejete') {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0' }}>
+        {STAGES.map((s, i) => (
+          <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--border-color)' }} />
+            {i < STAGES.length - 1 && <div style={{ width: 32, height: 2, background: 'var(--border-color)' }} />}
+          </div>
+        ))}
+        <div style={{ width: 32, height: 2, background: 'var(--danger)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--danger)', fontSize: 12, fontWeight: 700 }}>
+          <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--danger)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>✕</div>
+          Rejeté
+        </div>
+      </div>
+    );
+  }
+
+  const currentIndex = STAGES.findIndex(s => s.key === status);
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 0, padding: '8px 0', flexWrap: 'wrap' }}>
+      {STAGES.map((s, i) => {
+        const state = i < currentIndex ? 'done' : i === currentIndex ? 'current' : 'future';
+        return (
+          <div key={s.key} style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div style={{
+                width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700,
+                background: state === 'future' ? 'var(--bg-card-alt)' : 'var(--accent)',
+                color: state === 'future' ? 'var(--text-muted)' : 'var(--navy)',
+                border: `2px solid ${state === 'future' ? 'var(--border-color)' : 'var(--accent)'}`
+              }}>
+                {state === 'done' ? '✓' : i + 1}
+              </div>
+              <span style={{ fontSize: 10, color: state === 'future' ? 'var(--text-muted)' : 'var(--text-primary)', fontWeight: state === 'current' ? 700 : 400, whiteSpace: 'nowrap' }}>
+                {s.label}
+              </span>
+            </div>
+            {i < STAGES.length - 1 && (
+              <div style={{ width: 40, height: 2, background: i < currentIndex ? 'var(--accent)' : 'var(--border-color)', marginBottom: 14 }} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 const TIER_LABELS: Record<string, string> = {
@@ -50,6 +113,12 @@ export default function ProspectionPage() {
   const [category, setCategory] = useState('restaurant');
   const [tierFilter, setTierFilter] = useState('');
   const [notesDraft, setNotesDraft] = useState<Record<number, string>>({});
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [interactions, setInteractions] = useState<Record<number, Interaction[]>>({});
+  const [loadingInteractions, setLoadingInteractions] = useState(false);
+  const [newInteraction, setNewInteraction] = useState('');
+  const [contactDraft, setContactDraft] = useState<Record<number, string>>({});
+  const [dateDraft, setDateDraft] = useState<Record<number, string>>({});
 
   const load = useCallback(() => {
     if (!restaurant || !token) return;
@@ -90,6 +159,39 @@ export default function ProspectionPage() {
   const saveNotes = async (id: number) => {
     if (!restaurant || !token) return;
     await api.restaurantProspectionUpdate(token, id, restaurant.id, { notes: notesDraft[id] || '' });
+    load();
+  };
+
+  const toggleExpand = async (id: number) => {
+    if (expandedId === id) {
+      setExpandedId(null);
+      return;
+    }
+    setExpandedId(id);
+    if (!interactions[id] && restaurant && token) {
+      setLoadingInteractions(true);
+      try {
+        const json = await api.restaurantProspectionInteractions(token, id, restaurant.id);
+        setInteractions(prev => ({ ...prev, [id]: json.data || [] }));
+      } finally {
+        setLoadingInteractions(false);
+      }
+    }
+  };
+
+  const addInteraction = async (id: number) => {
+    if (!restaurant || !token || !newInteraction.trim()) return;
+    const created = await api.restaurantProspectionAddInteraction(token, id, restaurant.id, newInteraction.trim());
+    setInteractions(prev => ({ ...prev, [id]: [created, ...(prev[id] || [])] }));
+    setNewInteraction('');
+  };
+
+  const saveStructuredFields = async (id: number) => {
+    if (!restaurant || !token) return;
+    await api.restaurantProspectionUpdate(token, id, restaurant.id, {
+      contact_name: contactDraft[id],
+      next_action_date: dateDraft[id] || null
+    });
     load();
   };
 
@@ -210,7 +312,9 @@ export default function ProspectionPage() {
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {filteredProspects.map((p) => (
+        {filteredProspects.map((p) => {
+          const isExpanded = expandedId === p.id;
+          return (
           <div key={p.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
               <div>
@@ -219,6 +323,9 @@ export default function ProspectionPage() {
                   <span style={{ padding: '2px 8px', borderRadius: 999, fontSize: 10, fontWeight: 700, background: `color-mix(in srgb, ${TIER_COLORS[p.opportunity_tier]} 15%, transparent)`, color: TIER_COLORS[p.opportunity_tier] }}>
                     {TIER_LABELS[p.opportunity_tier]}
                   </span>
+                  {p.next_action_date && (
+                    <span style={{ fontSize: 10, color: 'var(--warning)' }}>📅 Relance {new Date(p.next_action_date).toLocaleDateString('fr-FR')}</span>
+                  )}
                 </div>
                 <div style={{ color: 'var(--text-muted)', fontSize: 12, marginTop: 4 }}>{p.address}</div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 6, flexWrap: 'wrap', fontSize: 12, color: 'var(--text-secondary)' }}>
@@ -226,32 +333,89 @@ export default function ProspectionPage() {
                   {p.website ? <a href={p.website} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>🌐 Site web</a> : <span style={{ color: 'var(--danger)' }}>🚫 Aucun site</span>}
                   {p.rating && <span>⭐ {p.rating} ({p.review_count} avis)</span>}
                   {!p.rating && <span>Aucun avis</span>}
+                  {p.contact_name && <span>👤 {p.contact_name}</span>}
                 </div>
               </div>
-              <select
-                value={p.status}
-                onChange={(e) => updateStatus(p.id, e.target.value)}
-                style={{ ...inp, fontSize: 11, padding: '4px 8px' }}
-              >
-                {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-              </select>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <select
+                  value={p.status}
+                  onChange={(e) => updateStatus(p.id, e.target.value)}
+                  style={{ ...inp, fontSize: 11, padding: '4px 8px' }}
+                >
+                  {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                </select>
+                <button
+                  onClick={() => toggleExpand(p.id)}
+                  style={{ padding: '4px 10px', borderRadius: 8, border: '1px solid var(--border-color)', background: isExpanded ? 'color-mix(in srgb, var(--accent) 12%, transparent)' : 'transparent', color: isExpanded ? 'var(--accent)' : 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
+                >
+                  {isExpanded ? '▲ Réduire' : '▼ Détails'}
+                </button>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-              <input
-                placeholder="Note (ex: appelé le..., rendez-vous fixé...)"
-                value={notesDraft[p.id] ?? p.notes ?? ''}
-                onChange={(e) => setNotesDraft({ ...notesDraft, [p.id]: e.target.value })}
-                style={{ ...inp, flex: 1, fontSize: 12 }}
-              />
-              <button
-                onClick={() => saveNotes(p.id)}
-                style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'transparent', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
-              >
-                Enregistrer
-              </button>
-            </div>
+
+            {isExpanded && (
+              <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--border-color)' }}>
+                {/* Pipeline visuel */}
+                <StageStepper status={p.status} />
+
+                {/* Champs structurés */}
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+                  <input
+                    placeholder="Contact / décideur (ex: M. Bel Hadj, gérant)"
+                    value={contactDraft[p.id] ?? p.contact_name ?? ''}
+                    onChange={(e) => setContactDraft({ ...contactDraft, [p.id]: e.target.value })}
+                    style={{ ...inp, flex: 1, minWidth: 200, fontSize: 12 }}
+                  />
+                  <input
+                    type="date"
+                    value={dateDraft[p.id] ?? (p.next_action_date ? p.next_action_date.slice(0, 10) : '')}
+                    onChange={(e) => setDateDraft({ ...dateDraft, [p.id]: e.target.value })}
+                    style={{ ...inp, fontSize: 12 }}
+                  />
+                  <button
+                    onClick={() => saveStructuredFields(p.id)}
+                    style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'transparent', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
+                  >
+                    Enregistrer
+                  </button>
+                </div>
+
+                {/* Historique d'interactions */}
+                <div style={{ marginTop: 14 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Historique</div>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+                    <input
+                      placeholder="Ajouter une interaction (ex: appelé, rendez-vous fixé...)"
+                      value={newInteraction}
+                      onChange={(e) => setNewInteraction(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') addInteraction(p.id); }}
+                      style={{ ...inp, flex: 1, fontSize: 12 }}
+                    />
+                    <button
+                      onClick={() => addInteraction(p.id)}
+                      style={{ padding: '6px 12px', borderRadius: 8, border: 'none', background: 'var(--accent)', color: 'var(--navy)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+                    >
+                      Ajouter
+                    </button>
+                  </div>
+                  {loadingInteractions && !interactions[p.id] && <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Chargement...</p>}
+                  {interactions[p.id]?.length === 0 && <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>Aucune interaction enregistrée.</p>}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {interactions[p.id]?.map((it) => (
+                      <div key={it.id} style={{ display: 'flex', gap: 8, fontSize: 12, padding: '6px 10px', background: 'var(--bg-card-alt)', borderRadius: 8 }}>
+                        <span style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                          {new Date(it.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{it.note}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

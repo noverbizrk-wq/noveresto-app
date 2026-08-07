@@ -203,6 +203,11 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ restaurant_id: restaurantId, zone_label: zoneLabel, category })
     }, token),
+  restaurantProspectionSearchByMap: (token: string, restaurantId: number, latitude: number, longitude: number, radiusKm: number, category: string) =>
+    apiCall('/api/v1/restaurant/prospection/search', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, latitude, longitude, radius_km: radiusKm, category })
+    }, token),
   restaurantProspectionList: (token: string, restaurantId: number, tier?: string, status?: string) =>
     apiCall(`/api/v1/restaurant/prospection/list?restaurant_id=${restaurantId}${tier ? `&tier=${tier}` : ''}${status ? `&status=${status}` : ''}`, {}, token),
   restaurantProspectionUpdate: (token: string, id: number, restaurantId: number, data: { status?: string; notes?: string }) =>

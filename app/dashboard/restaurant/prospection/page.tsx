@@ -1,9 +1,14 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { api } from '@/lib/api';
 import { useCurrentRestaurant } from '../useCurrentRestaurant';
 import { RestaurantSelector } from '../RestaurantSelector';
+
+// Leaflet utilise `window` au chargement du module — incompatible avec le
+// rendu serveur de Next.js, d'où l'import dynamique avec ssr désactivé.
+const MapPicker = dynamic(() => import('./MapPicker'), { ssr: false, loading: () => <div style={{ height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', background: 'var(--bg-card-alt)', borderRadius: 12 }}>Chargement de la carte...</div> });
 
 interface Prospect {
   id: number;
@@ -39,6 +44,9 @@ export default function ProspectionPage() {
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [zoneLabel, setZoneLabel] = useState('');
+  const [searchMode, setSearchMode] = useState<'text' | 'map'>('text');
+  const [mapPoint, setMapPoint] = useState<{ lat: number; lng: number } | null>(null);
+  const [radiusKm, setRadiusKm] = useState(3);
   const [category, setCategory] = useState('restaurant');
   const [tierFilter, setTierFilter] = useState('');
   const [notesDraft, setNotesDraft] = useState<Record<number, string>>({});
@@ -46,19 +54,25 @@ export default function ProspectionPage() {
   const load = useCallback(() => {
     if (!restaurant || !token) return;
     setLoading(true);
-    api.restaurantProspectionList(token, restaurant.id, tierFilter || undefined)
+    api.restaurantProspectionList(token, restaurant.id) // toujours non filtré : le filtre est appliqué côté client (voir filteredProspects)
       .then((json) => setProspects(json.data || []))
       .finally(() => setLoading(false));
-  }, [restaurant, token, tierFilter]);
+  }, [restaurant, token]);
 
   useEffect(() => { load(); }, [load]);
 
   const search = async () => {
-    if (!restaurant || !token || !zoneLabel.trim()) return;
+    if (!restaurant || !token) return;
+    if (searchMode === 'text' && !zoneLabel.trim()) return;
+    if (searchMode === 'map' && !mapPoint) return;
     setSearching(true);
     setSearchError(null);
     try {
-      await api.restaurantProspectionSearch(token, restaurant.id, zoneLabel.trim(), category);
+      if (searchMode === 'map' && mapPoint) {
+        await api.restaurantProspectionSearchByMap(token, restaurant.id, mapPoint.lat, mapPoint.lng, radiusKm, category);
+      } else {
+        await api.restaurantProspectionSearch(token, restaurant.id, zoneLabel.trim(), category);
+      }
       load();
     } catch (e: any) {
       setSearchError(e.message || 'La recherche a échoué');
@@ -85,6 +99,11 @@ export default function ProspectionPage() {
     etabli: prospects.filter(p => p.opportunity_tier === 'etabli').length,
   };
 
+  // Filtrage purement côté client — `prospects` reste toujours la liste
+  // complète (nécessaire pour que les compteurs ci-dessus soient toujours
+  // exacts, peu importe le filtre actif à l'affichage).
+  const filteredProspects = tierFilter ? prospects.filter(p => p.opportunity_tier === tierFilter) : prospects;
+
   const inp: React.CSSProperties = {
     background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8,
     padding: '8px 12px', fontSize: 13, color: 'var(--text-primary)'
@@ -101,27 +120,67 @@ export default function ProspectionPage() {
 
       {/* Recherche */}
       <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-          <input
-            placeholder="Zone (ex: Ariana, Sidi Bouzid...)"
-            value={zoneLabel}
-            onChange={(e) => setZoneLabel(e.target.value)}
-            style={{ ...inp, flex: 1, minWidth: 180 }}
-          />
-          <select value={category} onChange={(e) => setCategory(e.target.value)} style={inp}>
-            {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+        {/* Bascule mode texte / carte */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
           <button
-            onClick={search}
-            disabled={searching || !zoneLabel.trim()}
-            style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: 'var(--accent)', color: 'var(--navy)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+            onClick={() => setSearchMode('text')}
+            style={{ padding: '5px 12px', borderRadius: 8, border: `1px solid ${searchMode === 'text' ? 'var(--accent)' : 'var(--border-color)'}`, background: searchMode === 'text' ? 'color-mix(in srgb, var(--accent) 12%, transparent)' : 'transparent', color: searchMode === 'text' ? 'var(--accent)' : 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
           >
-            {searching ? 'Recherche...' : '🔍 Rechercher'}
+            📝 Par nom de zone
+          </button>
+          <button
+            onClick={() => setSearchMode('map')}
+            style={{ padding: '5px 12px', borderRadius: 8, border: `1px solid ${searchMode === 'map' ? 'var(--accent)' : 'var(--border-color)'}`, background: searchMode === 'map' ? 'color-mix(in srgb, var(--accent) 12%, transparent)' : 'transparent', color: searchMode === 'map' ? 'var(--accent)' : 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+          >
+            🗺️ Sur la carte
           </button>
         </div>
+
+        {searchMode === 'text' ? (
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              placeholder="Zone (ex: Ariana, Sidi Bouzid...)"
+              value={zoneLabel}
+              onChange={(e) => setZoneLabel(e.target.value)}
+              style={{ ...inp, flex: 1, minWidth: 180 }}
+            />
+            <select value={category} onChange={(e) => setCategory(e.target.value)} style={inp}>
+              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <button
+              onClick={search}
+              disabled={searching || !zoneLabel.trim()}
+              style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: 'var(--accent)', color: 'var(--navy)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+            >
+              {searching ? 'Recherche...' : '🔍 Rechercher'}
+            </button>
+          </div>
+        ) : (
+          <div>
+            <MapPicker radiusKm={radiusKm} selected={mapPoint} onSelect={(lat, lng) => setMapPoint({ lat, lng })} />
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12, flexWrap: 'wrap' }}>
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                Rayon : {radiusKm} km
+                <input type="range" min={1} max={15} value={radiusKm} onChange={(e) => setRadiusKm(Number(e.target.value))} style={{ width: 120 }} />
+              </label>
+              <select value={category} onChange={(e) => setCategory(e.target.value)} style={inp}>
+                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <button
+                onClick={search}
+                disabled={searching || !mapPoint}
+                style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: (searching || !mapPoint) ? 'var(--border-color)' : 'var(--accent)', color: (searching || !mapPoint) ? 'var(--text-muted)' : 'var(--navy)', fontWeight: 700, fontSize: 13, cursor: (searching || !mapPoint) ? 'default' : 'pointer' }}
+              >
+                {searching ? 'Recherche...' : '🔍 Rechercher ici'}
+              </button>
+              {!mapPoint && <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Clique sur la carte pour choisir un point de recherche.</span>}
+            </div>
+          </div>
+        )}
+
         {searchError && <p style={{ color: 'var(--danger)', fontSize: 12, marginTop: 8 }}>{searchError}</p>}
         <p style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 8 }}>
-          Recherche via Google Places — résultats enregistrés automatiquement, relance une recherche sur la même zone pour actualiser.
+          Recherche via Google Places — résultats enregistrés automatiquement, relance une recherche pour actualiser.
         </p>
       </div>
 
@@ -142,12 +201,16 @@ export default function ProspectionPage() {
       </div>
 
       {loading && <p style={{ color: 'var(--text-muted)' }}>Chargement...</p>}
-      {!loading && prospects.length === 0 && (
-        <p style={{ color: 'var(--text-muted)' }}>Aucun prospect. Lance une recherche ci-dessus pour commencer.</p>
+      {!loading && filteredProspects.length === 0 && (
+        <p style={{ color: 'var(--text-muted)' }}>
+          {prospects.length === 0
+            ? 'Aucun prospect. Lance une recherche ci-dessus pour commencer.'
+            : 'Aucun prospect dans ce palier.'}
+        </p>
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {prospects.map((p) => (
+        {filteredProspects.map((p) => (
           <div key={p.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
               <div>

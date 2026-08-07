@@ -34,6 +34,7 @@ const restaurantNavItems = [
   { href: '/dashboard/restaurant/disputes',  icon: '⚖️', label: 'Litiges',                key: 'disputes'  },
   { href: '/dashboard/restaurant/finance',   icon: '💰', label: 'Finance et TVA',         key: 'finance'   },
   { href: '/dashboard/restaurant/copilot',   icon: '🧠', label: 'Copilote IA',            key: 'copilot'   },
+  { href: '/dashboard/restaurant/prospection', icon: '🎯', label: 'Prospection',           key: 'prospection' },
   { href: '/dashboard/admin/module-access',  icon: '🔐', label: 'Gestion des accès',      key: '__admin_only__' },
 ]
 

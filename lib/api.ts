@@ -196,4 +196,18 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ modules })
     }, token),
+
+  // ── Lot 9 : prospection ─────────────────────────────────────────────────────
+  restaurantProspectionSearch: (token: string, restaurantId: number, zoneLabel: string, category: string) =>
+    apiCall('/api/v1/restaurant/prospection/search', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, zone_label: zoneLabel, category })
+    }, token),
+  restaurantProspectionList: (token: string, restaurantId: number, tier?: string, status?: string) =>
+    apiCall(`/api/v1/restaurant/prospection/list?restaurant_id=${restaurantId}${tier ? `&tier=${tier}` : ''}${status ? `&status=${status}` : ''}`, {}, token),
+  restaurantProspectionUpdate: (token: string, id: number, restaurantId: number, data: { status?: string; notes?: string }) =>
+    apiCall(`/api/v1/restaurant/prospection/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
 }

@@ -224,4 +224,11 @@ export const api = {
     }, token),
   restaurantProspectionExportCsvUrl: (restaurantId: number, tier?: string, status?: string) =>
     `/api/v1/restaurant/prospection/export.csv?restaurant_id=${restaurantId}${tier ? `&tier=${tier}` : ''}${status ? `&status=${status}` : ''}`,
+
+  // ── Diagnostic public (pas d'authentification) ────────────────────────────
+  publicDiagnostic: (businessName: string, city: string) =>
+    apiCall('/api/v1/public/diagnostic', {
+      method: 'POST',
+      body: JSON.stringify({ business_name: businessName, city })
+    }),
 }

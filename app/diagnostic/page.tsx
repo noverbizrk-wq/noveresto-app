@@ -23,7 +23,7 @@ const TIER_LABELS: Record<string, string> = {
 };
 
 // Numéro de contact commercial (Foued SAKRI, Directeur Commercial)
-const CONTACT_WHATSAPP = '21699507035';
+const CONTACT_WHATSAPP = '33651891201';
 
 export default function PublicDiagnosticPage() {
   const [businessName, setBusinessName] = useState('');

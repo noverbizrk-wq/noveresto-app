@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/lib/api';
 import { useCurrentRestaurant } from '../useCurrentRestaurant';
+import { formatAmount } from '@/lib/currency';
 import { RestaurantSelector } from '../RestaurantSelector';
 
 interface CostSummary {
@@ -99,12 +100,12 @@ export default function RecipesPage() {
             >
               <div>
                 <div style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: 15 }}>{c.menu_item_name}</div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>Prix de vente : {c.price.toFixed(3)} TND</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>Prix de vente : {formatAmount(c.price, restaurant?.currency)}</div>
               </div>
               <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Coût matière</div>
-                  <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{c.recipe_cost.toFixed(3)} TND</div>
+                  <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{formatAmount(c.recipe_cost, restaurant?.currency)}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Food cost</div>
@@ -112,7 +113,7 @@ export default function RecipesPage() {
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Marge</div>
-                  <div style={{ color: 'var(--accent)', fontWeight: 700 }}>{c.margin_unit.toFixed(3)} TND ({c.margin_pct.toFixed(1)}%)</div>
+                  <div style={{ color: 'var(--accent)', fontWeight: 700 }}>{formatAmount(c.margin_unit, restaurant?.currency)} ({c.margin_pct.toFixed(1)}%)</div>
                 </div>
                 <span style={{ color: 'var(--text-muted)' }}>{expandedId === c.menu_item_id ? '▲' : '▼'}</span>
               </div>
@@ -135,8 +136,8 @@ export default function RecipesPage() {
                       <tr key={ing.recipe_ingredient_id} style={{ borderTop: '1px solid var(--border-color)' }}>
                         <td style={{ padding: '8px 0', color: 'var(--text-primary)' }}>{ing.name}</td>
                         <td style={{ padding: '8px 0', color: 'var(--text-secondary)' }}>{ing.quantity} {ing.unit}</td>
-                        <td style={{ padding: '8px 0', color: 'var(--text-secondary)' }}>{ing.unit_cost.toFixed(3)} TND</td>
-                        <td style={{ padding: '8px 0', color: 'var(--text-primary)' }}>{ing.line_cost.toFixed(3)} TND</td>
+                        <td style={{ padding: '8px 0', color: 'var(--text-secondary)' }}>{formatAmount(ing.unit_cost, restaurant?.currency)}</td>
+                        <td style={{ padding: '8px 0', color: 'var(--text-primary)' }}>{formatAmount(ing.line_cost, restaurant?.currency)}</td>
                         <td style={{ padding: '8px 0', textAlign: 'right' }}>
                           <button
                             onClick={() => removeIngredient(ing.recipe_ingredient_id)}

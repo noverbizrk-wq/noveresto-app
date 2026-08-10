@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/lib/api';
 import { useCurrentRestaurant } from '../useCurrentRestaurant';
+import { formatAmount } from '@/lib/currency';
 import { RestaurantSelector } from '../RestaurantSelector';
 
 interface Ingredient {
@@ -133,7 +134,7 @@ export default function StocksPage() {
                   </td>
                   <td style={{ padding: 12, color: isLow ? 'var(--danger)' : 'var(--text-primary)' }}>{Number(ing.current_stock).toFixed(3)} {ing.unit}</td>
                   <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{Number(ing.min_stock).toFixed(3)} {ing.unit}</td>
-                  <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{Number(ing.unit_cost).toFixed(3)} TND</td>
+                  <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{formatAmount(Number(ing.unit_cost), restaurant?.currency)}</td>
                   <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{ing.supplier_name || '—'}</td>
                   <td style={{ padding: 12 }}>
                     {adjusting === ing.id ? (

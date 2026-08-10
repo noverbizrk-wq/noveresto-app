@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/lib/api';
 import { useCurrentRestaurant } from '../useCurrentRestaurant';
+import { formatAmount } from '@/lib/currency';
 import { RestaurantSelector } from '../RestaurantSelector';
 
 interface MenuItem {
@@ -63,7 +64,7 @@ export default function MenusPage() {
               <tr key={p.id} style={{ borderTop: '1px solid var(--border-color)' }}>
                 <td style={{ padding: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{p.name}</td>
                 <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{p.category_name || '—'}</td>
-                <td style={{ padding: 12, color: 'var(--text-primary)' }}>{Number(p.price).toFixed(3)} TND</td>
+                <td style={{ padding: 12, color: 'var(--text-primary)' }}>{formatAmount(Number(p.price), restaurant?.currency)}</td>
                 <td style={{ padding: 12 }}>
                   <button
                     onClick={() => toggleAvailability(p.id, p.is_available)}

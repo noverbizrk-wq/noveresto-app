@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/lib/api';
 import { useCurrentRestaurant } from '../useCurrentRestaurant';
+import { formatAmount } from '@/lib/currency';
 import { RestaurantSelector } from '../RestaurantSelector';
 
 interface Employee {
@@ -137,7 +138,7 @@ export default function StaffPage() {
                 <tr key={e.id} style={{ borderTop: '1px solid var(--border-color)' }}>
                   <td style={{ padding: 12, color: 'var(--text-primary)', fontWeight: 600 }}>{e.name}</td>
                   <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{ROLE_LABELS[e.role] || e.role}</td>
-                  <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{Number(e.hourly_cost).toFixed(3)} TND/h</td>
+                  <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{formatAmount(Number(e.hourly_cost), restaurant?.currency)}/h</td>
                   <td style={{ padding: 12 }}>
                     <span style={{ padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: e.is_active ? 'rgba(0,196,140,.15)' : 'rgba(106,143,171,.15)', color: e.is_active ? 'var(--accent)' : 'var(--text-muted)' }}>
                       {e.is_active ? 'Actif' : 'Inactif'}

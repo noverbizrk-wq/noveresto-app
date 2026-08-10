@@ -135,6 +135,9 @@ export default function ProspectionPage() {
   const [newInteraction, setNewInteraction] = useState('');
   const [contactDraft, setContactDraft] = useState<Record<number, string>>({});
   const [dateDraft, setDateDraft] = useState<Record<number, string>>({});
+  const [aiPitch, setAiPitch] = useState<Record<number, string>>({});
+  const [aiPitchLoading, setAiPitchLoading] = useState<number | null>(null);
+  const [aiPitchError, setAiPitchError] = useState<string | null>(null);
 
   const load = useCallback(() => {
     if (!restaurant || !token) return;
@@ -221,6 +224,20 @@ export default function ProspectionPage() {
       next_action_date: dateDraft[id] || null
     });
     load();
+  };
+
+  const generateAiPitch = async (id: number) => {
+    if (!restaurant || !token) return;
+    setAiPitchLoading(id);
+    setAiPitchError(null);
+    try {
+      const result = await api.restaurantProspectPitch(token, restaurant.id, id);
+      setAiPitch(prev => ({ ...prev, [id]: result.message }));
+    } catch (e: any) {
+      setAiPitchError(e.message || 'La génération a échoué.');
+    } finally {
+      setAiPitchLoading(null);
+    }
   };
 
   const counts = {
@@ -429,6 +446,33 @@ export default function ProspectionPage() {
                   >
                     Enregistrer
                   </button>
+                </div>
+
+                {/* Pitch personnalisé par IA */}
+                <div style={{ marginTop: 14 }}>
+                  <button
+                    onClick={() => generateAiPitch(p.id)}
+                    disabled={aiPitchLoading === p.id}
+                    style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    {aiPitchLoading === p.id ? 'Génération...' : '✨ Générer un message personnalisé (IA)'}
+                  </button>
+                  {aiPitchError && aiPitchLoading === null && <p style={{ color: 'var(--danger)', fontSize: 11, marginTop: 6 }}>{aiPitchError}</p>}
+                  {aiPitch[p.id] && (
+                    <div style={{ marginTop: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: 12, lineHeight: 1.5, marginBottom: 8, whiteSpace: 'pre-wrap' }}>{aiPitch[p.id]}</p>
+                      {(() => {
+                        const digitsOnly = p.phone_international ? p.phone_international.replace(/[^\d]/g, '') : null;
+                        if (!digitsOnly) return null;
+                        const customLink = `https://wa.me/${digitsOnly}?text=${encodeURIComponent(aiPitch[p.id])}`;
+                        return (
+                          <a href={customLink} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: 'var(--success)', fontWeight: 600, textDecoration: 'none' }}>
+                            💬 Envoyer ce message via WhatsApp
+                          </a>
+                        );
+                      })()}
+                    </div>
+                  )}
                 </div>
 
                 {/* Historique d'interactions */}

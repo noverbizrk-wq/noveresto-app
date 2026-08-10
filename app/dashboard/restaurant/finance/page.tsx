@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/lib/api';
 import { useCurrentRestaurant } from '../useCurrentRestaurant';
+import { formatAmount } from '@/lib/currency';
 import { RestaurantSelector } from '../RestaurantSelector';
 
 interface VatRow {
@@ -37,6 +38,22 @@ export default function FinancePage() {
   const [from, setFrom] = useState(firstDayOfMonth());
   const [to, setTo] = useState(today());
   const [exporting, setExporting] = useState(false);
+  const [taxProfileOpen, setTaxProfileOpen] = useState(false);
+  const [taxProfile, setTaxProfile] = useState({ tax_id: '', address: '', city: '', postal_code: '' });
+  const [taxProfileSaving, setTaxProfileSaving] = useState(false);
+  const [taxProfileSaved, setTaxProfileSaved] = useState(false);
+
+  const saveTaxProfile = async () => {
+    if (!restaurant || !token) return;
+    setTaxProfileSaving(true);
+    try {
+      await api.restaurantTaxProfileUpdate(token, restaurant.id, taxProfile);
+      setTaxProfileSaved(true);
+      setTimeout(() => setTaxProfileSaved(false), 2000);
+    } finally {
+      setTaxProfileSaving(false);
+    }
+  };
 
   const load = useCallback(() => {
     if (!restaurant || !token) return;
@@ -101,14 +118,44 @@ export default function FinancePage() {
         </div>
       </div>
 
+      {/* Profil fiscal — nécessaire pour générer des factures TEIF (Lot 12) */}
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+        <button
+          onClick={() => setTaxProfileOpen(!taxProfileOpen)}
+          style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}
+        >
+          🧾 Profil fiscal (facturation électronique) {taxProfileOpen ? '▲' : '▼'}
+        </button>
+        {taxProfileOpen && (
+          <div style={{ marginTop: 12 }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: 11, marginBottom: 10 }}>
+              Renseigne ces coordonnées pour pouvoir générer des factures TEIF (matricule fiscal obligatoire côté émetteur). ⚠️ Ceci ne remplace pas la signature électronique ni la soumission réelle à TTN — voir la documentation.
+            </p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+              <input placeholder="Matricule fiscal (ex: 1234567A/A/M/000)" value={taxProfile.tax_id} onChange={e => setTaxProfile({ ...taxProfile, tax_id: e.target.value })} style={{ ...inp, flex: 1, minWidth: 200 }} />
+              <input placeholder="Adresse" value={taxProfile.address} onChange={e => setTaxProfile({ ...taxProfile, address: e.target.value })} style={{ ...inp, flex: 1, minWidth: 160 }} />
+              <input placeholder="Ville" value={taxProfile.city} onChange={e => setTaxProfile({ ...taxProfile, city: e.target.value })} style={{ ...inp, width: 130 }} />
+              <input placeholder="Code postal" value={taxProfile.postal_code} onChange={e => setTaxProfile({ ...taxProfile, postal_code: e.target.value })} style={{ ...inp, width: 110 }} />
+            </div>
+            <button
+              onClick={saveTaxProfile}
+              disabled={taxProfileSaving}
+              style={{ padding: '7px 16px', borderRadius: 8, border: 'none', background: taxProfileSaved ? 'var(--success)' : 'var(--accent)', color: 'var(--navy)', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
+            >
+              {taxProfileSaving ? '...' : taxProfileSaved ? '✓ Enregistré' : 'Enregistrer'}
+            </button>
+          </div>
+        )}
+      </div>
+
       {loading && <p style={{ color: 'var(--text-muted)' }}>Chargement...</p>}
 
       {!loading && (
         <>
           <div className="nr-grid-responsive" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 24 }}>
-            <KpiCard label="CA HT" value={`${totalHT.toFixed(3)} TND`} />
-            <KpiCard label="TVA collectée" value={`${totalVat.toFixed(3)} TND`} />
-            <KpiCard label="CA TTC" value={`${totalTTC.toFixed(3)} TND`} />
+            <KpiCard label="CA HT" value={`${formatAmount(totalHT, restaurant?.currency)}`} />
+            <KpiCard label="TVA collectée" value={`${formatAmount(totalVat, restaurant?.currency)}`} />
+            <KpiCard label="CA TTC" value={`${formatAmount(totalTTC, restaurant?.currency)}`} />
           </div>
 
           <div style={{ marginBottom: 24 }}>
@@ -127,9 +174,9 @@ export default function FinancePage() {
                   {vatData.map((r, i) => (
                     <tr key={i} style={{ borderTop: '1px solid var(--border-color)' }}>
                       <td style={{ padding: 12, color: 'var(--text-primary)', fontWeight: 600 }}>{Number(r.vat_rate).toFixed(0)}%</td>
-                      <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{Number(r.revenue_ht).toFixed(3)} TND</td>
-                      <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{Number(r.vat_amount).toFixed(3)} TND</td>
-                      <td style={{ padding: 12, color: 'var(--text-primary)' }}>{Number(r.revenue_ttc).toFixed(3)} TND</td>
+                      <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{formatAmount(Number(r.revenue_ht), restaurant?.currency)}</td>
+                      <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{formatAmount(Number(r.vat_amount), restaurant?.currency)}</td>
+                      <td style={{ padding: 12, color: 'var(--text-primary)' }}>{formatAmount(Number(r.revenue_ttc), restaurant?.currency)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -161,10 +208,10 @@ export default function FinancePage() {
                     <tr key={i} style={{ borderTop: '1px solid var(--border-color)' }}>
                       <td style={{ padding: 12, color: 'var(--text-primary)', fontWeight: 600 }}>{c.channel_label}</td>
                       <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{c.order_count}</td>
-                      <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{Number(c.gross).toFixed(3)} TND</td>
-                      <td style={{ padding: 12, color: 'var(--danger)' }}>{Number(c.discounts).toFixed(3)} TND</td>
-                      <td style={{ padding: 12, color: 'var(--danger)' }}>{Number(c.commissions).toFixed(3)} TND</td>
-                      <td style={{ padding: 12, color: 'var(--accent)', fontWeight: 700 }}>{Number(c.net).toFixed(3)} TND</td>
+                      <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{formatAmount(Number(c.gross), restaurant?.currency)}</td>
+                      <td style={{ padding: 12, color: 'var(--danger)' }}>{formatAmount(Number(c.discounts), restaurant?.currency)}</td>
+                      <td style={{ padding: 12, color: 'var(--danger)' }}>{formatAmount(Number(c.commissions), restaurant?.currency)}</td>
+                      <td style={{ padding: 12, color: 'var(--accent)', fontWeight: 700 }}>{formatAmount(Number(c.net), restaurant?.currency)}</td>
                     </tr>
                   ))}
                 </tbody>

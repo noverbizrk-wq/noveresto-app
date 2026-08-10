@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/lib/api';
 import { useCurrentRestaurant } from '../useCurrentRestaurant';
+import { formatAmount } from '@/lib/currency';
 import { RestaurantSelector } from '../RestaurantSelector';
 
 interface PurchaseOrder {
@@ -177,7 +178,7 @@ export default function PurchasesPage() {
               <tr key={o.id} style={{ borderTop: '1px solid var(--border-color)' }}>
                 <td style={{ padding: 12, fontWeight: 600, color: 'var(--text-primary)' }}>#{o.id}</td>
                 <td style={{ padding: 12, color: 'var(--text-secondary)' }}>{o.supplier_name || '—'}</td>
-                <td style={{ padding: 12, color: 'var(--text-primary)' }}>{Number(o.total_amount).toFixed(3)} TND</td>
+                <td style={{ padding: 12, color: 'var(--text-primary)' }}>{formatAmount(Number(o.total_amount), restaurant?.currency)}</td>
                 <td style={{ padding: 12 }}>
                   <span style={{ padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: `color-mix(in srgb, ${STATUS_COLORS[o.status]} 20%, transparent)`, color: STATUS_COLORS[o.status] }}>
                     {STATUS_LABELS[o.status]}

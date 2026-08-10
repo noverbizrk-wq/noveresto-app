@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { api } from '@/lib/api';
 import { useCurrentRestaurant } from '../useCurrentRestaurant';
+import { formatAmount } from '@/lib/currency';
 import { RestaurantSelector } from '../RestaurantSelector';
 
 const NAVY = '#0D2137';
@@ -55,10 +56,10 @@ export default function RestaurantOverviewPage() {
       {!restaurantLoading && !loading && !error && (
         <>
           <div className="nr-grid-responsive" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
-            <KpiCard label="CA brut (jour)" value={`${Number(totals?.gross_revenue ?? 0).toFixed(3)} TND`} />
-            <KpiCard label="CA net (jour)" value={`${Number(totals?.net_revenue ?? 0).toFixed(3)} TND`} />
+            <KpiCard label="CA brut (jour)" value={`${formatAmount(Number(totals?.gross_revenue ?? 0), restaurant?.currency)}`} />
+            <KpiCard label="CA net (jour)" value={`${formatAmount(Number(totals?.net_revenue ?? 0), restaurant?.currency)}`} />
             <KpiCard label="Commandes" value={totals?.order_count ?? '0'} />
-            <KpiCard label="Panier moyen" value={`${Number(totals?.avg_ticket ?? 0).toFixed(3)} TND`} />
+            <KpiCard label="Panier moyen" value={`${formatAmount(Number(totals?.avg_ticket ?? 0), restaurant?.currency)}`} />
           </div>
 
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 20 }}>
@@ -69,7 +70,7 @@ export default function RestaurantOverviewPage() {
                 <XAxis dataKey="channel_label" stroke="var(--text-muted)" fontSize={12} />
                 <YAxis stroke="var(--text-muted)" fontSize={12} />
                 <Tooltip
-                  formatter={(v) => `${Number(v).toFixed(3)} TND`}
+                  formatter={(v) => `${formatAmount(Number(v), restaurant?.currency)}`}
                   contentStyle={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 8, color: 'var(--text-primary)' }}
                 />
                 <Bar dataKey="channel_revenue" fill={TEAL} radius={[6, 6, 0, 0]} />

@@ -231,4 +231,27 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ business_name: businessName, city })
     }),
+
+  // ── Facturation électronique TEIF (Lot 12) ──────────────────────────────────
+  restaurantTaxProfileUpdate: (token: string, restaurantId: number, data: { tax_id?: string; address?: string; city?: string; postal_code?: string }) =>
+    apiCall('/api/v1/restaurant/tax-profile', {
+      method: 'PATCH',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
+  restaurantTeifCreate: (token: string, restaurantId: number, orderId: number, customer: { customer_tax_id: string; customer_name: string; customer_address?: string; customer_city?: string; customer_postal_code?: string }) =>
+    apiCall(`/api/v1/restaurant/orders/${orderId}/teif-invoice`, {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...customer })
+    }, token),
+  restaurantTeifGet: (token: string, restaurantId: number, orderId: number) =>
+    apiCall(`/api/v1/restaurant/orders/${orderId}/teif-invoice?restaurant_id=${restaurantId}`, {}, token),
+  restaurantTeifDownloadUrl: (restaurantId: number, orderId: number) =>
+    `/api/v1/restaurant/orders/${orderId}/teif-invoice/download?restaurant_id=${restaurantId}`,
+
+  // ── Pitch IA prospection ─────────────────────────────────────────────────
+  restaurantProspectPitch: (token: string, restaurantId: number, prospectId: number) =>
+    apiCall(`/api/v1/restaurant/prospects/${prospectId}/pitch`, {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId })
+    }, token),
 }

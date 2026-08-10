@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/lib/api';
 import { useCurrentRestaurant } from '../useCurrentRestaurant';
+import { formatAmount } from '@/lib/currency';
 import { RestaurantSelector } from '../RestaurantSelector';
 
 interface Dispute {
@@ -107,9 +108,9 @@ export default function DisputesPage() {
       {summary && (
         <div className="nr-grid-responsive" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
           <KpiCard label="Litiges ouverts" value={summary.open_disputes} />
-          <KpiCard label="Montant demandé" value={`${Number(summary.total_requested).toFixed(3)} TND`} />
-          <KpiCard label="Montant remboursé" value={`${Number(summary.total_refunded).toFixed(3)} TND`} />
-          <KpiCard label="Écart non récupéré" value={`${Number(summary.total_gap).toFixed(3)} TND`} danger />
+          <KpiCard label="Montant demandé" value={`${formatAmount(Number(summary.total_requested), restaurant?.currency)}`} />
+          <KpiCard label="Montant remboursé" value={`${formatAmount(Number(summary.total_refunded), restaurant?.currency)}`} />
+          <KpiCard label="Écart non récupéré" value={`${formatAmount(Number(summary.total_gap), restaurant?.currency)}`} danger />
         </div>
       )}
 
@@ -139,8 +140,8 @@ export default function DisputesPage() {
                 <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{d.reason}</div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
                   {d.platform && `${d.platform} · `}
-                  Demandé : {Number(d.amount_requested).toFixed(3)} TND
-                  {Number(d.amount_refunded) > 0 && ` · Remboursé : ${Number(d.amount_refunded).toFixed(3)} TND`}
+                  Demandé : {formatAmount(Number(d.amount_requested), restaurant?.currency)}
+                  {Number(d.amount_refunded) > 0 && ` · Remboursé : ${formatAmount(Number(d.amount_refunded), restaurant?.currency)}`}
                 </div>
               </div>
               <span style={{ padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: `color-mix(in srgb, ${STATUS_COLORS[d.status]} 20%, transparent)`, color: STATUS_COLORS[d.status] }}>

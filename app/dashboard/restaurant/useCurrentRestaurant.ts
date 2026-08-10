@@ -17,6 +17,7 @@ function readTokenCookie(): string | undefined {
 interface RestaurantContext {
   id: number;
   name: string;
+  country: string | null;
   currency: string;
   timezone: string;
 }

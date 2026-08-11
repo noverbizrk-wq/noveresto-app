@@ -16,9 +16,7 @@ export const api = {
     apiCall('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(data) }),
   me:        (token: string) => apiCall('/api/v1/auth/me', {}, token),
   dashboard: (token: string) => apiCall('/api/v1/dashboard', {}, token),
-  stocks:    (token: string) => apiCall('/api/v1/stocks', {}, token),
   forecasts: (token: string) => apiCall('/api/v1/forecasts', {}, token),
-  orders:    (token: string) => apiCall('/api/v1/orders', {}, token),
   reputation:(token: string) => apiCall('/api/v1/reputation', {}, token),
 
   // ── Module "Gestion du restaurant" (Lot 1) ────────────────────────────────

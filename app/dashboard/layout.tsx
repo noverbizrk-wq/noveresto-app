@@ -5,47 +5,117 @@ import Link from 'next/link'
 import { ThemeToggleButton } from '@/lib/use-theme'
 import { api } from '@/lib/api'
 
-const navItems = [
-  { href: '/dashboard',            icon: '📊', label: 'Dashboard'     },
-  { href: '/dashboard/forecasts',  icon: '🧠', label: 'Prévisions IA' },
-  { href: '/dashboard/stocks',     icon: '📦', label: 'Stocks'        },
-  { href: '/dashboard/orders',     icon: '🛒', label: 'Commandes'     },
-  { href: '/dashboard/reputation', icon: '⭐', label: 'Réputation'    },
-  { href: '/dashboard/social',        icon: '📲', label: 'Social Media'     },
-  { href: '/dashboard/social-media', icon: '🤖', label: 'Social Media IA' },
-  { href: '/dashboard/fidelisation',icon:'♥',  label: 'Fidélisation'  },
-  { href: '/dashboard/admin',  icon:'⚙️', label: 'Admin Panel'  },
-  { href: '/dashboard/import', icon:'📥', label: 'Import CSV'   },
+interface NavItem {
+  href: string
+  icon: string
+  label: string
+  key?: string
+  adminOnly?: boolean
+}
+
+interface NavCategory {
+  id: string
+  label: string
+  icon: string
+  items: NavItem[]
+}
+
+const navCategories: NavCategory[] = [
+  {
+    id: 'overview', label: 'Vue d\'ensemble', icon: '📊',
+    items: [
+      { href: '/dashboard', icon: '📊', label: 'Dashboard' },
+      { href: '/dashboard/restaurant/overview', icon: '🏪', label: 'Pilotage restaurant', key: 'overview' },
+      { href: '/dashboard/forecasts', icon: '🧠', label: 'Prévisions IA' },
+    ],
+  },
+  {
+    id: 'operations', label: 'Opérations', icon: '🍔',
+    items: [
+      { href: '/dashboard/restaurant/orders', icon: '🧾', label: 'Commandes', key: 'orders' },
+      { href: '/dashboard/restaurant/kds', icon: '🔥', label: 'Écran cuisine', key: 'kds' },
+      { href: '/dashboard/restaurant/menus', icon: '🍔', label: 'Menus et produits', key: 'menus' },
+      { href: '/dashboard/restaurant/recipes', icon: '📋', label: 'Recettes et marges', key: 'recipes' },
+      { href: '/dashboard/restaurant/stocks', icon: '📦', label: 'Stocks', key: 'stocks' },
+      { href: '/dashboard/restaurant/purchases', icon: '🚚', label: 'Achats et fournisseurs', key: 'purchases' },
+      { href: '/dashboard/restaurant/staff', icon: '👥', label: 'Équipe et planning', key: 'staff' },
+      { href: '/dashboard/restaurant/disputes', icon: '⚖️', label: 'Litiges', key: 'disputes' },
+    ],
+  },
+  {
+    id: 'finance', label: 'Finance', icon: '💰',
+    items: [
+      { href: '/dashboard/restaurant/finance', icon: '💰', label: 'Finance et TVA', key: 'finance' },
+    ],
+  },
+  {
+    id: 'croissance', label: 'Croissance', icon: '📈',
+    items: [
+      { href: '/dashboard/reputation', icon: '⭐', label: 'Réputation' },
+      { href: '/dashboard/restaurant/prospection', icon: '🎯', label: 'Prospection', key: 'prospection' },
+      { href: '/dashboard/social', icon: '📲', label: 'Social Media' },
+      { href: '/dashboard/social-media', icon: '🤖', label: 'Social Media IA' },
+      { href: '/dashboard/fidelisation', icon: '♥', label: 'Fidélisation' },
+    ],
+  },
+  {
+    id: 'ia', label: 'IA', icon: '🤖',
+    items: [
+      { href: '/dashboard/restaurant/copilot', icon: '🧠', label: 'Copilote IA', key: 'copilot' },
+    ],
+  },
+  {
+    id: 'admin', label: 'Administration', icon: '⚙️',
+    items: [
+      { href: '/dashboard/admin', icon: '⚙️', label: 'Admin Panel' },
+      { href: '/dashboard/admin/module-access', icon: '🔐', label: 'Gestion des accès', adminOnly: true },
+      { href: '/dashboard/import', icon: '📥', label: 'Import CSV' },
+    ],
+  },
 ]
 
-// Module "Gestion du restaurant" (Lot 1 MVP) — section séparée, affichée
-// indépendamment du split Principal/Croissance existant (basé sur des index
-// fixes qui casseraient si on insérait des éléments au milieu du tableau
-// ci-dessus).
-const restaurantNavItems = [
-  { href: '/dashboard/restaurant/overview', icon: '🏪', label: 'Pilotage restaurant', key: 'overview' },
-  { href: '/dashboard/restaurant/orders',   icon: '🧾', label: 'Commandes (v2)',      key: 'orders'    },
-  { href: '/dashboard/restaurant/kds',      icon: '🔥', label: 'Écran cuisine',       key: 'kds'       },
-  { href: '/dashboard/restaurant/menus',    icon: '🍔', label: 'Menus et produits',   key: 'menus'     },
-  { href: '/dashboard/restaurant/recipes',   icon: '📋', label: 'Recettes et marges',     key: 'recipes'   },
-  { href: '/dashboard/restaurant/stocks',    icon: '📦', label: 'Stocks (v2)',            key: 'stocks'    },
-  { href: '/dashboard/restaurant/purchases', icon: '🚚', label: 'Achats et fournisseurs', key: 'purchases' },
-  { href: '/dashboard/restaurant/staff',     icon: '👥', label: 'Équipe et planning',     key: 'staff'     },
-  { href: '/dashboard/restaurant/disputes',  icon: '⚖️', label: 'Litiges',                key: 'disputes'  },
-  { href: '/dashboard/restaurant/finance',   icon: '💰', label: 'Finance et TVA',         key: 'finance'   },
-  { href: '/dashboard/restaurant/copilot',   icon: '🧠', label: 'Copilote IA',            key: 'copilot'   },
-  { href: '/dashboard/restaurant/prospection', icon: '🎯', label: 'Prospection',           key: 'prospection' },
-  { href: '/dashboard/admin/module-access',  icon: '🔐', label: 'Gestion des accès',      key: '__admin_only__' },
-]
+const STORAGE_KEY = 'nr_sidebar_open_categories'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router   = useRouter()
   const pathname = usePathname()
 
-  useEffect(() => { setSidebarOpen(false) }, [pathname])
   const [user, setUser]     = useState<any>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [myModules, setMyModules] = useState<string[] | null>(null) // null = pas encore chargé
+  const [myModules, setMyModules] = useState<string[] | null>(null)
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set(navCategories.map(c => c.id)))
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { setSidebarOpen(false) }, [pathname])
+
+  useEffect(() => {
+    setMounted(true)
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) setOpenCategories(new Set(JSON.parse(saved)))
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    const activeCategory = navCategories.find(c => c.items.some(i => i.href === pathname))
+    if (activeCategory) {
+      setOpenCategories(prev => {
+        if (prev.has(activeCategory.id)) return prev
+        const next = new Set(prev)
+        next.add(activeCategory.id)
+        return next
+      })
+    }
+  }, [pathname])
+
+  function toggleCategory(id: string) {
+    setOpenCategories(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...next])) } catch {}
+      return next
+    })
+  }
 
   useEffect(() => {
     const cookie = document.cookie.split(';').find(c => c.trim().startsWith('nr_user='))
@@ -57,7 +127,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (token) {
       api.restaurantMyModules(token)
         .then((json) => setMyModules(json.data || []))
-        .catch(() => setMyModules([])) // fail-safe : rien affiché plutôt qu'une erreur bloquante
+        .catch(() => setMyModules([]))
     }
   }, [])
 
@@ -67,79 +137,63 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.push('/login')
   }
 
+  function itemVisible(item: NavItem): boolean {
+    if (item.adminOnly) return user?.role === 'admin'
+    if (!item.key) return true
+    return user?.role === 'admin' || myModules === null || myModules.includes(item.key)
+  }
+
   const initials = user?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0,2) || 'NR'
 
   return (
     <div style={{ display:'flex', minHeight:'100vh', background:'var(--bg-page)' }}>
-      {/* Overlay mobile — ferme le tiroir au clic en dehors */}
       <div className={`nr-overlay ${sidebarOpen ? 'nr-overlay-open' : ''}`} onClick={() => setSidebarOpen(false)}></div>
 
-      {/* SIDEBAR */}
       <aside className={`nr-sidebar ${sidebarOpen ? 'nr-sidebar-open' : ''}`} style={{ width:220, background:'var(--bg-sidebar)', borderRight:'1px solid var(--border-color)', display:'flex', flexDirection:'column', position:'fixed', top:0, left:0, bottom:0, zIndex:50 }}>
-        {/* Logo */}
         <div style={{ padding:'20px 16px', borderBottom:'1px solid var(--border-color)' }}>
           <div style={{ fontSize:20, fontWeight:800 }}>Nover<span style={{ color:'var(--accent)' }}>Resto</span></div>
-          <div style={{ fontSize:10, color:'var(--text-muted)', marginTop:2, textTransform:'uppercase', letterSpacing:1 }}>v1.2.0</div>
+          <div style={{ fontSize:10, color:'var(--text-muted)', marginTop:2, textTransform:'uppercase', letterSpacing:1 }}>v1.3.0</div>
         </div>
 
-        {/* Nav */}
-        <nav style={{ flex:1, padding:'12px 0', overflowY:'auto' }}>
-          <div style={{ fontSize:9, color:'var(--text-muted)', padding:'0 16px 8px', textTransform:'uppercase', letterSpacing:1 }}>Principal</div>
-          {navItems.slice(0,5).map(item => {
-            const active = pathname === item.href
+        <nav style={{ flex:1, padding:'8px 0', overflowY:'auto' }}>
+          {navCategories.map(category => {
+            const visibleItems = category.items.filter(itemVisible)
+            if (visibleItems.length === 0) return null
+            const isOpen = !mounted || openCategories.has(category.id)
             return (
-              <Link key={item.href} href={item.href} style={{
-                display:'flex', alignItems:'center', gap:10, padding:'9px 16px',
-                fontSize:13, color: active ? 'var(--text-primary)' : 'var(--text-muted)',
-                background: active ? 'var(--bg-card)' : 'transparent',
-                borderLeft: `3px solid ${active ? 'var(--accent)' : 'transparent'}`,
-                textDecoration:'none', fontWeight: active ? 600 : 400,
-                transition:'all .15s'
-              }}>
-                <span>{item.icon}</span>{item.label}
-              </Link>
-            )
-          })}
-          <div style={{ fontSize:9, color:'var(--text-muted)', padding:'12px 16px 8px', textTransform:'uppercase', letterSpacing:1 }}>Croissance</div>
-          {navItems.slice(5).map(item => {
-            const active = pathname === item.href
-            return (
-              <Link key={item.href} href={item.href} style={{
-                display:'flex', alignItems:'center', gap:10, padding:'9px 16px',
-                fontSize:13, color: active ? 'var(--text-primary)' : 'var(--text-muted)',
-                background: active ? 'var(--bg-card)' : 'transparent',
-                borderLeft: `3px solid ${active ? 'var(--accent)' : 'transparent'}`,
-                textDecoration:'none', fontWeight: active ? 600 : 400,
-                transition:'all .15s'
-              }}>
-                <span>{item.icon}</span>{item.label}
-              </Link>
-            )
-          })}
-
-          <div style={{ fontSize:9, color:'var(--text-muted)', padding:'12px 16px 8px', textTransform:'uppercase', letterSpacing:1 }}>Gestion du restaurant</div>
-          {restaurantNavItems
-            .filter(item => item.key === '__admin_only__'
-              ? user?.role === 'admin'
-              : (user?.role === 'admin' || myModules === null || myModules.includes(item.key)))
-            .map(item => {
-            const active = pathname === item.href
-            return (
-              <Link key={item.href} href={item.href} style={{
-                display:'flex', alignItems:'center', gap:10, padding:'9px 16px',
-                fontSize:13, color: active ? 'var(--text-primary)' : 'var(--text-muted)',
-                background: active ? 'var(--bg-card)' : 'transparent',
-                borderLeft: `3px solid ${active ? 'var(--accent)' : 'transparent'}`,
-                textDecoration:'none', fontWeight: active ? 600 : 400,
-                transition:'all .15s'
-              }}>
-                <span>{item.icon}</span>{item.label}
-              </Link>
+              <div key={category.id} style={{ marginBottom: 2 }}>
+                <button
+                  onClick={() => toggleCategory(category.id)}
+                  style={{
+                    width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between',
+                    padding:'10px 16px', background:'transparent', border:'none', cursor:'pointer',
+                    fontSize:10, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1,
+                    fontFamily:'Inter,sans-serif', fontWeight:700,
+                  }}
+                >
+                  <span style={{ display:'flex', alignItems:'center', gap:6 }}>{category.icon} {category.label}</span>
+                  <span style={{ fontSize:9, transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)', transition:'transform .15s' }}>▼</span>
+                </button>
+                {isOpen && visibleItems.map(item => {
+                  const active = pathname === item.href
+                  return (
+                    <Link key={item.href} href={item.href} style={{
+                      display:'flex', alignItems:'center', gap:10, padding:'9px 16px 9px 24px',
+                      fontSize:13, color: active ? 'var(--text-primary)' : 'var(--text-muted)',
+                      background: active ? 'var(--bg-card)' : 'transparent',
+                      borderLeft: `3px solid ${active ? 'var(--accent)' : 'transparent'}`,
+                      textDecoration:'none', fontWeight: active ? 600 : 400,
+                      transition:'all .15s'
+                    }}>
+                      <span>{item.icon}</span>{item.label}
+                    </Link>
+                  )
+                })}
+              </div>
             )
           })}
         </nav>
 
-        {/* User */}
         <div style={{ padding:'14px 16px', borderTop:'1px solid var(--border-color)' }}>
           <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
             <div style={{ width:34, height:34, borderRadius:'50%', background:'var(--accent)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:'var(--bg-page)', flexShrink:0 }}>{initials}</div>
@@ -154,9 +208,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
 
-      {/* MAIN */}
       <main className="nr-main" style={{ flex:1, marginLeft:220, minHeight:'100vh', overflow:'auto' }}>
-        {/* Topbar */}
         <div style={{ background:'var(--bg-sidebar)', borderBottom:'1px solid var(--border-color)', padding:'0 24px', height:56, display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:40 }}>
           <div style={{ display:'flex', alignItems:'center', gap:12 }}>
             <button
@@ -177,7 +229,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span style={{ fontSize:12, color:'var(--accent)', fontWeight:600 }}>Burger House · Lac Tunis</span>
           </div>
         </div>
-        {/* Content */}
         <div className="nr-page-padding" style={{ padding:24 }}>
           {children}
         </div>

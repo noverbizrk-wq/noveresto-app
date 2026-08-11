@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NoveResto — Frontend (noveresto-app)
 
-## Getting Started
+Dashboard Next.js du SaaS NoveResto. Pour la vue d'ensemble du système
+complet (avec le backend), voir
+**[docs/ARCHITECTURE.md](https://github.com/noverbizrk-wq/noveresto-saas/blob/main/docs/ARCHITECTURE.md)**
+(dans le dépôt backend) — à lire en premier.
 
-First, run the development server:
+## Documentation
+
+| Document | Contenu |
+|---|---|
+| [ARCHITECTURE.md ↗](https://github.com/noverbizrk-wq/noveresto-saas/blob/main/docs/ARCHITECTURE.md) | Vue d'ensemble système (dans noveresto-saas) — **à lire en premier** |
+| [`docs/MODULES.md`](docs/MODULES.md) | Structure des routes, chaque module expliqué |
+| [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) | Thème, mobile, permissions, formatage — les pièges déjà rencontrés |
+
+## Stack
+
+Next.js 16 (App Router) · React 19 · TypeScript · Leaflet/OpenStreetMap
+(carte de prospection) · Recharts
+
+## Démarrage local
 
 ```bash
+git clone https://github.com/noverbizrk-wq/noveresto-app.git
+cd noveresto-app
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Par défaut, l'app tape sur `https://noveresto.app` (backend de
+production — voir `lib/api.ts`). Pour pointer vers un backend local,
+créer `.env.local` :
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+NEXT_PUBLIC_API_URL=http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Point d'architecture à connaître avant de toucher au routing
 
-## Learn More
+`basePath: '/app'` (`next.config.ts`) — **toute l'application vit sous
+`/app/*`**, y compris les fichiers statiques du dossier `public/`. Une
+page créée à `app/ma-page/page.tsx` est servie à `/app/ma-page`, pas
+`/ma-page`. Le middleware (`middleware.ts`) ne protège que
+`/dashboard/*` et `/login` — toute autre route est publique par défaut,
+vérifier `middleware.ts` avant de supposer qu'une nouvelle page est
+protégée.
 
-To learn more about Next.js, take a look at the following resources:
+## Comptes de démonstration
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Voir le README de
+[noveresto-saas](https://github.com/noverbizrk-wq/noveresto-saas#comptes-de-démonstration-base-de-production)
+— même backend, mêmes comptes.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Build et déploiement
 
-## Deploy on Vercel
+```bash
+npm run build   # vérifie TypeScript + génère le build de production
+pm2 restart noveresto-next
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Workflow de branche identique au backend — voir
+[README de noveresto-saas §Déploiement](https://github.com/noverbizrk-wq/noveresto-saas#déploiement-production).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Dépôt lié
+
+Backend : [noveresto-saas](https://github.com/noverbizrk-wq/noveresto-saas)

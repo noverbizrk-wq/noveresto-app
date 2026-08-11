@@ -252,4 +252,20 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ restaurant_id: restaurantId })
     }, token),
+
+  // ── Deliveroo ────────────────────────────────────────────────────────────
+  restaurantDeliverooMapping: (token: string, restaurantId: number, menuItemId: number, externalItemId: string) =>
+    apiCall(`/api/v1/restaurant/menus/${menuItemId}/deliveroo-mapping`, {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, external_item_id: externalItemId })
+    }, token),
+  restaurantDeliverooConnection: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/deliveroo/connection?restaurant_id=${restaurantId}`, {}, token),
+  restaurantDeliverooConnectionUpdate: (token: string, restaurantId: number, data: { external_site_id?: string; webhook_secret?: string; status?: string }) =>
+    apiCall('/api/v1/restaurant/deliveroo/connection', {
+      method: 'PATCH',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
+  restaurantDeliverooLogs: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/deliveroo/webhook-logs?restaurant_id=${restaurantId}`, {}, token),
 }

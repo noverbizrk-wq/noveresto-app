@@ -18,6 +18,9 @@ export default function MenusPage() {
   const { restaurant, restaurants, selectRestaurant, token } = useCurrentRestaurant();
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mappingOpenFor, setMappingOpenFor] = useState<number | null>(null);
+  const [mappingValue, setMappingValue] = useState('');
+  const [mappingSaved, setMappingSaved] = useState<Record<number, boolean>>({});
 
   const load = useCallback(() => {
     if (!restaurant || !token) return;
@@ -33,6 +36,14 @@ export default function MenusPage() {
     if (!restaurant || !token) return;
     await api.restaurantMenuItemAvailability(token, id, restaurant.id, !current);
     load();
+  };
+
+  const saveDeliverooMapping = async (menuItemId: number) => {
+    if (!restaurant || !token || !mappingValue.trim()) return;
+    await api.restaurantDeliverooMapping(token, restaurant.id, menuItemId, mappingValue.trim());
+    setMappingSaved(prev => ({ ...prev, [menuItemId]: true }));
+    setMappingOpenFor(null);
+    setMappingValue('');
   };
 
   return (
@@ -57,6 +68,7 @@ export default function MenusPage() {
               <th style={{ padding: 12 }}>Catégorie</th>
               <th style={{ padding: 12 }}>Prix</th>
               <th style={{ padding: 12 }}>Disponibilité</th>
+              <th style={{ padding: 12 }}>Deliveroo</th>
             </tr>
           </thead>
           <tbody>
@@ -76,6 +88,28 @@ export default function MenusPage() {
                   >
                     {p.is_available ? 'Disponible' : 'Rupture'}
                   </button>
+                </td>
+                <td style={{ padding: 12 }}>
+                  {mappingOpenFor === p.id ? (
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <input
+                        placeholder="ID article Deliveroo"
+                        value={mappingValue}
+                        onChange={(e) => setMappingValue(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') saveDeliverooMapping(p.id); }}
+                        style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-page)', color: 'var(--text-primary)', width: 130 }}
+                        autoFocus
+                      />
+                      <button onClick={() => saveDeliverooMapping(p.id)} style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, border: 'none', background: 'var(--accent)', color: 'var(--navy)', cursor: 'pointer' }}>OK</button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setMappingOpenFor(p.id); setMappingValue(''); }}
+                      style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'transparent', color: mappingSaved[p.id] ? 'var(--success)' : 'var(--text-muted)', cursor: 'pointer' }}
+                    >
+                      {mappingSaved[p.id] ? '✓ Mappé' : '🔗 Mapper'}
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

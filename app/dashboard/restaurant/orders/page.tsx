@@ -72,6 +72,11 @@ export default function RestaurantOrdersPage() {
   const [deliverooForm, setDeliverooForm] = useState({ external_site_id: '', webhook_secret: '' });
   const [deliverooSaving, setDeliverooSaving] = useState(false);
   const [deliverooSaved, setDeliverooSaved] = useState(false);
+  const [glovoOpen, setGlovoOpen] = useState(false);
+  const [glovoConn, setGlovoConn] = useState<{ external_site_id: string | null; status: string; has_webhook_secret: boolean; last_order_at: string | null } | null>(null);
+  const [glovoForm, setGlovoForm] = useState({ external_site_id: '', webhook_secret: '' });
+  const [glovoSaving, setGlovoSaving] = useState(false);
+  const [glovoSaved, setGlovoSaved] = useState(false);
 
   const load = useCallback(() => {
     if (!restaurant || !token) return;
@@ -86,6 +91,7 @@ export default function RestaurantOrdersPage() {
   useEffect(() => {
     if (!restaurant || !token) return;
     api.restaurantDeliverooConnection(token, restaurant.id).then(setDeliverooConn).catch(() => {});
+    api.restaurantGlovoConnection(token, restaurant.id).then(setGlovoConn).catch(() => {});
   }, [restaurant, token]);
 
   const saveDeliverooConnection = async () => {
@@ -103,6 +109,24 @@ export default function RestaurantOrdersPage() {
       setTimeout(() => setDeliverooSaved(false), 2000);
     } finally {
       setDeliverooSaving(false);
+    }
+  };
+
+  const saveGlovoConnection = async () => {
+    if (!restaurant || !token) return;
+    setGlovoSaving(true);
+    try {
+      const updated = await api.restaurantGlovoConnectionUpdate(token, restaurant.id, {
+        external_site_id: glovoForm.external_site_id || undefined,
+        webhook_secret: glovoForm.webhook_secret || undefined,
+        status: 'sandbox',
+      });
+      setGlovoConn({ external_site_id: updated.external_site_id, status: updated.status, has_webhook_secret: !!glovoForm.webhook_secret, last_order_at: updated.last_order_at });
+      setGlovoSaved(true);
+      setGlovoForm({ external_site_id: '', webhook_secret: '' });
+      setTimeout(() => setGlovoSaved(false), 2000);
+    } finally {
+      setGlovoSaving(false);
     }
   };
 
@@ -190,6 +214,42 @@ export default function RestaurantOrdersPage() {
               style={{ padding: '7px 16px', borderRadius: 8, border: 'none', background: deliverooSaved ? 'var(--success)' : 'var(--accent)', color: 'var(--navy)', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
             >
               {deliverooSaving ? '...' : deliverooSaved ? '✓ Enregistré' : 'Enregistrer'}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Connexion Glovo — réception automatique de commandes */}
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+        <button
+          onClick={() => setGlovoOpen(!glovoOpen)}
+          style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}
+        >
+          🛵 Connexion Glovo {glovoOpen ? '▲' : '▼'}
+        </button>
+        {glovoOpen && (
+          <div style={{ marginTop: 12 }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: 11, marginBottom: 10 }}>
+              ⚠️ Nécessite un compte partenaire Glovo validé (qcommerce-integrations.glovoapp.com) — pas en libre-service, un accord doit être signé avec leur équipe d'intégration avant de recevoir tes identifiants. Renseigne ici l'identifiant de magasin et le jeton webhook une fois obtenus. L'URL de webhook à fournir à Glovo est <code>https://noveresto.app/api/v1/webhooks/glovo/orders</code>. ⚠️ L'envoi des statuts de préparation vers Glovo (obligatoire pour valider l'intégration côté Glovo) n'est pas encore implémenté — commandes reçues correctement, mais confirmation de préparation à compléter séparément.
+            </p>
+            {glovoConn && (
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10, padding: 10, background: 'var(--bg-card-alt)', borderRadius: 8 }}>
+                Statut actuel : <strong>{glovoConn.status}</strong>
+                {glovoConn.external_site_id && ` · Magasin: ${glovoConn.external_site_id}`}
+                {glovoConn.has_webhook_secret ? ' · Jeton configuré ✓' : ' · Jeton non configuré'}
+                {glovoConn.last_order_at && ` · Dernière commande reçue: ${new Date(glovoConn.last_order_at).toLocaleString('fr-FR')}`}
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+              <input placeholder="Identifiant de magasin Glovo" value={glovoForm.external_site_id} onChange={e => setGlovoForm({ ...glovoForm, external_site_id: e.target.value })} style={{ ...inp, flex: 1, minWidth: 180 }} />
+              <input placeholder="Jeton webhook" type="password" value={glovoForm.webhook_secret} onChange={e => setGlovoForm({ ...glovoForm, webhook_secret: e.target.value })} style={{ ...inp, flex: 1, minWidth: 180 }} />
+            </div>
+            <button
+              onClick={saveGlovoConnection}
+              disabled={glovoSaving}
+              style={{ padding: '7px 16px', borderRadius: 8, border: 'none', background: glovoSaved ? 'var(--success)' : 'var(--accent)', color: 'var(--navy)', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
+            >
+              {glovoSaving ? '...' : glovoSaved ? '✓ Enregistré' : 'Enregistrer'}
             </button>
           </div>
         )}

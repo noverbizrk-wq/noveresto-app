@@ -21,6 +21,9 @@ export default function MenusPage() {
   const [mappingOpenFor, setMappingOpenFor] = useState<number | null>(null);
   const [mappingValue, setMappingValue] = useState('');
   const [mappingSaved, setMappingSaved] = useState<Record<number, boolean>>({});
+  const [glovoMappingOpenFor, setGlovoMappingOpenFor] = useState<number | null>(null);
+  const [glovoMappingValue, setGlovoMappingValue] = useState('');
+  const [glovoMappingSaved, setGlovoMappingSaved] = useState<Record<number, boolean>>({});
 
   const load = useCallback(() => {
     if (!restaurant || !token) return;
@@ -46,6 +49,14 @@ export default function MenusPage() {
     setMappingValue('');
   };
 
+  const saveGlovoMapping = async (menuItemId: number) => {
+    if (!restaurant || !token || !glovoMappingValue.trim()) return;
+    await api.restaurantGlovoMapping(token, restaurant.id, menuItemId, glovoMappingValue.trim());
+    setGlovoMappingSaved(prev => ({ ...prev, [menuItemId]: true }));
+    setGlovoMappingOpenFor(null);
+    setGlovoMappingValue('');
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
@@ -69,6 +80,7 @@ export default function MenusPage() {
               <th style={{ padding: 12 }}>Prix</th>
               <th style={{ padding: 12 }}>Disponibilité</th>
               <th style={{ padding: 12 }}>Deliveroo</th>
+              <th style={{ padding: 12 }}>Glovo</th>
             </tr>
           </thead>
           <tbody>
@@ -108,6 +120,28 @@ export default function MenusPage() {
                       style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'transparent', color: mappingSaved[p.id] ? 'var(--success)' : 'var(--text-muted)', cursor: 'pointer' }}
                     >
                       {mappingSaved[p.id] ? '✓ Mappé' : '🔗 Mapper'}
+                    </button>
+                  )}
+                </td>
+                <td style={{ padding: 12 }}>
+                  {glovoMappingOpenFor === p.id ? (
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <input
+                        placeholder="ID article Glovo"
+                        value={glovoMappingValue}
+                        onChange={(e) => setGlovoMappingValue(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') saveGlovoMapping(p.id); }}
+                        style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-page)', color: 'var(--text-primary)', width: 130 }}
+                        autoFocus
+                      />
+                      <button onClick={() => saveGlovoMapping(p.id)} style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, border: 'none', background: 'var(--accent)', color: 'var(--navy)', cursor: 'pointer' }}>OK</button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setGlovoMappingOpenFor(p.id); setGlovoMappingValue(''); }}
+                      style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'transparent', color: glovoMappingSaved[p.id] ? 'var(--success)' : 'var(--text-muted)', cursor: 'pointer' }}
+                    >
+                      {glovoMappingSaved[p.id] ? '✓ Mappé' : '🔗 Mapper'}
                     </button>
                   )}
                 </td>

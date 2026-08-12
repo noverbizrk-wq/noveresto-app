@@ -268,4 +268,18 @@ export const api = {
     }, token),
   restaurantDeliverooLogs: (token: string, restaurantId: number) =>
     apiCall(`/api/v1/restaurant/deliveroo/webhook-logs?restaurant_id=${restaurantId}`, {}, token),
+
+  // ── Glovo ─────────────────────────────────────────────────────────────────
+  restaurantGlovoMapping: (token: string, restaurantId: number, menuItemId: number, externalItemId: string) =>
+    apiCall(`/api/v1/restaurant/menus/${menuItemId}/glovo-mapping`, {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, external_item_id: externalItemId })
+    }, token),
+  restaurantGlovoConnection: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/glovo/connection?restaurant_id=${restaurantId}`, {}, token),
+  restaurantGlovoConnectionUpdate: (token: string, restaurantId: number, data: { external_site_id?: string; webhook_secret?: string; status?: string }) =>
+    apiCall('/api/v1/restaurant/glovo/connection', {
+      method: 'PATCH',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
 }

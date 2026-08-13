@@ -25,6 +25,12 @@ export default function StocksPage() {
   const [adjustValue, setAdjustValue] = useState('');
   const [showNewForm, setShowNewForm] = useState(false);
   const [newIngredient, setNewIngredient] = useState({ name: '', unit: 'kg', current_stock: '0', min_stock: '0', unit_cost: '0' });
+  const [counting, setCounting] = useState<number | null>(null);
+  const [countValue, setCountValue] = useState('');
+  const [lastCountResult, setLastCountResult] = useState<{ ingredientId: number; variance: string; variance_value: string } | null>(null);
+  const [showVarianceSummary, setShowVarianceSummary] = useState(false);
+  const [varianceSummary, setVarianceSummary] = useState<{ total_loss_value: number; items: Array<{ ingredient_id: number; ingredient_name: string; unit: string; count_events: string; total_variance_qty: string; total_variance_value: string }> } | null>(null);
+  const [loadingSummary, setLoadingSummary] = useState(false);
 
   const load = useCallback(() => {
     if (!restaurant || !token) return;
@@ -48,6 +54,31 @@ export default function StocksPage() {
     setAdjusting(null);
     setAdjustValue('');
     load();
+  };
+
+  const submitCount = async (ingredientId: number) => {
+    if (!restaurant || !token || !countValue) return;
+    const result = await api.restaurantInventoryCountCreate(token, restaurant.id, ingredientId, Number(countValue));
+    setLastCountResult({ ingredientId, variance: result.variance, variance_value: result.variance_value });
+    setCountValue('');
+    load();
+  };
+
+  const loadVarianceSummary = async () => {
+    if (!restaurant || !token) return;
+    setLoadingSummary(true);
+    try {
+      const summary = await api.restaurantInventoryVarianceSummary(token, restaurant.id);
+      setVarianceSummary(summary);
+    } finally {
+      setLoadingSummary(false);
+    }
+  };
+
+  const toggleVarianceSummary = () => {
+    const next = !showVarianceSummary;
+    setShowVarianceSummary(next);
+    if (next && !varianceSummary) loadVarianceSummary();
   };
 
   const createIngredient = async () => {
@@ -109,6 +140,40 @@ export default function StocksPage() {
         </div>
       )}
 
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>Ecarts d'inventaire</h2>
+          <button
+            onClick={toggleVarianceSummary}
+            style={{ fontSize: 12, padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer' }}
+          >
+            {showVarianceSummary ? 'Masquer' : (loadingSummary ? 'Chargement...' : 'Voir le resume')}
+          </button>
+        </div>
+
+        {showVarianceSummary && varianceSummary && (
+          <div style={{ marginTop: 12 }}>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>
+              Perte totale constatee :{' '}
+              <span style={{ color: 'var(--danger)', fontWeight: 700 }}>
+                {formatAmount(Math.abs(varianceSummary.total_loss_value), restaurant?.currency)}
+              </span>
+            </p>
+            {varianceSummary.items.length === 0 && (
+              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Aucun comptage enregistre pour l'instant.</p>
+            )}
+            {varianceSummary.items.map((item) => (
+              <div key={item.ingredient_id} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderTop: '1px solid var(--border-color)', fontSize: 12 }}>
+                <span style={{ color: 'var(--text-primary)' }}>{item.ingredient_name}</span>
+                <span style={{ color: Number(item.total_variance_value) < 0 ? 'var(--danger)' : 'var(--accent)' }}>
+                  {Number(item.total_variance_qty) >= 0 ? '+' : ''}{item.total_variance_qty} {item.unit} · {formatAmount(Number(item.total_variance_value), restaurant?.currency)} · {item.count_events} comptage(s)
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {loading && <p style={{ color: 'var(--text-muted)' }}>Chargement...</p>}
 
       <div className="nr-table-wrap" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, overflow: 'hidden' }}>
@@ -149,13 +214,40 @@ export default function StocksPage() {
                         <button onClick={() => submitAdjustment(ing.id)} style={{ background: 'var(--accent)', border: 'none', borderRadius: 6, padding: '4px 8px', color: 'var(--navy)', fontSize: 12, cursor: 'pointer' }}>OK</button>
                         <button onClick={() => setAdjusting(null)} style={{ background: 'transparent', border: '1px solid var(--border-color)', borderRadius: 6, padding: '4px 8px', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>✕</button>
                       </div>
+                    ) : counting === ing.id ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          <input
+                            type="number" step="0.001" autoFocus
+                            value={countValue}
+                            onChange={(e) => setCountValue(e.target.value)}
+                            placeholder="Qté comptée"
+                            style={{ width: 90, background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '4px 8px', color: 'var(--text-primary)', fontSize: 12 }}
+                          />
+                          <button onClick={() => submitCount(ing.id)} style={{ background: 'var(--accent)', border: 'none', borderRadius: 6, padding: '4px 8px', color: 'var(--navy)', fontSize: 12, cursor: 'pointer' }}>OK</button>
+                          <button onClick={() => { setCounting(null); setCountValue(''); }} style={{ background: 'transparent', border: '1px solid var(--border-color)', borderRadius: 6, padding: '4px 8px', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>✕</button>
+                        </div>
+                        {lastCountResult && lastCountResult.ingredientId === ing.id && (
+                          <span style={{ fontSize: 11, color: Number(lastCountResult.variance) < 0 ? 'var(--danger)' : 'var(--accent)' }}>
+                            Écart : {Number(lastCountResult.variance) >= 0 ? '+' : ''}{lastCountResult.variance} {ing.unit} ({formatAmount(Number(lastCountResult.variance_value), restaurant?.currency)})
+                          </span>
+                        )}
+                      </div>
                     ) : (
-                      <button
-                        onClick={() => { setAdjusting(ing.id); setAdjustValue(''); }}
-                        style={{ background: 'transparent', border: '1px solid var(--border-color)', borderRadius: 6, padding: '4px 10px', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
-                      >
-                        Corriger
-                      </button>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          onClick={() => { setAdjusting(ing.id); setAdjustValue(''); }}
+                          style={{ background: 'transparent', border: '1px solid var(--border-color)', borderRadius: 6, padding: '4px 10px', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
+                        >
+                          Corriger
+                        </button>
+                        <button
+                          onClick={() => { setCounting(ing.id); setCountValue(''); setLastCountResult(null); }}
+                          style={{ background: 'transparent', border: '1px solid var(--border-color)', borderRadius: 6, padding: '4px 10px', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
+                        >
+                          Compter
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>

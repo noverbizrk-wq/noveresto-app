@@ -84,6 +84,15 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ restaurant_id: restaurantId, ingredient_id: ingredientId, quantity_delta: quantityDelta, note })
     }, token),
+  restaurantInventoryCountCreate: (token: string, restaurantId: number, ingredientId: number, countedQuantity: number, note?: string) =>
+    apiCall('/api/v1/restaurant/inventory-counts', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, ingredient_id: ingredientId, counted_quantity: countedQuantity, note })
+    }, token),
+  restaurantInventoryCounts: (token: string, restaurantId: number, ingredientId?: number, limit?: number) =>
+    apiCall(`/api/v1/restaurant/inventory-counts?restaurant_id=${restaurantId}${ingredientId ? `&ingredient_id=${ingredientId}` : ''}${limit ? `&limit=${limit}` : ''}`, {}, token),
+  restaurantInventoryVarianceSummary: (token: string, restaurantId: number, from?: string, to?: string) =>
+    apiCall(`/api/v1/restaurant/inventory-counts/variance-summary?restaurant_id=${restaurantId}${from ? `&from=${from}` : ''}${to ? `&to=${to}` : ''}`, {}, token),
 
   // ── Lot 2 : achats et fournisseurs ─────────────────────────────────────────
   restaurantPurchaseOrders: (token: string, restaurantId: number, status?: string) =>

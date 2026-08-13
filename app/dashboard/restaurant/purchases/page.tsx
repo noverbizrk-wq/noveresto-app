@@ -27,6 +27,23 @@ interface Supplier {
   name: string;
 }
 
+interface PurchaseSuggestion {
+  id: number;
+  ingredient_id: number;
+  ingredient_name: string;
+  suggested_quantity: string;
+  unit: string;
+  supplier_name: string | null;
+  calculation_basis: {
+    forecastedNeed: number;
+    safetyStock: number;
+    currentStock: number;
+    pendingOrders: number;
+    leadTimeDays: number;
+  };
+  status: string;
+}
+
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Brouillon', sent: 'Envoyée', received: 'Reçue', cancelled: 'Annulée'
 };
@@ -46,6 +63,9 @@ export default function PurchasesPage() {
     { ingredient_id: '', quantity: '', unit_price: '' }
   ]);
   const [newSupplierName, setNewSupplierName] = useState('');
+  const [suggestions, setSuggestions] = useState<PurchaseSuggestion[]>([]);
+  const [generating, setGenerating] = useState(false);
+  const [expandedBasis, setExpandedBasis] = useState<number | null>(null);
 
   const load = useCallback(() => {
     if (!restaurant || !token) return;
@@ -53,12 +73,14 @@ export default function PurchasesPage() {
     Promise.all([
       api.restaurantPurchaseOrders(token, restaurant.id),
       api.restaurantIngredients(token, restaurant.id),
-      api.restaurantSuppliers(token, restaurant.id)
+      api.restaurantSuppliers(token, restaurant.id),
+      api.restaurantPurchaseSuggestions(token, restaurant.id, 'pending')
     ])
-      .then(([ordersJson, ingredientsJson, suppliersJson]) => {
+      .then(([ordersJson, ingredientsJson, suppliersJson, suggestionsJson]) => {
         setOrders(ordersJson.data || []);
         setIngredients(ingredientsJson.data || []);
         setSuppliers(suppliersJson.data || []);
+        setSuggestions(suggestionsJson.data || []);
       })
       .finally(() => setLoading(false));
   }, [restaurant, token]);
@@ -99,6 +121,30 @@ export default function PurchasesPage() {
     load();
   };
 
+  const generateSuggestions = async () => {
+    if (!restaurant || !token) return;
+    setGenerating(true);
+    try {
+      await api.restaurantIngredientForecastsGenerate(token, restaurant.id, 14);
+      await api.restaurantPurchaseSuggestionsGenerate(token, restaurant.id);
+      load();
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const validateSuggestion = async (s: PurchaseSuggestion) => {
+    if (!restaurant || !token) return;
+    await api.restaurantPurchaseSuggestionValidate(token, s.id, restaurant.id);
+    load();
+  };
+
+  const rejectSuggestion = async (s: PurchaseSuggestion) => {
+    if (!restaurant || !token) return;
+    await api.restaurantPurchaseSuggestionReject(token, s.id, restaurant.id);
+    load();
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
@@ -114,6 +160,68 @@ export default function PurchasesPage() {
             + Nouvelle commande
           </button>
         </div>
+      </div>
+
+      {/* Suggestions de commande automatiques */}
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: suggestions.length ? 12 : 0 }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>
+            Suggestions de commande <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(generees a partir des previsions)</span>
+          </h2>
+          <button
+            onClick={generateSuggestions}
+            disabled={generating}
+            style={{ fontSize: 12, padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'transparent', color: 'var(--text-secondary)', cursor: generating ? 'default' : 'pointer', opacity: generating ? 0.6 : 1 }}
+          >
+            {generating ? 'Calcul en cours...' : 'Recalculer'}
+          </button>
+        </div>
+
+        {suggestions.length === 0 && (
+          <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>Aucune suggestion en attente. Cliquez sur "Recalculer" pour en generer.</p>
+        )}
+
+        {suggestions.map((s) => (
+          <div key={s.id} style={{ borderTop: '1px solid var(--border-color)', padding: '12px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 13 }}>{s.ingredient_name}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                  {s.suggested_quantity} {s.unit} · {s.supplier_name || 'sans fournisseur'}
+                </div>
+                <button
+                  onClick={() => setExpandedBasis(expandedBasis === s.id ? null : s.id)}
+                  style={{ fontSize: 11, color: 'var(--text-muted)', background: 'none', border: 'none', textDecoration: 'underline', cursor: 'pointer', padding: 0, marginTop: 4 }}
+                >
+                  {expandedBasis === s.id ? 'Masquer le detail' : 'Voir le detail du calcul'}
+                </button>
+                {expandedBasis === s.id && (
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', background: 'var(--bg-card-alt)', borderRadius: 6, padding: 8, marginTop: 6 }}>
+                    <div>Besoin previsionnel : {s.calculation_basis.forecastedNeed} {s.unit}</div>
+                    <div>Stock de securite : {s.calculation_basis.safetyStock} {s.unit}</div>
+                    <div>Stock actuel : {s.calculation_basis.currentStock} {s.unit}</div>
+                    <div>Commandes en cours : {s.calculation_basis.pendingOrders} {s.unit}</div>
+                    <div>Delai fournisseur : {s.calculation_basis.leadTimeDays} j</div>
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  onClick={() => rejectSuggestion(s)}
+                  style={{ fontSize: 12, padding: '5px 12px', borderRadius: 6, border: '1px solid var(--border-color)', color: 'var(--text-secondary)', background: 'transparent', cursor: 'pointer' }}
+                >
+                  Rejeter
+                </button>
+                <button
+                  onClick={() => validateSuggestion(s)}
+                  style={{ fontSize: 12, padding: '5px 12px', borderRadius: 6, border: 'none', background: 'var(--accent)', color: 'var(--navy)', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Valider la commande
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Fournisseurs rapide */}

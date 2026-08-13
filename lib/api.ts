@@ -95,6 +95,30 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ restaurant_id: restaurantId, supplier_id: supplierId, items })
     }, token),
+  restaurantIngredientForecasts: (token: string, restaurantId: number, horizon?: number) =>
+    apiCall(`/api/v1/restaurant/forecasts/ingredients?restaurant_id=${restaurantId}${horizon ? `&horizon=${horizon}` : ''}`, {}, token),
+  restaurantIngredientForecastsGenerate: (token: string, restaurantId: number, horizon?: number) =>
+    apiCall('/api/v1/restaurant/forecasts/ingredients/generate', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, horizon })
+    }, token),
+  restaurantPurchaseSuggestions: (token: string, restaurantId: number, status?: string) =>
+    apiCall(`/api/v1/restaurant/purchase-suggestions?restaurant_id=${restaurantId}${status ? `&status=${status}` : ''}`, {}, token),
+  restaurantPurchaseSuggestionsGenerate: (token: string, restaurantId: number) =>
+    apiCall('/api/v1/restaurant/purchase-suggestions/generate', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId })
+    }, token),
+  restaurantPurchaseSuggestionValidate: (token: string, id: number, restaurantId: number, adjustedQuantity?: number) =>
+    apiCall(`/api/v1/restaurant/purchase-suggestions/${id}/validate`, {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, adjusted_quantity: adjustedQuantity })
+    }, token),
+  restaurantPurchaseSuggestionReject: (token: string, id: number, restaurantId: number) =>
+    apiCall(`/api/v1/restaurant/purchase-suggestions/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId })
+    }, token),
   restaurantPurchaseOrderReceive: (token: string, id: number, restaurantId: number) =>
     apiCall(`/api/v1/restaurant/purchase-orders/${id}/receive`, {
       method: 'PATCH',

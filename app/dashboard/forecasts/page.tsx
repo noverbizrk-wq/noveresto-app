@@ -1,6 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
+import { useCurrentRestaurant } from '../restaurant/useCurrentRestaurant'
+import { RestaurantSelector } from '../restaurant/RestaurantSelector'
 
 const C = { navyD:'var(--bg-page)', navyM:'var(--bg-card)', navyL:'var(--border-color)', teal:'var(--accent)', amber:'var(--warning)', red:'var(--danger)', muted:'var(--text-muted)', gray:'var(--text-secondary)' }
 
@@ -86,6 +88,7 @@ function MAPEGauge({ mape }: { mape: number }) {
 }
 
 export default function ForecastsPage() {
+  const { restaurant, restaurants, selectRestaurant, token } = useCurrentRestaurant()
   const [data, setData]         = useState<any>(null)
   const [loading, setLoading]   = useState(true)
   const [horizon, setHorizon]   = useState(14)
@@ -93,11 +96,11 @@ export default function ForecastsPage() {
   const [refreshing, setRefresh] = useState(false)
 
   async function load(h = horizon) {
+    if (!restaurant || !token) return
     setLoading(true)
     setError('')
     try {
-      const token = getToken()
-      const r = await fetch(`/api/v1/forecasts?horizon=${h}`, {
+      const r = await fetch(`/api/v1/forecasts?horizon=${h}&restaurant_id=${restaurant.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (!r.ok) throw new Error(`HTTP ${r.status}`)
@@ -110,7 +113,7 @@ export default function ForecastsPage() {
     setRefresh(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [restaurant?.id])
 
   function changeHorizon(h: number) {
     setHorizon(h)
@@ -137,6 +140,7 @@ export default function ForecastsPage() {
             {data?.stats?.data_start} → {data?.stats?.data_end}
           </div>
         </div>
+        <RestaurantSelector restaurants={restaurants} selectedId={restaurant?.id ?? null} onChange={selectRestaurant} />
         {/* Horizon selector */}
         <div style={{ display:'flex', gap:6 }}>
           {[7, 14, 21, 30].map(h => (

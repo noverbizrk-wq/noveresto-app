@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
@@ -68,13 +69,68 @@ function Alert({ severity, title, detail }: any) {
   )
 }
 
+// ── Vue d'ensemble admin (agregee sur tous les restaurants) ──
+function AdminOverview({ overview, router }: any) {
+  if (!overview) return <div style={{ color: C.muted }}>Aucune donnee disponible.</div>
+  function goToRestaurant(id: number) {
+    try { sessionStorage.setItem('nr_selected_restaurant_id', String(id)) } catch {}
+    router.push('/dashboard/restaurant/overview')
+  }
+  return (
+    <div style={{ maxWidth:1100 }}>
+      <div style={{ marginBottom:20 }}>
+        <h1 style={{ fontSize:24, fontWeight:800, fontFamily:'serif', marginBottom:4 }}>
+          Vue d'ensemble <span style={{ color:C.teal }}>NoveResto</span>
+        </h1>
+        <div style={{ fontSize:13, color:C.muted }}>{overview.restaurants_count} restaurants actifs</div>
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:24 }}>
+        <KPI label="CA total aujourd'hui" value={`${overview.totals.revenue_today.toLocaleString('fr-FR')} TND`} delta={`${overview.totals.orders_today} commandes`} color={C.teal} />
+        <KPI label="Stock faible" value={overview.totals.low_stock_count} delta="ingredients" color={overview.totals.low_stock_count > 0 ? C.amber : C.green} />
+        <KPI label="Litiges ouverts" value={overview.totals.open_disputes_count} delta="a traiter" color={overview.totals.open_disputes_count > 0 ? C.red : C.green} />
+        <KPI label="Suggestions en attente" value={overview.totals.pending_suggestions_count} delta="commandes suggerees" color="var(--info)" />
+      </div>
+      <div style={{ background:C.navyM, border:`1px solid ${C.navyL}`, borderRadius:12, overflow:'hidden' }}>
+        <div style={{ padding:'14px 16px', borderBottom:`1px solid ${C.navyL}`, fontSize:13, fontWeight:700 }}>Restaurants</div>
+        {overview.restaurants.map((r: any) => (
+          <div key={r.id} onClick={() => goToRestaurant(r.id)} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px 16px', borderTop:`1px solid ${C.navyL}`, cursor:'pointer' }}>
+            <div>
+              <div style={{ fontSize:13, fontWeight:700 }}>{r.name}</div>
+              <div style={{ fontSize:11, color:C.muted }}>{r.country}</div>
+            </div>
+            <div style={{ display:'flex', gap:16, alignItems:'center' }}>
+              <div style={{ textAlign:'right' }}>
+                <div style={{ fontSize:13, fontWeight:700, color:C.teal }}>{r.revenue_today.toLocaleString('fr-FR')} TND</div>
+                <div style={{ fontSize:10, color:C.muted }}>{r.orders_today} commandes</div>
+              </div>
+              {r.low_stock_count > 0 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:10, background:`color-mix(in srgb, ${C.amber} 20%, transparent)`, color:C.amber }}>{r.low_stock_count} stock faible</span>}
+              {r.open_disputes_count > 0 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:10, background:`color-mix(in srgb, ${C.red} 20%, transparent)`, color:C.red }}>{r.open_disputes_count} litige(s)</span>}
+              {r.pending_suggestions_count > 0 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:10, background:`color-mix(in srgb, var(--info) 20%, transparent)`, color:'var(--info)' }}>{r.pending_suggestions_count} suggestion(s)</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 export default function DashboardPage() {
+  const router = useRouter()
   const [data, setData]         = useState<any>(null)
   const [forecast, setForecast] = useState<any>(null)
   const [loading, setLoading]   = useState(true)
-
+  const [role, setRole]         = useState<string | null>(null)
+  const [overview, setOverview] = useState<any>(null)
   useEffect(() => {
     const token = getToken()
+    const userCookie = document.cookie.split(';').find(c => c.trim().startsWith('nr_user='))
+    let r = 'client'
+    try { r = userCookie ? (JSON.parse(decodeURIComponent(userCookie.split('=')[1])).role || 'client') : 'client' } catch {}
+    setRole(r)
+    if (r === 'admin') {
+      fetch('/api/v1/admin/overview', { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(res => res.json()).then(d => { setOverview(d); setLoading(false) }).catch(() => setLoading(false))
+      return
+    }
     api.dashboard(token).then(d => { setData(d); setLoading(false) }).catch(() => setLoading(false))
     fetch('/api/v1/forecasts?horizon=7', { headers: { 'Authorization': `Bearer ${token}` } })
       .then(r => r.json()).then(d => setForecast(d)).catch(() => {})
@@ -110,6 +166,9 @@ export default function DashboardPage() {
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   )
+  if (role === 'admin') {
+    return <AdminOverview overview={overview} router={router} />
+  }
 
   return (
     <div style={{ maxWidth:1100 }}>

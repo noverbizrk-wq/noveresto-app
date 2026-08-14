@@ -226,7 +226,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div style={{ display:'flex', alignItems:'center', gap:12 }}>
             <ThemeToggleButton />
             <div style={{ width:8, height:8, borderRadius:'50%', background:'var(--accent)' }}></div>
-            <span style={{ fontSize:12, color:'var(--accent)', fontWeight:600 }}>Burger House · Lac Tunis</span>
+            <span style={{ fontSize:12, color:'var(--accent)', fontWeight:600 }}>{user?.restaurant || user?.name || '...'}</span>
           </div>
         </div>
         <div className="nr-page-padding" style={{ padding:24 }}>

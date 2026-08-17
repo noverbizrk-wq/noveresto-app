@@ -126,23 +126,34 @@ export default function SocialMediaPage() {
   const [dish, setDish]             = useState('')
   const [promotion, setPromo]       = useState('')
 
+  const [socialProfile, setSocialProfile] = useState<any>(null)
   const user = typeof window !== 'undefined' ? getUser() : null
 
+  useEffect(() => {
+    const token = getToken()
+    fetch('/api/v1/restaurant/social-profile', { headers: { 'Authorization': `Bearer ${token}` } })
+      .then(r => r.json()).then(d => setSocialProfile(d)).catch(() => {})
+  }, [])
+
+  // Donnees reelles du restaurant (top plats et ticket moyen calcules depuis
+  // les vraies ventes cote backend). Ne suppose plus "halal/burgers" pour
+  // tout le monde — corrige un bug ou un restaurant de sushis ou de tacos
+  // recevait quand meme du contenu genere autour de burgers halal.
   const restaurant = {
     id: user?.id || 1,
-    name: user?.restaurant || 'Mon Restaurant',
-    cuisine_type: 'Restauration rapide halal',
-    specialties: 'Burgers halal premium, Crispy Chicken, Loaded Fries',
-    avg_ticket: 50,
+    name: socialProfile?.name || user?.restaurant || 'Mon Restaurant',
+    cuisine_type: socialProfile?.cuisine_type || 'Restauration',
+    specialties: (socialProfile?.top_dishes || []).join(', ') || 'Specialites du restaurant',
+    avg_ticket: socialProfile?.avg_ticket || 0,
     currency: 'TND',
-    is_halal: true,
+    is_halal: false,
     has_delivery: true,
-    country: 'Tunisie',
+    country: socialProfile?.country || user?.country || 'Tunisie',
     language: 'Français',
     objectives: ['Augmenter les commandes', 'Développer la notoriété locale'],
-    top_dishes: ['Double Smash Burger', 'Crispy Chicken', 'Loaded Fries'],
-    target_audience: 'Cadres et étudiants',
-    target_age: '18-35 ans',
+    top_dishes: (socialProfile?.top_dishes?.length ? socialProfile.top_dishes : ['Plat signature']),
+    target_audience: 'Clients locaux',
+    target_age: '18-45 ans',
   }
 
   useEffect(() => { setPosts(generateDemoPosts()) }, [currentMonth])

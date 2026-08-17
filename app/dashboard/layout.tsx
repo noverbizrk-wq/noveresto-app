@@ -53,7 +53,6 @@ const navCategories: NavCategory[] = [
     items: [
       { href: '/dashboard/reputation', icon: '⭐', label: 'Réputation' },
       { href: '/dashboard/restaurant/prospection', icon: '🎯', label: 'Prospection', key: 'prospection' },
-      { href: '/dashboard/social', icon: '📲', label: 'Social Media' },
       { href: '/dashboard/social-media', icon: '🤖', label: 'Social Media IA' },
       { href: '/dashboard/fidelisation', icon: '♥', label: 'Fidélisation' },
     ],

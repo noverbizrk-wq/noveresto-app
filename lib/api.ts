@@ -15,6 +15,10 @@ export const api = {
   register:  (data: object) =>
     apiCall('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(data) }),
   me:        (token: string) => apiCall('/api/v1/auth/me', {}, token),
+  updateProfile: (token: string, data: { name: string; restaurant: string }) =>
+    apiCall('/api/v1/auth/me', { method: 'PATCH', body: JSON.stringify(data) }, token),
+  changePassword: (token: string, current_password: string, new_password: string) =>
+    apiCall('/api/v1/auth/change-password', { method: 'POST', body: JSON.stringify({ current_password, new_password }) }, token),
   dashboard: (token: string) => apiCall('/api/v1/dashboard', {}, token),
   forecasts: (token: string) => apiCall('/api/v1/forecasts', {}, token),
   reputation:(token: string) => apiCall('/api/v1/reputation', {}, token),

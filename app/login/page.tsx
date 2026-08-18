@@ -84,28 +84,16 @@ export default function LoginPage() {
               </button>
               <div style={{ textAlign:'center', marginTop:14 }}>
                 <span style={{ fontSize:13, color:'var(--text-muted)' }}>Pas encore de compte ? </span>
-                <span style={{ fontSize:13, color:'var(--accent)', cursor:'pointer' }} onClick={() => setTab('register')}>S'inscrire →</span>
+                <span style={{ fontSize:13, color:'var(--accent)', cursor:'pointer' }} onClick={() => router.push('/onboarding')}>S'inscrire →</span>
               </div>
             </div>
           ) : (
             <div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:14 }}>
-                <div><label style={lbl}>Prénom *</label><input style={inp} placeholder="Karim" value={form.name} onChange={e=>set('name',e.target.value)} /></div>
-                <div><label style={lbl}>Restaurant *</label><input style={inp} placeholder="Burger House" value={form.restaurant} onChange={e=>set('restaurant',e.target.value)} /></div>
+              <div style={{ fontSize:13, color:'var(--text-secondary)', marginBottom:20, lineHeight:1.6 }}>
+                L'inscription se fait en quelques etapes guidees : coordonnees de votre restaurant, specialites, et connexion automatique de votre fiche Google.
               </div>
-              <div style={{ marginBottom:14 }}><label style={lbl}>Email *</label><input style={inp} type="email" placeholder="vous@restaurant.com" value={form.email} onChange={e=>set('email',e.target.value)} /></div>
-              <div style={{ marginBottom:14 }}>
-                <label style={lbl}>Pays</label>
-                <select style={inp} value={form.country} onChange={e=>set('country',e.target.value)}>
-                  <option value="">Sélectionner...</option>
-                  <option>🇹🇳 Tunisie</option><option>🇲🇦 Maroc</option><option>🇩🇿 Algérie</option>
-                  <option>🇸🇳 Sénégal</option><option>🇦🇪 UAE</option><option>Autre</option>
-                </select>
-              </div>
-              <div style={{ marginBottom:14 }}><label style={lbl}>Mot de passe * (8 min.)</label><input style={inp} type="password" placeholder="••••••••" value={form.password} onChange={e=>set('password',e.target.value)} /></div>
-              {error && <div style={{ background:'rgba(232,69,69,.12)', border:'1px solid var(--danger)', borderRadius:8, padding:'8px 13px', fontSize:13, color:'var(--danger)', marginBottom:12 }}>{error}</div>}
-              <button onClick={doRegister} disabled={loading} style={{ width:'100%', padding:'12px 0', background: loading ? 'var(--border-color)' : 'var(--accent)', color: loading ? 'var(--text-muted)' : 'var(--bg-page)', border:'none', borderRadius:8, fontSize:14, fontWeight:700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily:'Inter,sans-serif' }}>
-                {loading ? 'Création...' : 'Créer mon compte gratuitement'}
+              <button onClick={() => router.push('/onboarding')} style={{ width:'100%', padding:'12px 0', background:'var(--accent)', color:'var(--bg-page)', border:'none', borderRadius:8, fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>
+                Créer mon compte gratuitement
               </button>
               <div style={{ textAlign:'center', marginTop:14 }}>
                 <span style={{ fontSize:13, color:'var(--text-muted)' }}>Déjà un compte ? </span>

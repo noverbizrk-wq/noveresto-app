@@ -182,11 +182,11 @@ export default function DashboardPage() {
 
       {/* KPI Row */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:12, marginBottom:20 }}>
-        <KPI label="CA Aujourd'hui"  value={`${(data?.kpis?.revenue_today_tnd||0).toLocaleString('fr-FR')} TND`} delta="↑ +8.4%"   color={C.teal}   trend={trendRevenue} />
+        <KPI label="CA Aujourd'hui"  value={`${(data?.kpis?.revenue_today_tnd||0).toLocaleString('fr-FR')} ${data?.currency || 'TND'}`} delta="↑ +8.4%"   color={C.teal}   trend={trendRevenue} />
         <KPI label="Couverts"        value={data?.kpis?.covers || 0}                                              delta="↑ +12%"    color={C.blue}   trend={trendCovers}  />
         <KPI label="Food Cost"       value={`${data?.kpis?.food_cost_pct}%`}                                      delta="↓ -2.1pts" color={C.green}  trend={trendFC}      />
-        <KPI label="Ticket Moyen"    value={`${data?.kpis?.avg_ticket_tnd} TND`}                                  delta="↑ +3.7%"   color={C.amber}                       />
-        <KPI label="CA Demain · IA"  value={forecast?.forecasts?.[1] ? `${forecast.forecasts[1].revenue_tnd?.toLocaleString('fr-FR')} TND` : '—'}
+        <KPI label="Ticket Moyen"    value={`${data?.kpis?.avg_ticket_tnd} ${data?.currency || 'TND'}`}                                  delta="↑ +3.7%"   color={C.amber}                       />
+        <KPI label="CA Demain · IA"  value={forecast?.forecasts?.[1] ? `${forecast.forecasts[1].revenue_tnd?.toLocaleString('fr-FR')} ${data?.currency || 'TND'}` : '—'}
           delta={forecast?.forecasts?.[1] ? `${forecast.forecasts[1].covers} couverts` : 'Chargement...'}
           color={C.purple} sub={`MAPE ${forecast?.mape||'—'}%`} />
       </div>
@@ -198,10 +198,10 @@ export default function DashboardPage() {
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
             <div>
               <div style={{ fontSize:13, fontWeight:700 }}>📊 CA — 7 derniers jours</div>
-              <div style={{ fontSize:11, color:C.muted, marginTop:2 }}>Réalisé vs Objectif 12 000 TND/jour</div>
+              <div style={{ fontSize:11, color:C.muted, marginTop:2 }}>Réalisé vs Objectif 12 000 {data?.currency || 'TND'}/jour</div>
             </div>
             <div style={{ fontSize:11, color:C.teal, fontWeight:700 }}>
-              Total : {caWeekData.reduce((s:number,d:any)=>s+d.ca,0).toLocaleString('fr-FR')} TND
+              Total : {caWeekData.reduce((s:number,d:any)=>s+d.ca,0).toLocaleString('fr-FR')} {data?.currency || 'TND'}
             </div>
           </div>
           <ResponsiveContainer width="100%" height={180}>
@@ -215,7 +215,7 @@ export default function DashboardPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
               <XAxis dataKey="day" tick={{ fill:C.muted, fontSize:11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill:C.muted, fontSize:10 }} axisLine={false} tickLine={false} tickFormatter={v=>`${Math.round(v/1000)}k`} />
-              <Tooltip content={<CustomTooltip suffix=" TND" />} />
+              <Tooltip content={<CustomTooltip suffix={` ${data?.currency || 'TND'}`} />} />
               <ReferenceLine y={12000} stroke={C.amber} strokeDasharray="4 4" strokeWidth={1} />
               <Area type="monotone" dataKey="ca" name="CA" stroke={C.teal} fill="url(#caGrad)" strokeWidth={2} dot={{ fill:C.teal, r:3 }} activeDot={{ r:5 }} />
             </AreaChart>
@@ -271,7 +271,7 @@ export default function DashboardPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
               <XAxis dataKey="day" tick={{ fill:C.muted, fontSize:11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill:C.muted, fontSize:10 }} axisLine={false} tickLine={false} tickFormatter={v=>`${Math.round(v/1000)}k`} />
-              <Tooltip content={<CustomTooltip suffix=" TND" />} />
+              <Tooltip content={<CustomTooltip suffix={` ${data?.currency || 'TND'}`} />} />
               <Bar dataKey="ca" name="CA prévu" radius={[4,4,0,0]}>
                 {prophetData.map((_:any, i:number) => {
                   const day = forecast?.forecasts?.[i]?.day
@@ -324,17 +324,17 @@ export default function DashboardPage() {
               <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                 <div style={{ padding:'10px 12px', borderRadius:8, background:'rgba(0,196,140,.08)', border:'1px solid rgba(0,196,140,.2)' }}>
                   <div style={{ fontSize:11, color:C.teal, fontWeight:700 }}>🏆 Meilleur jour</div>
-                  <div style={{ fontSize:14, fontWeight:700, marginTop:3 }}>{dayFr[best.day]} — {best.revenue_tnd?.toLocaleString('fr-FR')} TND</div>
+                  <div style={{ fontSize:14, fontWeight:700, marginTop:3 }}>{dayFr[best.day]} — {best.revenue_tnd?.toLocaleString('fr-FR')} {data?.currency || 'TND'}</div>
                   <div style={{ fontSize:11, color:C.muted }}>{best.covers} couverts estimés</div>
                 </div>
                 <div style={{ padding:'10px 12px', borderRadius:8, background:'rgba(245,166,35,.08)', border:'1px solid rgba(245,166,35,.2)' }}>
                   <div style={{ fontSize:11, color:C.amber, fontWeight:700 }}>📉 Jour creux</div>
-                  <div style={{ fontSize:13, fontWeight:700, marginTop:3 }}>{dayFr[worst.day]} — {worst.revenue_tnd?.toLocaleString('fr-FR')} TND</div>
+                  <div style={{ fontSize:13, fontWeight:700, marginTop:3 }}>{dayFr[worst.day]} — {worst.revenue_tnd?.toLocaleString('fr-FR')} {data?.currency || 'TND'}</div>
                   <div style={{ fontSize:11, color:C.muted }}>Idéal pour promotions</div>
                 </div>
                 <div style={{ padding:'10px 12px', borderRadius:8, background:C.navyD, border:`1px solid ${C.navyL}` }}>
                   <div style={{ fontSize:11, color:C.muted, fontWeight:700 }}>📊 CA semaine estimé</div>
-                  <div style={{ fontSize:18, fontWeight:800, marginTop:3 }}>{total?.toLocaleString('fr-FR')} TND</div>
+                  <div style={{ fontSize:18, fontWeight:800, marginTop:3 }}>{total?.toLocaleString('fr-FR')} {data?.currency || 'TND'}</div>
                   <div style={{ fontSize:11, color:C.muted }}>MAPE {forecast.mape}% · {forecast.stats?.training_days}j</div>
                 </div>
               </div>

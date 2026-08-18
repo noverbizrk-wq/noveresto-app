@@ -40,6 +40,7 @@ export default function AdminPage() {
   const [loading, setLoading]   = useState(true)
   const [search, setSearch]     = useState('')
   const [filter, setFilter]     = useState('all')
+  const [togglingId, setTogglingId] = useState<number | null>(null)
 
   useEffect(() => {
     const user = getUser()
@@ -65,6 +66,21 @@ export default function AdminPage() {
       setContacts(cData.contacts || [])
     } catch(e) {}
     setLoading(false)
+  }
+
+  async function toggleActive(u: any) {
+    const action = u.is_active === false ? 'reactivate' : 'deactivate'
+    if (action === 'deactivate' && !confirm(`Désactiver le compte "${u.restaurant || u.name}" ? Le login sera bloqué (réversible).`)) return
+    setTogglingId(u.id)
+    const token = getToken()
+    try {
+      const r = await fetch(`/api/v1/admin/users/${u.id}/${action}`, { method: 'PATCH', headers: { 'Authorization': `Bearer ${token}` } })
+      if (r.ok) {
+        const updated = await r.json()
+        setUsers(us => us.map(x => x.id === u.id ? { ...x, is_active: updated.is_active, deactivated_at: updated.deactivated_at } : x))
+      }
+    } catch (e) {}
+    setTogglingId(null)
   }
 
   const filteredUsers = users.filter(u => {
@@ -151,14 +167,14 @@ export default function AdminPage() {
           {tab === 'users' && (
             <div style={{ background:C.navyM, border:'1px solid var(--border-color)', borderRadius:14, overflow:'hidden' }}>
               {/* Table header */}
-              <div style={{ display:'grid', gridTemplateColumns:'2fr 2fr 2fr 1fr 1fr', gap:12, padding:'12px 16px', background:'var(--bg-card-alt)', fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5 }}>
-                <span>Utilisateur</span><span>Email</span><span>Restaurant</span><span>Rôle</span><span>Inscrit le</span>
+              <div style={{ display:'grid', gridTemplateColumns:'1.8fr 1.8fr 1.6fr 0.9fr 1fr 1.4fr', gap:12, padding:'12px 16px', background:'var(--bg-card-alt)', fontSize:10, color:C.muted, textTransform:'uppercase', letterSpacing:.5 }}>
+                <span>Utilisateur</span><span>Email</span><span>Restaurant</span><span>Rôle</span><span>Inscrit le</span><span>Statut</span>
               </div>
               {filteredUsers.length === 0 ? (
                 <div style={{ padding:32, textAlign:'center', color:C.muted }}>Aucun utilisateur trouvé</div>
               ) : filteredUsers.map((u, i) => (
                 <div key={u.id} style={{
-                  display:'grid', gridTemplateColumns:'2fr 2fr 2fr 1fr 1fr', gap:12,
+                  display:'grid', gridTemplateColumns:'1.8fr 1.8fr 1.6fr 0.9fr 1fr 1.4fr', gap:12,
                   padding:'12px 16px', borderBottom:'1px solid color-mix(in srgb, var(--border-color) 30%, transparent)',
                   background: i%2===0 ? 'transparent' : 'var(--bg-card-alt)',
                   transition:'background .15s',
@@ -179,6 +195,21 @@ export default function AdminPage() {
                   </div>
                   <div style={{ fontSize:11, color:C.muted, display:'flex', alignItems:'center' }}>
                     {u.created_at ? new Date(u.created_at).toLocaleDateString('fr-FR') : '—'}
+                  </div>
+                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                    {u.role === 'client' ? (
+                      <>
+                        <Badge text={u.is_active === false ? '⛔ Désactivé' : '✅ Actif'} color={u.is_active === false ? C.red : 'var(--success)'} />
+                        <button
+                          onClick={() => toggleActive(u)}
+                          disabled={togglingId === u.id}
+                          title={u.is_active === false ? 'Réactiver ce compte' : 'Désactiver ce compte'}
+                          style={{ fontSize:10, padding:'3px 8px', borderRadius:6, border:`1px solid ${u.is_active === false ? 'var(--success)' : C.red}`, background:'transparent', color: u.is_active === false ? 'var(--success)' : C.red, cursor: togglingId === u.id ? 'not-allowed' : 'pointer', fontFamily:'Inter,sans-serif', whiteSpace:'nowrap' }}
+                        >
+                          {togglingId === u.id ? '⟳' : (u.is_active === false ? 'Réactiver' : 'Désactiver')}
+                        </button>
+                      </>
+                    ) : <span style={{ fontSize:11, color:C.muted }}>—</span>}
                   </div>
                 </div>
               ))}

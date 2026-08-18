@@ -42,6 +42,11 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify({ restaurant_id: restaurantId, is_available: isAvailable })
     }, token),
+  restaurantOrderCreate: (token: string, restaurantId: number, data: object) =>
+    apiCall('/api/v1/restaurant/orders', {
+      method: 'POST',
+      body: JSON.stringify({ restaurant_id: restaurantId, ...data })
+    }, token),
 
   // ── Lot 2 : ingrédients, recettes, coûts ──────────────────────────────────
   restaurantIngredients: (token: string, restaurantId: number) =>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, Fragment } from 'react';
+import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useCurrentRestaurant } from '../useCurrentRestaurant';
 import { formatAmount } from '@/lib/currency';
@@ -174,6 +175,9 @@ export default function RestaurantOrdersPage() {
         </h1>
         <div style={{ display: 'flex', gap: 8 }}>
           <RestaurantSelector restaurants={restaurants} selectedId={restaurant?.id ?? null} onChange={selectRestaurant} />
+          <Link href="/dashboard/restaurant/orders/new" style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', fontWeight: 600, fontSize: 13, textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            + Nouvelle commande
+          </Link>
           <select style={inp} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
             <option value="">Tous les statuts</option>
             {Object.entries(STATUS_LABELS).map(([k, v]) => (

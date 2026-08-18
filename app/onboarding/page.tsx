@@ -70,6 +70,7 @@ function Field({ label, required, children, hint }: any) {
 export default function OnboardingPage() {
   const router = useRouter()
   const [step, setStep]     = useState(1)
+  const [placeFound, setPlaceFound] = useState<boolean | null>(null)
   const [loading, setLoad]  = useState(false)
   const [error, setError]   = useState('')
   const [success, setSuccess] = useState(false)
@@ -162,9 +163,14 @@ export default function OnboardingPage() {
           password:   form.password,
           restaurant: form.restaurant_name,
           country:    form.country,
+          address:    form.address,
+          city:       form.city,
+          specialties: [form.specialties, form.top_dishes].filter(Boolean).join(', '),
+          cuisine_type: form.cuisine_type,
         }),
       })
       const regData = await regRes.json()
+      setPlaceFound(regData.google_place_id_found ?? null)
       if (!regRes.ok) throw new Error(regData.error || 'Erreur inscription')
 
       // 2. Stocker le token
@@ -193,6 +199,12 @@ export default function OnboardingPage() {
         <div style={{ fontSize:16, color:C.muted, marginBottom:24 }}>
           Votre restaurant <strong style={{ color:'var(--text-primary)' }}>{form.restaurant_name}</strong> est prêt.
         </div>
+        {placeFound === true && (
+          <div style={{ fontSize:13, color:C.teal, marginBottom:12 }}>✅ Votre fiche Google trouvee automatiquement — vos avis reels seront affiches.</div>
+        )}
+        {placeFound === false && (
+          <div style={{ fontSize:13, color:C.muted, marginBottom:12 }}>ℹ️ Fiche Google non trouvee automatiquement — configurable plus tard.</div>
+        )}
         <div style={{ fontSize:14, color:C.teal }}>Redirection vers votre dashboard...</div>
       </div>
     </div>

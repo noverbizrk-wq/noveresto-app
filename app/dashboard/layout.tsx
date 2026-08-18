@@ -64,6 +64,12 @@ const navCategories: NavCategory[] = [
     ],
   },
   {
+    id: 'compte', label: 'Compte', icon: '👤',
+    items: [
+      { href: '/dashboard/profile', icon: '👤', label: 'Mon profil' },
+    ],
+  },
+  {
     id: 'admin', label: 'Administration', icon: '⚙️',
     items: [
       { href: '/dashboard/admin', icon: '⚙️', label: 'Admin Panel' },
@@ -194,13 +200,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         <div style={{ padding:'14px 16px', borderTop:'1px solid var(--border-color)' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
+          <Link href="/dashboard/profile" style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10, textDecoration:'none', color:'inherit' }}>
             <div style={{ width:34, height:34, borderRadius:'50%', background:'var(--accent)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:'var(--bg-page)', flexShrink:0 }}>{initials}</div>
             <div style={{ overflow:'hidden' }}>
               <div style={{ fontSize:12, fontWeight:700, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{user?.name || '...'}</div>
               <div style={{ fontSize:10, color:'var(--accent)', textTransform:'uppercase', letterSpacing:.5 }}>{user?.role || 'client'}</div>
             </div>
-          </div>
+          </Link>
           <button onClick={logout} style={{ width:'100%', padding:'7px', background:'var(--border-color)', border:'none', borderRadius:7, color:'var(--text-secondary)', fontSize:12, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>
             🚪 Déconnexion
           </button>

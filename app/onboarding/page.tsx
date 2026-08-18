@@ -15,6 +15,13 @@ const STEPS = [
 const CUISINES = ['Burgers','Pizza','Tacos','Kebab','Sushi','Gastronomique','Traditionnel','Healthy','Halal','Fast-food','Boulangerie','Pâtisserie','Fruits de mer','Grillade','Autre']
 const COUNTRIES = ['Tunisie','France','Maroc','Algérie','Sénégal','Côte d\'Ivoire','UAE','Belgique','Autre']
 const CURRENCIES = ['TND','EUR','MAD','DZD','XOF','AED','USD']
+// Correspondance pays -> devise, alignee sur lib/currency.js (backend).
+// La devise est TOUJOURS derivee du pays, jamais choisie independamment,
+// pour eviter un pays/devise incoherents (source de bugs deja rencontres).
+const COUNTRY_TO_CURRENCY: Record<string, string> = {
+  'Tunisie': 'TND', 'France': 'EUR', 'Maroc': 'MAD', 'Algérie': 'DZD',
+  'Sénégal': 'XOF', "Côte d'Ivoire": 'XOF', 'UAE': 'AED', 'Belgique': 'EUR',
+}
 const OBJECTIVES = [
   { value:'orders',      label:'📦 Augmenter les commandes'      },
   { value:'traffic',     label:'🚶 Développer la fréquentation'  },
@@ -244,7 +251,7 @@ export default function OnboardingPage() {
                 <input style={inp} placeholder="Ex: Tunis" value={form.city} onChange={e => u('city', e.target.value)} />
               </Field>
               <Field label="Pays">
-                <select style={{ ...inp, cursor:'pointer' }} value={form.country} onChange={e => u('country', e.target.value)}>
+                <select style={{ ...inp, cursor:'pointer' }} value={form.country} onChange={e => { u('country', e.target.value); u('currency', COUNTRY_TO_CURRENCY[e.target.value] || 'TND') }}>
                   {COUNTRIES.map(c => <option key={c}>{c}</option>)}
                 </select>
               </Field>
@@ -265,7 +272,7 @@ export default function OnboardingPage() {
                 <input style={inp} placeholder="50" type="number" value={form.avg_ticket} onChange={e => u('avg_ticket', e.target.value)} />
               </Field>
               <Field label="Devise">
-                <select style={{ ...inp, cursor:'pointer' }} value={form.currency} onChange={e => u('currency', e.target.value)}>
+                <select style={{ ...inp, cursor:'not-allowed', opacity:0.6 }} value={form.currency} disabled title="Deduite automatiquement du pays">
                   {CURRENCIES.map(c => <option key={c}>{c}</option>)}
                 </select>
               </Field>

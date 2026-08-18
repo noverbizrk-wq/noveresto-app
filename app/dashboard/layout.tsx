@@ -133,6 +133,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       api.restaurantMyModules(token)
         .then((json) => setMyModules(json.data || []))
         .catch(() => setMyModules([]))
+
+      // Le JWT/cookie nr_user (poses au login) ne portent pas logo_url —
+      // on l'enrichit ici pour que le logo choisi sur /dashboard/profile
+      // survive une reconnexion, sans grossir le payload du token.
+      api.me(token)
+        .then((json) => {
+          if (json.user?.logo_url) {
+            setUser((u: any) => u ? { ...u, logo_url: json.user.logo_url } : u)
+          }
+        })
+        .catch(() => {})
     }
   }, [])
 
@@ -201,7 +212,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <div style={{ padding:'14px 16px', borderTop:'1px solid var(--border-color)' }}>
           <Link href="/dashboard/profile" style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10, textDecoration:'none', color:'inherit' }}>
-            <div style={{ width:34, height:34, borderRadius:'50%', background:'var(--accent)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:'var(--bg-page)', flexShrink:0 }}>{initials}</div>
+            {user?.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={user.logo_url} alt="" style={{ width:34, height:34, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+            ) : (
+              <div style={{ width:34, height:34, borderRadius:'50%', background:'var(--accent)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:'var(--bg-page)', flexShrink:0 }}>{initials}</div>
+            )}
             <div style={{ overflow:'hidden' }}>
               <div style={{ fontSize:12, fontWeight:700, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{user?.name || '...'}</div>
               <div style={{ fontSize:10, color:'var(--accent)', textTransform:'uppercase', letterSpacing:.5 }}>{user?.role || 'client'}</div>

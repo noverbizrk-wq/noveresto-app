@@ -193,8 +193,11 @@ export default function AdminPage() {
                   <div style={{ display:'flex', alignItems:'center' }}>
                     <Badge text={u.role === 'admin' ? '👑 Admin' : '🏪 Client'} color={u.role === 'admin' ? 'var(--purple)' : C.teal} />
                   </div>
-                  <div style={{ fontSize:11, color:C.muted, display:'flex', alignItems:'center' }}>
-                    {u.created_at ? new Date(u.created_at).toLocaleDateString('fr-FR') : '—'}
+                  <div style={{ display:'flex', flexDirection:'column', justifyContent:'center' }}>
+                    <div style={{ fontSize:11, color:C.muted }}>{u.created_at ? new Date(u.created_at).toLocaleDateString('fr-FR') : '—'}</div>
+                    <div style={{ fontSize:9, color: u.last_login_at ? C.muted : C.amber }} title="Dernière connexion">
+                      {u.last_login_at ? `↳ ${new Date(u.last_login_at).toLocaleDateString('fr-FR')}` : '↳ jamais connecté'}
+                    </div>
                   </div>
                   <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                     {u.role === 'client' ? (

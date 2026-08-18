@@ -10,20 +10,42 @@ export default function FidelisationPage() {
   const { restaurant, loading: restaurantLoading } = useCurrentRestaurant()
   const [overview, setOverview] = useState<any>(null)
   const [customers, setCustomers] = useState<any[]>([])
+  const [winback, setWinback] = useState<any[]>([])
+  const [birthdays, setBirthdays] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [editingBirthdayFor, setEditingBirthdayFor] = useState<number | null>(null)
+  const [birthdayValue, setBirthdayValue] = useState('')
 
-  useEffect(() => {
+  function loadAll() {
     if (!restaurant) return
     const token = getToken()
     setLoading(true)
     Promise.all([
       fetch('/api/v1/restaurant/loyalty/overview', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
       fetch('/api/v1/restaurant/loyalty/customers', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
-    ]).then(([overviewData, customersData]) => {
+      fetch('/api/v1/restaurant/loyalty/campaigns/winback', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
+      fetch('/api/v1/restaurant/loyalty/campaigns/birthday', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
+    ]).then(([overviewData, customersData, winbackData, birthdayData]) => {
       setOverview(overviewData)
       setCustomers(customersData.data || [])
+      setWinback(winbackData.data || [])
+      setBirthdays(birthdayData.data || [])
     }).finally(() => setLoading(false))
-  }, [restaurant?.id])
+  }
+
+  useEffect(() => { loadAll() }, [restaurant?.id])
+
+  async function saveBirthday(customerId: number) {
+    const token = getToken()
+    await fetch(`/api/v1/restaurant/loyalty/customers/${customerId}/birthday`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ birthday: birthdayValue || null })
+    })
+    setEditingBirthdayFor(null)
+    setBirthdayValue('')
+    loadAll()
+  }
 
   if (restaurantLoading || loading) {
     return <div style={{ color: 'var(--text-muted)', padding: 40 }}>Chargement...</div>
@@ -57,7 +79,7 @@ export default function FidelisationPage() {
         ))}
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
         <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:12, padding:20 }}>
           <div style={{ fontSize:13, fontWeight:700, marginBottom:16 }}>🏆 Niveaux fidélité</div>
           {overview?.tiers?.map((l:any,i:number) => (
@@ -75,13 +97,81 @@ export default function FidelisationPage() {
           <div style={{ fontSize:13, fontWeight:700, marginBottom:16 }}>👥 Clients (top 10)</div>
           {customers.length === 0 && <div style={{ fontSize:12, color:'var(--text-muted)' }}>Aucun client pour l'instant.</div>}
           {customers.slice(0, 10).map((c:any) => (
-            <div key={c.id} style={{ display:'flex', gap:12, padding:'10px 14px', background:'var(--bg-page)', borderRadius:10, marginBottom:8, alignItems:'center' }}>
-              <div style={{ fontSize:20 }}>{c.tier.icon}</div>
-              <div style={{ flex:1 }}>
-                <div style={{ fontSize:13, fontWeight:700 }}>{c.name || c.phone}</div>
-                <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>{c.orders_count} commande(s) · {c.tier.name}</div>
+            <div key={c.id} style={{ padding:'10px 14px', background:'var(--bg-page)', borderRadius:10, marginBottom:8 }}>
+              <div style={{ display:'flex', gap:12, alignItems:'center' }}>
+                <div style={{ fontSize:20 }}>{c.tier.icon}</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:13, fontWeight:700 }}>{c.name || c.phone}</div>
+                  <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>{c.orders_count} commande(s) · {c.tier.name}</div>
+                </div>
+                <div style={{ fontSize:14, fontWeight:800, color:'var(--accent)' }}>{c.points} pts</div>
               </div>
-              <div style={{ fontSize:14, fontWeight:800, color:'var(--accent)' }}>{c.points} pts</div>
+              {editingBirthdayFor === c.id ? (
+                <div style={{ display:'flex', gap:6, marginTop:8, alignItems:'center' }}>
+                  <input
+                    type="date"
+                    value={birthdayValue}
+                    onChange={(e) => setBirthdayValue(e.target.value)}
+                    style={{ background:'var(--bg-card-alt)', border:'1px solid var(--border-color)', borderRadius:6, padding:'4px 8px', color:'var(--text-primary)', fontSize:12 }}
+                  />
+                  <button onClick={() => saveBirthday(c.id)} style={{ fontSize:11, padding:'4px 10px', borderRadius:6, border:'none', background:'var(--accent)', color:'var(--navy)', fontWeight:700, cursor:'pointer' }}>OK</button>
+                  <button onClick={() => setEditingBirthdayFor(null)} style={{ fontSize:11, padding:'4px 10px', borderRadius:6, border:'1px solid var(--border-color)', background:'transparent', color:'var(--text-secondary)', cursor:'pointer' }}>Annuler</button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => { setEditingBirthdayFor(c.id); setBirthdayValue(c.birthday ? String(c.birthday).slice(0,10) : '') }}
+                  style={{ fontSize:11, color:'var(--text-muted)', background:'none', border:'none', textDecoration:'underline', cursor:'pointer', padding:0, marginTop:6 }}
+                >
+                  {c.birthday ? `🎂 ${String(c.birthday).slice(5,10)}` : '+ Ajouter date de naissance'}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+        <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:12, padding:20 }}>
+          <div style={{ fontSize:13, fontWeight:700, marginBottom:4 }}>🔄 Win-back</div>
+          <div style={{ fontSize:11, color:'var(--text-muted)', marginBottom:16 }}>Clients absents depuis plus de 21 jours — envoi manuel via WhatsApp</div>
+          {winback.length === 0 && <div style={{ fontSize:12, color:'var(--text-muted)' }}>Aucun client à relancer pour l'instant.</div>}
+          {winback.map((w:any) => (
+            <div key={w.customer_id} style={{ display:'flex', gap:12, padding:'10px 14px', background:'var(--bg-page)', borderRadius:10, marginBottom:8, alignItems:'center' }}>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:13, fontWeight:700 }}>{w.name || w.phone}</div>
+                <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>Absent depuis {w.days_since_last_order} jours</div>
+              </div>
+              
+              <a
+                href={w.whatsapp_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize:11, padding:'6px 12px', borderRadius:8, background:'#25D366', color:'#fff', fontWeight:700, textDecoration:'none', whiteSpace:'nowrap' }}
+              >
+                💬 WhatsApp
+              </a>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:12, padding:20 }}>
+          <div style={{ fontSize:13, fontWeight:700, marginBottom:4 }}>🎂 Anniversaires du jour</div>
+          <div style={{ fontSize:11, color:'var(--text-muted)', marginBottom:16 }}>Envoi manuel via WhatsApp</div>
+          {birthdays.length === 0 && <div style={{ fontSize:12, color:'var(--text-muted)' }}>Aucun anniversaire aujourd'hui.</div>}
+          {birthdays.map((b:any) => (
+            <div key={b.customer_id} style={{ display:'flex', gap:12, padding:'10px 14px', background:'var(--bg-page)', borderRadius:10, marginBottom:8, alignItems:'center' }}>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:13, fontWeight:700 }}>{b.name || b.phone}</div>
+              </div>
+              
+              <a
+                href={b.whatsapp_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize:11, padding:'6px 12px', borderRadius:8, background:'#25D366', color:'#fff', fontWeight:700, textDecoration:'none', whiteSpace:'nowrap' }}
+              >
+                💬 WhatsApp
+              </a>
             </div>
           ))}
         </div>

@@ -70,6 +70,12 @@ const navCategories: NavCategory[] = [
     ],
   },
   {
+    id: 'configuration', label: 'Configuration', icon: '⚙️',
+    items: [
+      { href: '/dashboard/settings', icon: '⚙️', label: 'Paramètres & connexions' },
+    ],
+  },
+  {
     id: 'admin', label: 'Administration', icon: '⚙️',
     items: [
       { href: '/dashboard/admin', icon: '⚙️', label: 'Admin Panel' },

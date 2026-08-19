@@ -38,22 +38,6 @@ export default function FinancePage() {
   const [from, setFrom] = useState(firstDayOfMonth());
   const [to, setTo] = useState(today());
   const [exporting, setExporting] = useState(false);
-  const [taxProfileOpen, setTaxProfileOpen] = useState(false);
-  const [taxProfile, setTaxProfile] = useState({ tax_id: '', address: '', city: '', postal_code: '' });
-  const [taxProfileSaving, setTaxProfileSaving] = useState(false);
-  const [taxProfileSaved, setTaxProfileSaved] = useState(false);
-
-  const saveTaxProfile = async () => {
-    if (!restaurant || !token) return;
-    setTaxProfileSaving(true);
-    try {
-      await api.restaurantTaxProfileUpdate(token, restaurant.id, taxProfile);
-      setTaxProfileSaved(true);
-      setTimeout(() => setTaxProfileSaved(false), 2000);
-    } finally {
-      setTaxProfileSaving(false);
-    }
-  };
 
   const load = useCallback(() => {
     if (!restaurant || !token) return;
@@ -116,36 +100,6 @@ export default function FinancePage() {
             {exporting ? '...' : '⬇ Export CSV'}
           </button>
         </div>
-      </div>
-
-      {/* Profil fiscal — nécessaire pour générer des factures TEIF (Lot 12) */}
-      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
-        <button
-          onClick={() => setTaxProfileOpen(!taxProfileOpen)}
-          style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}
-        >
-          🧾 Profil fiscal (facturation électronique) {taxProfileOpen ? '▲' : '▼'}
-        </button>
-        {taxProfileOpen && (
-          <div style={{ marginTop: 12 }}>
-            <p style={{ color: 'var(--text-muted)', fontSize: 11, marginBottom: 10 }}>
-              Renseigne ces coordonnées pour pouvoir générer des factures TEIF (matricule fiscal obligatoire côté émetteur). ⚠️ Ceci ne remplace pas la signature électronique ni la soumission réelle à TTN — voir la documentation.
-            </p>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-              <input placeholder="Matricule fiscal (ex: 1234567A/A/M/000)" value={taxProfile.tax_id} onChange={e => setTaxProfile({ ...taxProfile, tax_id: e.target.value })} style={{ ...inp, flex: 1, minWidth: 200 }} />
-              <input placeholder="Adresse" value={taxProfile.address} onChange={e => setTaxProfile({ ...taxProfile, address: e.target.value })} style={{ ...inp, flex: 1, minWidth: 160 }} />
-              <input placeholder="Ville" value={taxProfile.city} onChange={e => setTaxProfile({ ...taxProfile, city: e.target.value })} style={{ ...inp, width: 130 }} />
-              <input placeholder="Code postal" value={taxProfile.postal_code} onChange={e => setTaxProfile({ ...taxProfile, postal_code: e.target.value })} style={{ ...inp, width: 110 }} />
-            </div>
-            <button
-              onClick={saveTaxProfile}
-              disabled={taxProfileSaving}
-              style={{ padding: '7px 16px', borderRadius: 8, border: 'none', background: taxProfileSaved ? 'var(--success)' : 'var(--accent)', color: 'var(--navy)', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
-            >
-              {taxProfileSaving ? '...' : taxProfileSaved ? '✓ Enregistré' : 'Enregistrer'}
-            </button>
-          </div>
-        )}
       </div>
 
       {loading && <p style={{ color: 'var(--text-muted)' }}>Chargement...</p>}

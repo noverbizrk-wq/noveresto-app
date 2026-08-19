@@ -180,9 +180,6 @@ export default function ReputationPage() {
           <button onClick={sync} disabled={syncing} style={{ padding:'8px 16px', background:C.navyM, border:`1px solid ${C.navyL}`, borderRadius:8, color:C.gray, fontSize:13, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>
             {syncing ? '⟳ Sync...' : '🔄 Synchroniser'}
           </button>
-          <a href="/app/dashboard/settings" style={{ padding:'8px 16px', background:C.navyM, border:`1px solid ${C.navyL}`, borderRadius:8, color:C.gray, fontSize:13, textDecoration:'none', display:'flex', alignItems:'center' }}>
-            ⚙️ Paramètres
-          </a>
         </div>
       </div>
 
@@ -377,9 +374,7 @@ export default function ReputationPage() {
                   </div>
                   {selected.platform === 'google' && !selected.google_review_name && (
                     <p style={{ fontSize:11, color:C.muted, marginTop:6 }}>
-                      {googleStatus?.connected ? '' : (
-                        <>Connectez Google Business Profile dans <a href="/app/dashboard/settings" style={{ color:C.teal }}>Paramètres</a> pour publier directement sur Google Maps — sinon la réponse reste enregistrée dans NoveResto uniquement.</>
-                      )}
+                      {googleStatus?.connected ? '' : 'Google Business Profile non connecté — la réponse reste enregistrée dans NoveResto sans être publiée sur Google Maps.'}
                     </p>
                   )}
                 </div>

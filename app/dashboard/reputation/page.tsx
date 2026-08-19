@@ -1,16 +1,14 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { useCurrentRestaurant } from '../restaurant/useCurrentRestaurant'
+import { RestaurantSelector } from '../restaurant/RestaurantSelector'
 
 const C = { navyD:'var(--bg-page)', navyM:'var(--bg-card)', navyL:'var(--border-color)', teal:'var(--accent)', amber:'var(--warning)', red:'var(--danger)', blue:'var(--info)', green:'var(--success)', purple:'var(--purple)', muted:'var(--text-muted)', gray:'var(--text-secondary)' }
 
 function getToken() {
   return document.cookie.split(';').find(c => c.trim().startsWith('nr_token='))?.split('=')[1] || ''
 }
-function getUser() {
-  try { const c = document.cookie.split(';').find(c => c.trim().startsWith('nr_user=')); return c ? JSON.parse(decodeURIComponent(c.split('=')[1])) : null } catch { return null }
-}
-
 const PLATFORMS: any = {
   google:    { icon:'🔍', color:'#4285F4', label:'Google Maps' },
   facebook:  { icon:'📘', color:'#1877F2', label:'Facebook'    },
@@ -77,11 +75,17 @@ export default function ReputationPage() {
   const [googleStatus, setGoogleStatus]         = useState<any>(null)
   const [publishing, setPublishing]             = useState(false)
   const [publishError, setPublishError]         = useState<string | null>(null)
-  const user = typeof window !== 'undefined' ? getUser() : null
+  const { restaurant: currentRestaurant, restaurants, selectRestaurant, loading: restaurantLoading } = useCurrentRestaurant()
 
-  const restaurant = { name: user?.restaurant || 'Mon Restaurant', cuisine_type: 'Restauration rapide halal' }
+  const restaurant = { name: currentRestaurant?.name || 'Mon Restaurant', cuisine_type: 'Restauration rapide halal' }
+
+  // Ajoute restaurant_id — necessaire pour qu'un admin/franchise_owner
+  // consulte les avis du restaurant SELECTIONNE, pas systematiquement
+  // son propre compte (restaurantScopeMiddleware lit req.query.restaurant_id).
+  const withRid = (url: string) => `${url}${url.includes('?') ? '&' : '?'}restaurant_id=${currentRestaurant?.id}`
 
   useEffect(() => {
+    if (!currentRestaurant) return
     loadData()
     loadStats()
     // Lecture seule : la connexion/deconnexion Google Business Profile se
@@ -89,9 +93,9 @@ export default function ReputationPage() {
     // On garde juste le statut ici pour adapter le texte du bouton
     // "Publier" dans la modale de reponse.
     const token = getToken()
-    fetch('/api/v1/reputation/google/status', { headers: { 'Authorization': `Bearer ${token}` } })
+    fetch(withRid('/api/v1/reputation/google/status'), { headers: { 'Authorization': `Bearer ${token}` } })
       .then(r => r.json()).then(setGoogleStatus).catch(() => {})
-  }, [])
+  }, [currentRestaurant?.id])
 
   async function publishReply() {
     if (!selected || !aiReply.trim()) return
@@ -99,7 +103,7 @@ export default function ReputationPage() {
     setPublishError(null)
     try {
       const token = getToken()
-      const r = await fetch(`/api/v1/reputation/reviews/${encodeURIComponent(selected.id)}/reply`, {
+      const r = await fetch(withRid(`/api/v1/reputation/reviews/${encodeURIComponent(selected.id)}/reply`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ reply_text: aiReply.replace(/^⚠️.*\n\n/, '') })
@@ -119,7 +123,7 @@ export default function ReputationPage() {
     setLoading(true)
     try {
       const token = getToken()
-      const r = await fetch('/api/v1/reputation', { headers:{ 'Authorization':`Bearer ${token}` } })
+      const r = await fetch(withRid('/api/v1/reputation'), { headers:{ 'Authorization':`Bearer ${token}` } })
       const d = await r.json()
       setData(d)
     } catch(e) {}
@@ -129,7 +133,7 @@ export default function ReputationPage() {
   async function loadStats() {
     try {
       const token = getToken()
-      const r = await fetch('/api/v1/reputation/stats', { headers:{ 'Authorization':`Bearer ${token}` } })
+      const r = await fetch(withRid('/api/v1/reputation/stats'), { headers:{ 'Authorization':`Bearer ${token}` } })
       const d = await r.json()
       setStats(d)
     } catch(e) {}
@@ -139,7 +143,7 @@ export default function ReputationPage() {
     setGen(true); setAiReply('')
     try {
       const token = getToken()
-      const r = await fetch('/api/v1/reputation/reply', {
+      const r = await fetch(withRid('/api/v1/reputation/reply'), {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${token}` },
         body: JSON.stringify({ review, restaurant })
@@ -166,6 +170,10 @@ export default function ReputationPage() {
 
   const inp = { width:'100%', background:'var(--bg-page)', border:'1px solid var(--border-color)', borderRadius:8, padding:'10px 14px', fontSize:13, color:'var(--text-primary)', outline:'none', fontFamily:'Inter,sans-serif', boxSizing:'border-box' as any }
 
+  if (restaurantLoading) {
+    return <div style={{ color:C.muted, padding:40 }}>Chargement...</div>
+  }
+
   return (
     <div style={{ maxWidth:1100 }}>
       {/* Header */}
@@ -177,6 +185,7 @@ export default function ReputationPage() {
           </div>
         </div>
         <div style={{ display:'flex', gap:8 }}>
+          <RestaurantSelector restaurants={restaurants} selectedId={currentRestaurant?.id ?? null} onChange={selectRestaurant} />
           <button onClick={sync} disabled={syncing} style={{ padding:'8px 16px', background:C.navyM, border:`1px solid ${C.navyL}`, borderRadius:8, color:C.gray, fontSize:13, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>
             {syncing ? '⟳ Sync...' : '🔄 Synchroniser'}
           </button>

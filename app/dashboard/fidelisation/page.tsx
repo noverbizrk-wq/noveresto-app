@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useCurrentRestaurant } from '../restaurant/useCurrentRestaurant'
+import { RestaurantSelector } from '../restaurant/RestaurantSelector'
 
 const C = { teal:'var(--accent)', amber:'var(--warning)', red:'var(--danger)', muted:'var(--text-muted)', gray:'var(--text-secondary)', navyD:'var(--bg-page)', navyM:'var(--bg-card)', navyL:'var(--border-color)' }
 
@@ -45,7 +46,12 @@ function parseCustomersCSV(text: string) {
 }
 
 export default function FidelisationPage() {
-  const { restaurant, loading: restaurantLoading } = useCurrentRestaurant()
+  const { restaurant, restaurants, selectRestaurant, loading: restaurantLoading } = useCurrentRestaurant()
+  // Ajoute restaurant_id a une URL relative de l'API — necessaire pour
+  // qu'un admin/franchise_owner voie les donnees du restaurant SELECTIONNE
+  // (pas systematiquement son propre compte). restaurantScopeMiddleware
+  // lit req.query.restaurant_id en priorite, quelle que soit la methode.
+  const withRid = (url: string) => `${url}${url.includes('?') ? '&' : '?'}restaurant_id=${restaurant?.id}`
   const [overview, setOverview] = useState<any>(null)
   const [customers, setCustomers] = useState<any[]>([])
   const [winback, setWinback] = useState<any[]>([])
@@ -80,10 +86,10 @@ export default function FidelisationPage() {
     if (!restaurant) return
     setLoading(true)
     Promise.all([
-      fetch('/api/v1/restaurant/loyalty/overview', { headers: authHeaders() }).then(r => r.json()),
-      fetch('/api/v1/restaurant/loyalty/customers', { headers: authHeaders() }).then(r => r.json()),
-      fetch('/api/v1/restaurant/loyalty/campaigns/winback', { headers: authHeaders() }).then(r => r.json()),
-      fetch('/api/v1/restaurant/loyalty/campaigns/birthday', { headers: authHeaders() }).then(r => r.json()),
+      fetch(withRid('/api/v1/restaurant/loyalty/overview'), { headers: authHeaders() }).then(r => r.json()),
+      fetch(withRid('/api/v1/restaurant/loyalty/customers'), { headers: authHeaders() }).then(r => r.json()),
+      fetch(withRid('/api/v1/restaurant/loyalty/campaigns/winback'), { headers: authHeaders() }).then(r => r.json()),
+      fetch(withRid('/api/v1/restaurant/loyalty/campaigns/birthday'), { headers: authHeaders() }).then(r => r.json()),
     ]).then(([overviewData, customersData, winbackData, birthdayData]) => {
       setOverview(overviewData)
       setCustomers(customersData.data || [])
@@ -95,7 +101,7 @@ export default function FidelisationPage() {
   useEffect(() => { loadAll() }, [restaurant?.id])
 
   async function saveBirthday(customerId: number) {
-    await fetch(`/api/v1/restaurant/loyalty/customers/${customerId}/birthday`, {
+    await fetch(withRid(`/api/v1/restaurant/loyalty/customers/${customerId}/birthday`), {
       method: 'PATCH', headers: authHeaders(true),
       body: JSON.stringify({ birthday: birthdayValue || null })
     })
@@ -109,7 +115,7 @@ export default function FidelisationPage() {
     setDetail(null)
     setDetailLoading(true)
     setConfirmDelete(false)
-    fetch(`/api/v1/restaurant/loyalty/customers/${customerId}`, { headers: authHeaders() })
+    fetch(withRid(`/api/v1/restaurant/loyalty/customers/${customerId}`), { headers: authHeaders() })
       .then(r => r.json())
       .then(d => { setDetail(d); setNotesDraft(d.notes || '') })
       .finally(() => setDetailLoading(false))
@@ -123,7 +129,7 @@ export default function FidelisationPage() {
     if (!selectedId) return
     setSavingNotes(true)
     try {
-      const r = await fetch(`/api/v1/restaurant/loyalty/customers/${selectedId}/notes`, {
+      const r = await fetch(withRid(`/api/v1/restaurant/loyalty/customers/${selectedId}/notes`), {
         method: 'PATCH', headers: authHeaders(true),
         body: JSON.stringify({ notes: notesDraft })
       })
@@ -136,7 +142,7 @@ export default function FidelisationPage() {
     if (!selectedId) return
     setDeleting(true)
     try {
-      await fetch(`/api/v1/restaurant/loyalty/customers/${selectedId}`, { method: 'DELETE', headers: authHeaders() })
+      await fetch(withRid(`/api/v1/restaurant/loyalty/customers/${selectedId}`), { method: 'DELETE', headers: authHeaders() })
       closeCustomer()
       loadAll()
     } finally { setDeleting(false) }
@@ -147,7 +153,7 @@ export default function FidelisationPage() {
     if (!addForm.phone.trim()) { setAddError('Le téléphone est requis'); return }
     setAddSaving(true)
     try {
-      const r = await fetch('/api/v1/restaurant/loyalty/customers', {
+      const r = await fetch(withRid('/api/v1/restaurant/loyalty/customers'), {
         method: 'POST', headers: authHeaders(true),
         body: JSON.stringify({ phone: addForm.phone.trim(), name: addForm.name.trim() || null, birthday: addForm.birthday || null })
       })
@@ -171,7 +177,7 @@ export default function FidelisationPage() {
     if (!csvParsed?.rows?.length) return
     setImporting(true)
     try {
-      const r = await fetch('/api/v1/restaurant/loyalty/customers/import', {
+      const r = await fetch(withRid('/api/v1/restaurant/loyalty/customers/import'), {
         method: 'POST', headers: authHeaders(true),
         body: JSON.stringify({ rows: csvParsed.rows })
       })
@@ -206,6 +212,7 @@ export default function FidelisationPage() {
           <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Programme de points — 1 {restaurant?.currency || 'TND'} dépensé = 1 point</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
+          <RestaurantSelector restaurants={restaurants} selectedId={restaurant?.id ?? null} onChange={selectRestaurant} />
           <button onClick={() => setShowImportModal(true)} style={{ fontSize: 12, padding: '8px 14px', borderRadius: 8, border: `1px solid ${C.navyL}`, background: 'transparent', color: C.gray, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>📥 Importer CSV</button>
           <button onClick={() => { setAddForm({ phone: '', name: '', birthday: '' }); setAddError(''); setShowAddModal(true) }} style={{ fontSize: 12, padding: '8px 14px', borderRadius: 8, border: 'none', background: C.teal, color: C.navyD, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>+ Nouveau client</button>
         </div>

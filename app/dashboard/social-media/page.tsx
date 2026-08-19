@@ -1,16 +1,12 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useCurrentRestaurant } from '../restaurant/useCurrentRestaurant'
+import { RestaurantSelector } from '../restaurant/RestaurantSelector'
 
 const C = { navyD:'var(--bg-page)', navyM:'var(--bg-card)', navyL:'var(--border-color)', teal:'var(--accent)', amber:'var(--warning)', red:'var(--danger)', muted:'var(--text-muted)', gray:'var(--text-secondary)' }
 
 function getToken() {
   return document.cookie.split(';').find(c => c.trim().startsWith('nr_token='))?.split('=')[1] || ''
-}
-function getUser() {
-  try {
-    const c = document.cookie.split(';').find(c => c.trim().startsWith('nr_user='))
-    return c ? JSON.parse(decodeURIComponent(c.split('=')[1])) : null
-  } catch { return null }
 }
 
 const PLATFORMS: any = {
@@ -127,28 +123,34 @@ export default function SocialMediaPage() {
   const [promotion, setPromo]       = useState('')
 
   const [socialProfile, setSocialProfile] = useState<any>(null)
-  const user = typeof window !== 'undefined' ? getUser() : null
+  const { restaurant: currentRestaurant, restaurants, selectRestaurant, loading: restaurantLoading } = useCurrentRestaurant()
+
+  // Ajoute restaurant_id — necessaire pour qu'un admin/franchise_owner
+  // travaille sur le restaurant SELECTIONNE, pas systematiquement son
+  // propre compte (restaurantScopeMiddleware lit req.query.restaurant_id).
+  const withRid = (url: string) => `${url}${url.includes('?') ? '&' : '?'}restaurant_id=${currentRestaurant?.id}`
 
   useEffect(() => {
+    if (!currentRestaurant) return
     const token = getToken()
-    fetch('/api/v1/restaurant/social-profile', { headers: { 'Authorization': `Bearer ${token}` } })
+    fetch(withRid('/api/v1/restaurant/social-profile'), { headers: { 'Authorization': `Bearer ${token}` } })
       .then(r => r.json()).then(d => setSocialProfile(d)).catch(() => {})
-  }, [])
+  }, [currentRestaurant?.id])
 
   // Donnees reelles du restaurant (top plats et ticket moyen calcules depuis
   // les vraies ventes cote backend). Ne suppose plus "halal/burgers" pour
   // tout le monde — corrige un bug ou un restaurant de sushis ou de tacos
   // recevait quand meme du contenu genere autour de burgers halal.
   const restaurant = {
-    id: user?.id || 1,
-    name: socialProfile?.name || user?.restaurant || 'Mon Restaurant',
+    id: currentRestaurant?.id || 1,
+    name: socialProfile?.name || currentRestaurant?.name || 'Mon Restaurant',
     cuisine_type: socialProfile?.cuisine_type || 'Restauration',
     specialties: (socialProfile?.top_dishes || []).join(', ') || 'Specialites du restaurant',
     avg_ticket: socialProfile?.avg_ticket || 0,
-    currency: 'TND',
+    currency: currentRestaurant?.currency || 'TND',
     is_halal: false,
     has_delivery: true,
-    country: socialProfile?.country || user?.country || 'Tunisie',
+    country: socialProfile?.country || currentRestaurant?.country || 'Tunisie',
     language: 'Français',
     objectives: ['Augmenter les commandes', 'Développer la notoriété locale'],
     top_dishes: (socialProfile?.top_dishes?.length ? socialProfile.top_dishes : ['Plat signature']),
@@ -188,7 +190,7 @@ export default function SocialMediaPage() {
     setGenerating(true); setGenError(''); setGenResult(null)
     try {
       const token = getToken()
-      const r = await fetch('/api/v1/social/post/generate', {
+      const r = await fetch(withRid('/api/v1/social/post/generate'), {
         method: 'POST',
         headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${token}` },
         body: JSON.stringify({ restaurant, platform, theme, objective, dish:dish||undefined, promotion:promotion||undefined }),
@@ -207,6 +209,10 @@ export default function SocialMediaPage() {
 
   const inp = { width:'100%', background:'var(--bg-page)', border:'1px solid var(--border-color)', borderRadius:8, padding:'9px 13px', fontSize:13, color:'var(--text-primary)', outline:'none', fontFamily:'Inter,sans-serif', boxSizing:'border-box' as any }
 
+  if (restaurantLoading) {
+    return <div style={{ color:C.muted, padding:40 }}>Chargement...</div>
+  }
+
   return (
     <div style={{ maxWidth:1100 }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24, flexWrap:'wrap', gap:12 }}>
@@ -214,7 +220,8 @@ export default function SocialMediaPage() {
           <h1 style={{ fontSize:24, fontWeight:800, fontFamily:'serif', marginBottom:4 }}>📲 Social Media <span style={{ color:C.teal }}>IA</span></h1>
           <div style={{ fontSize:13, color:C.muted }}>Calendrier éditorial · Génération Claude AI · Validation</div>
         </div>
-        <div style={{ display:'flex', gap:8 }}>
+        <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
+          <RestaurantSelector restaurants={restaurants} selectedId={currentRestaurant?.id ?? null} onChange={selectRestaurant} />
           {Object.entries(PLATFORMS).map(([k,p]:any) => (
             <div key={k} style={{ display:'flex', alignItems:'center', gap:6, background:C.navyM, border:'1px solid var(--border-color)', borderRadius:8, padding:'6px 12px' }}>
               <div style={{ width:8, height:8, borderRadius:'50%', background:p.color }} />

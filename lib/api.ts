@@ -288,6 +288,21 @@ export const api = {
   restaurantTeifDownloadUrl: (restaurantId: number, orderId: number) =>
     `/api/v1/restaurant/orders/${orderId}/teif-invoice/download?restaurant_id=${restaurantId}`,
 
+  // ── Google Business Profile (réponse automatique aux avis Google) ────────
+  reputationGoogleConfig: (token: string) =>
+    apiCall('/api/v1/reputation/google/config', {}, token),
+  reputationGoogleStatus: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/reputation/google/status?restaurant_id=${restaurantId}`, {}, token),
+  reputationGoogleConnect: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/reputation/google/connect?restaurant_id=${restaurantId}`, {}, token),
+  reputationGoogleDisconnect: (token: string, restaurantId: number) =>
+    apiCall(`/api/v1/reputation/google/disconnect?restaurant_id=${restaurantId}`, { method: 'POST' }, token),
+  reputationPublishReply: (token: string, reviewId: string, replyText: string) =>
+    apiCall(`/api/v1/reputation/reviews/${encodeURIComponent(reviewId)}/reply`, {
+      method: 'POST',
+      body: JSON.stringify({ reply_text: replyText })
+    }, token),
+
   // ── Pitch IA prospection ─────────────────────────────────────────────────
   restaurantProspectPitch: (token: string, restaurantId: number, prospectId: number) =>
     apiCall(`/api/v1/restaurant/prospects/${prospectId}/pitch`, {

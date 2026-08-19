@@ -74,6 +74,12 @@ export default function ReputationPage() {
   const [generating, setGen]    = useState(false)
   const [aiReply, setAiReply]   = useState('')
   const [syncing, setSyncing]   = useState(false)
+  const [googleConfigured, setGoogleConfigured] = useState(false)
+  const [googleStatus, setGoogleStatus]         = useState<any>(null)
+  const [connectingGoogle, setConnectingGoogle] = useState(false)
+  const [publishing, setPublishing]             = useState(false)
+  const [publishError, setPublishError]         = useState<string | null>(null)
+  const [publishBanner, setPublishBanner]       = useState<string | null>(null)
   const user = typeof window !== 'undefined' ? getUser() : null
 
   const restaurant = { name: user?.restaurant || 'Mon Restaurant', cuisine_type: 'Restauration rapide halal' }
@@ -81,7 +87,75 @@ export default function ReputationPage() {
   useEffect(() => {
     loadData()
     loadStats()
+    loadGoogleConnection()
+
+    // Retour du callback OAuth (?google_connect=success|error&reason=...)
+    const params = new URLSearchParams(window.location.search)
+    const result = params.get('google_connect')
+    if (result === 'success') {
+      setPublishBanner('✅ Compte Google Business Profile connecté — les réponses automatiques sont actives sur les nouveaux avis non critiques.')
+      loadGoogleConnection()
+    } else if (result === 'error') {
+      setPublishBanner(`⚠️ Connexion Google échouée (${params.get('reason') || 'raison inconnue'}).`)
+    }
+    if (result) window.history.replaceState({}, '', window.location.pathname)
   }, [])
+
+  async function loadGoogleConnection() {
+    try {
+      const token = getToken()
+      const [cfgRes, statusRes] = await Promise.all([
+        fetch('/api/v1/reputation/google/config', { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch('/api/v1/reputation/google/status', { headers: { 'Authorization': `Bearer ${token}` } }),
+      ])
+      setGoogleConfigured((await cfgRes.json()).configured)
+      setGoogleStatus(await statusRes.json())
+    } catch (e) {}
+  }
+
+  async function connectGoogle() {
+    setConnectingGoogle(true)
+    try {
+      const token = getToken()
+      const r = await fetch('/api/v1/reputation/google/connect', { headers: { 'Authorization': `Bearer ${token}` } })
+      const d = await r.json()
+      if (d.redirect_url) window.location.href = d.redirect_url
+      else setPublishBanner(`⚠️ ${d.error || 'Connexion impossible'}`)
+    } catch (e) {
+      setPublishBanner('⚠️ Connexion impossible')
+    } finally {
+      setConnectingGoogle(false)
+    }
+  }
+
+  async function disconnectGoogle() {
+    if (!confirm('Déconnecter le compte Google Business Profile ? La réponse automatique sur Google sera désactivée.')) return
+    const token = getToken()
+    await fetch('/api/v1/reputation/google/disconnect', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } })
+    loadGoogleConnection()
+  }
+
+  async function publishReply() {
+    if (!selected || !aiReply.trim()) return
+    setPublishing(true)
+    setPublishError(null)
+    try {
+      const token = getToken()
+      const r = await fetch(`/api/v1/reputation/reviews/${encodeURIComponent(selected.id)}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ reply_text: aiReply.replace(/^⚠️.*\n\n/, '') })
+      })
+      const d = await r.json()
+      if (!r.ok) { setPublishError(d.error || 'Échec de la publication'); return }
+      setSelected(null); setAiReply('')
+      loadData()
+    } catch (e: any) {
+      setPublishError(e.message || 'Échec de la publication')
+    } finally {
+      setPublishing(false)
+    }
+  }
 
   async function loadData() {
     setLoading(true)
@@ -153,6 +227,37 @@ export default function ReputationPage() {
           </a>
         </div>
       </div>
+
+      {/* Bandeau resultat connexion Google (retour OAuth) */}
+      {publishBanner && (
+        <div style={{ background:C.navyM, border:`1px solid ${C.navyL}`, borderRadius:10, padding:'10px 16px', marginBottom:16, fontSize:12, color:C.gray, display:'flex', justifyContent:'space-between', alignItems:'center', gap:12 }}>
+          <span>{publishBanner}</span>
+          <button onClick={() => setPublishBanner(null)} style={{ background:'none', border:'none', color:C.muted, cursor:'pointer', fontSize:14 }}>✕</button>
+        </div>
+      )}
+
+      {/* Connexion Google Business Profile — reponse automatique reelle */}
+      {googleConfigured && (
+        <div style={{ background:C.navyM, border:`1px solid ${googleStatus?.connected ? 'rgba(0,196,140,.3)' : C.navyL}`, borderRadius:12, padding:16, marginBottom:20, display:'flex', justifyContent:'space-between', alignItems:'center', gap:12, flexWrap:'wrap' }}>
+          <div>
+            <div style={{ fontSize:13, fontWeight:700, marginBottom:2 }}>🔍 Google Business Profile</div>
+            <div style={{ fontSize:11, color:C.muted }}>
+              {googleStatus?.connected
+                ? `Connecté${googleStatus.connection?.location_title ? ` · ${googleStatus.connection.location_title}` : ''} — les avis Google non critiques reçoivent une réponse automatique publiée en direct.`
+                : "Non connecté — les réponses restent enregistrées dans NoveResto sans être publiées sur Google Maps."}
+            </div>
+          </div>
+          {googleStatus?.connected ? (
+            <button onClick={disconnectGoogle} style={{ padding:'7px 14px', borderRadius:8, border:`1px solid ${C.red}`, background:'transparent', color:C.red, fontSize:12, fontWeight:600, cursor:'pointer', fontFamily:'Inter,sans-serif', whiteSpace:'nowrap' }}>
+              Déconnecter
+            </button>
+          ) : (
+            <button onClick={connectGoogle} disabled={connectingGoogle} style={{ padding:'7px 14px', borderRadius:8, border:'none', background:C.teal, color:C.navyD, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Inter,sans-serif', whiteSpace:'nowrap' }}>
+              {connectingGoogle ? '⟳...' : '🔗 Connecter Google'}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* KPI Stats */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10, marginBottom:20 }}>
@@ -277,7 +382,7 @@ export default function ReputationPage() {
                     <Stars rating={r.rating} />
                     <SentimentBadge sentiment={r.sentiment} />
                     {r.urgency !== 'low' && <UrgencyBadge urgency={r.urgency} />}
-                    {r.replied ? <span style={{ fontSize:10, color:C.green, fontWeight:700 }}>✅ Répondu</span> : <span style={{ fontSize:10, color:C.amber, fontWeight:700 }}>💬 En attente</span>}
+                    {r.replied ? <span style={{ fontSize:10, color:C.green, fontWeight:700 }}>{r.auto_replied ? '🤖 Répondu (auto)' : '✅ Répondu'}</span> : <span style={{ fontSize:10, color:C.amber, fontWeight:700 }}>💬 En attente</span>}
                   </div>
                 </div>
                 <div style={{ fontSize:13, color:C.gray, lineHeight:1.7, marginBottom:r.reply_text?10:0 }}>{r.text}</div>
@@ -317,7 +422,7 @@ export default function ReputationPage() {
             {/* Réponse existante */}
             {selected.reply_text && (
               <div style={{ background:'rgba(0,196,140,.06)', border:'1px solid rgba(0,196,140,.2)', borderRadius:8, padding:14, marginBottom:16 }}>
-                <div style={{ fontSize:11, color:C.teal, fontWeight:700, marginBottom:6 }}>✅ Réponse publiée</div>
+                <div style={{ fontSize:11, color:C.teal, fontWeight:700, marginBottom:6 }}>{selected.auto_replied ? '🤖 Répondu automatiquement' : '✅ Réponse publiée'}</div>
                 <div style={{ fontSize:13, color:C.gray }}>{selected.reply_text}</div>
               </div>
             )}
@@ -336,12 +441,18 @@ export default function ReputationPage() {
               {aiReply && (
                 <div>
                   <textarea style={{ ...inp, minHeight:100, lineHeight:1.7, resize:'vertical' }} value={aiReply} onChange={e => setAiReply(e.target.value)} />
+                  {publishError && <p style={{ color:C.red, fontSize:12, margin:'8px 0 0' }}>{publishError}</p>}
                   <div style={{ display:'flex', gap:8, marginTop:8 }}>
                     <button onClick={() => generateReply(selected)} style={{ flex:1, padding:'9px', borderRadius:8, border:`1px solid ${C.navyL}`, background:'transparent', color:C.gray, fontSize:12, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>🔄 Régénérer</button>
-                    <button style={{ flex:2, padding:'9px', borderRadius:8, border:'none', background:C.teal, color:C.navyD, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>
-                      {selected.urgency==='critical' ? '📤 Envoyer à la validation' : '✅ Publier la réponse'}
+                    <button onClick={publishReply} disabled={publishing} style={{ flex:2, padding:'9px', borderRadius:8, border:'none', background:publishing?C.navyL:C.teal, color:publishing?C.muted:C.navyD, fontSize:13, fontWeight:700, cursor:publishing?'not-allowed':'pointer', fontFamily:'Inter,sans-serif' }}>
+                      {publishing ? '⟳ Publication...' : selected.platform === 'google' && selected.google_review_name ? '✅ Publier sur Google' : '💾 Enregistrer la réponse'}
                     </button>
                   </div>
+                  {selected.platform === 'google' && !selected.google_review_name && (
+                    <p style={{ fontSize:11, color:C.muted, marginTop:6 }}>
+                      {googleStatus?.connected ? '' : 'Connectez Google Business Profile ci-dessus pour publier directement sur Google Maps — sinon la réponse reste enregistrée dans NoveResto uniquement.'}
+                    </p>
+                  )}
                 </div>
               )}
             </div>

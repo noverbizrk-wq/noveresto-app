@@ -64,23 +64,16 @@ const navCategories: NavCategory[] = [
     ],
   },
   {
-    id: 'compte', label: 'Compte', icon: '👤',
-    items: [
-      { href: '/dashboard/profile', icon: '👤', label: 'Mon profil' },
-    ],
-  },
-  {
+    // Regroupe tout ce qui est config/parametrage/administratif — separe
+    // des ecrans de travail metier (decision explicite : une seule
+    // categorie pour "tout ce qui n'est pas le quotidien du restaurant").
     id: 'configuration', label: 'Configuration', icon: '⚙️',
     items: [
-      { href: '/dashboard/settings', icon: '⚙️', label: 'Paramètres & connexions' },
-    ],
-  },
-  {
-    id: 'admin', label: 'Administration', icon: '⚙️',
-    items: [
-      { href: '/dashboard/admin', icon: '⚙️', label: 'Admin Panel' },
-      { href: '/dashboard/admin/module-access', icon: '🔐', label: 'Gestion des accès', adminOnly: true },
+      { href: '/dashboard/profile', icon: '👤', label: 'Mon profil' },
+      { href: '/dashboard/settings', icon: '🔌', label: 'Paramètres de connexion' },
       { href: '/dashboard/import', icon: '📥', label: 'Import CSV' },
+      { href: '/dashboard/admin', icon: '🛠️', label: 'Admin Panel', adminOnly: true },
+      { href: '/dashboard/admin/module-access', icon: '🔐', label: 'Gestion des accès', adminOnly: true },
     ],
   },
 ]

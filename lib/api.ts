@@ -278,7 +278,7 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify({ restaurant_id: restaurantId, ...data })
     }, token),
-  restaurantTeifCreate: (token: string, restaurantId: number, orderId: number, customer: { customer_tax_id: string; customer_name: string; customer_address?: string; customer_city?: string; customer_postal_code?: string }) =>
+  restaurantTeifCreate: (token: string, restaurantId: number, orderId: number, customer: { customer_tax_id?: string; customer_name: string; customer_address?: string; customer_city?: string; customer_postal_code?: string; customer_email?: string }) =>
     apiCall(`/api/v1/restaurant/orders/${orderId}/teif-invoice`, {
       method: 'POST',
       body: JSON.stringify({ restaurant_id: restaurantId, ...customer })

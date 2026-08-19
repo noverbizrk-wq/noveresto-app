@@ -65,9 +65,15 @@ export default function RestaurantOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [teifOpenFor, setTeifOpenFor] = useState<number | null>(null);
   const [teifGenerated, setTeifGenerated] = useState<Record<number, boolean>>({});
-  const [teifForm, setTeifForm] = useState({ customer_tax_id: '', customer_name: '', customer_address: '', customer_city: '', customer_postal_code: '' });
+  const [teifForm, setTeifForm] = useState({ customer_tax_id: '', customer_name: '', customer_address: '', customer_city: '', customer_postal_code: '', customer_email: '' });
   const [teifError, setTeifError] = useState<string | null>(null);
   const [teifSubmitting, setTeifSubmitting] = useState(false);
+  // Tunisie -> facture TEIF (XML, matricule fiscal obligatoire) ; tout
+  // autre pays -> facture PDF simple (identifiant fiscal optionnel).
+  // Le choix reel est fait cote serveur (invoice-service.js) selon
+  // users.country ; ceci n'est qu'un reflet cote UI pour adapter le
+  // formulaire (libelle, champ requis ou non).
+  const isTunisia = restaurant?.country === 'Tunisie';
   const [deliverooOpen, setDeliverooOpen] = useState(false);
   const [deliverooConn, setDeliverooConn] = useState<{ external_site_id: string | null; status: string; has_webhook_secret: boolean; last_order_at: string | null } | null>(null);
   const [deliverooForm, setDeliverooForm] = useState({ external_site_id: '', webhook_secret: '' });
@@ -139,14 +145,18 @@ export default function RestaurantOrdersPage() {
 
   const openTeifForm = (orderId: number) => {
     setTeifError(null);
-    setTeifForm({ customer_tax_id: '', customer_name: '', customer_address: '', customer_city: '', customer_postal_code: '' });
+    setTeifForm({ customer_tax_id: '', customer_name: '', customer_address: '', customer_city: '', customer_postal_code: '', customer_email: '' });
     setTeifOpenFor(teifOpenFor === orderId ? null : orderId);
   };
 
   const submitTeif = async (orderId: number) => {
     if (!restaurant || !token) return;
-    if (!teifForm.customer_tax_id.trim() || !teifForm.customer_name.trim()) {
-      setTeifError('Matricule fiscal et nom du client requis.');
+    if (!teifForm.customer_name.trim()) {
+      setTeifError('Le nom du client est requis.');
+      return;
+    }
+    if (isTunisia && !teifForm.customer_tax_id.trim()) {
+      setTeifError('Le matricule fiscal du client est requis pour une facture TEIF (Tunisie).');
       return;
     }
     setTeifSubmitting(true);
@@ -313,14 +323,14 @@ export default function RestaurantOrdersPage() {
                         href={restaurant ? api.restaurantTeifDownloadUrl(restaurant.id, o.id) : '#'}
                         style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--success)', color: 'var(--success)', textDecoration: 'none' }}
                       >
-                        ✓ Télécharger XML
+                        ✓ Télécharger la facture
                       </a>
                     ) : (
                       <button
                         onClick={() => openTeifForm(o.id)}
                         style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', color: 'var(--text-secondary)', background: 'transparent', cursor: 'pointer' }}
                       >
-                        🧾 Facture TEIF
+                        {isTunisia ? '🧾 Facture TEIF' : '🧾 Facture PDF'}
                       </button>
                     )}
                   </div>
@@ -330,14 +340,17 @@ export default function RestaurantOrdersPage() {
                 <tr key={`${o.id}-teif`} style={{ background: 'var(--bg-card-alt)' }}>
                   <td colSpan={6} style={{ padding: 16 }}>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
-                      Génère une facture TEIF pour un client professionnel (matricule fiscal requis). ⚠️ Document généré uniquement — non signé, non soumis à TTN (nécessite un certificat TUNTRUST à configurer séparément).
+                      {isTunisia
+                        ? "Génère une facture TEIF pour un client professionnel (matricule fiscal requis). ⚠️ Document généré uniquement — non signé, non soumis à TTN (nécessite un certificat TUNTRUST à configurer séparément)."
+                        : "Génère une facture PDF pour ce client. ⚠️ Document commercial simple — pas un fichier structuré (Factur-X/UBL) conforme à la réforme de facturation électronique obligatoire, à faire valider par un expert-comptable avant tout usage B2B officiel."}
                     </div>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-                      <input placeholder="Matricule fiscal client *" value={teifForm.customer_tax_id} onChange={e => setTeifForm({ ...teifForm, customer_tax_id: e.target.value })} style={{ ...inp, flex: 1, minWidth: 160 }} />
+                      <input placeholder={isTunisia ? 'Matricule fiscal client *' : 'Identifiant fiscal client (optionnel)'} value={teifForm.customer_tax_id} onChange={e => setTeifForm({ ...teifForm, customer_tax_id: e.target.value })} style={{ ...inp, flex: 1, minWidth: 160 }} />
                       <input placeholder="Nom du client *" value={teifForm.customer_name} onChange={e => setTeifForm({ ...teifForm, customer_name: e.target.value })} style={{ ...inp, flex: 1, minWidth: 160 }} />
                       <input placeholder="Adresse" value={teifForm.customer_address} onChange={e => setTeifForm({ ...teifForm, customer_address: e.target.value })} style={{ ...inp, flex: 1, minWidth: 140 }} />
                       <input placeholder="Ville" value={teifForm.customer_city} onChange={e => setTeifForm({ ...teifForm, customer_city: e.target.value })} style={{ ...inp, width: 120 }} />
                       <input placeholder="Code postal" value={teifForm.customer_postal_code} onChange={e => setTeifForm({ ...teifForm, customer_postal_code: e.target.value })} style={{ ...inp, width: 100 }} />
+                      <input placeholder="Email client (optionnel — envoi automatique)" type="email" value={teifForm.customer_email} onChange={e => setTeifForm({ ...teifForm, customer_email: e.target.value })} style={{ ...inp, flex: 1, minWidth: 220 }} />
                     </div>
                     {teifError && <p style={{ color: 'var(--danger)', fontSize: 12, marginBottom: 8 }}>{teifError}</p>}
                     <button
